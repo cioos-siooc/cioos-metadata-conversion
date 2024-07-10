@@ -66,13 +66,13 @@ def convert(record, format) -> str:
     show_default=True,
 )
 @click.option(
-    "--output-dir", "-p", type=click.Path(file_okay=False), help="Output directory, the original file name will be used."
+    "--output-dir", "-p", type=click.Path(file_okay=False), help="Output directory, the original file name will be used.", default=".", show_default=True
 )
 @click.option(
-    "--output-file", "-o", type=click.Path(), help="Output file"
+    "--output-file", "-o", type=click.Path(), help="Output file, this will override the output directory and is only valid for a single input file."
 )
 @click.option(
-    "--output-format",
+    "--output-format","-f",
     required=True,
     help="Output format",
     type=click.Choice(list(output_formats.keys())),
@@ -107,22 +107,30 @@ def main(
     if len(files) > 1 and output_file:
         raise ValueError("Cannot specify output file when processing multiple files. Define an output directory instead.")
     
-    for file in glob(input, recursive=recursive):
+    logger.debug("Processing {} files", len(files))
+    for file in files:
+        logger.debug("Processing file {}", file)
         input_file_path = Path(file)
+
+        # Load metadata record
         record = load(file, input_file_format, encoding=encoding)
 
         if not record:
-            logger.error("No metadata record found.")
-            return
+            logger.error("No metadata record found in file {}.", file)
+            continue
 
-        logger.info(f"Converting to {output_format}")
+        logger.debug(f"Converting to {output_format}")
         converted_record = convert(record, output_format)
 
-        if output_dir:
+        # Generate output file path
+        if output_dir and not output_file:
             output_file = (
                 Path(output_dir) / input_file_path.with_suffix(f".{output_format}").name
             )
+        elif output_file:
+            output_file = Path(output_file)
 
+        # Write to file or return output
         if output_file:
             logger.info("Writing to file {}", output_dir)
             output_file.write_text(converted_record, encoding=output_encoding)
@@ -133,4 +141,4 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    cli_main()

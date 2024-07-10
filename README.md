@@ -37,10 +37,15 @@ To use this tool, follow these steps:
     ```
 
 3. **Run the Tool:**
-4. mkd
 
     ```bash
     python hakai_metadata_conversion 
+    ```
+
+    For more information
+
+    ```bash
+    python hakai_metadata_conversion --help
     ```
 
 ## How to Contribute

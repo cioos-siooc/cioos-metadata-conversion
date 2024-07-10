@@ -127,14 +127,7 @@ def citation_cff(
         "url": resource_url,
         "version": record["identification"]["edition"],
     }
-    if doi := record.get("unique-resource-identifier-full", {}).get("code"):
-        record["identifier"] += [
-            {
-                "description": "Hakai Metadata record DOI",
-                "type": "doi",
-                "value": doi.replace(" https://doi.org/", ""),
-            }
-        ]
+    
     if output_format == "yaml":
         return yaml.dump(record, default_flow_style=False)
     return record
