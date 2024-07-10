@@ -1,4 +1,5 @@
 from hakai_metadata_conversion import citation_cff
+import subprocess
 
 
 def test_citation_cff(record):
@@ -18,3 +19,10 @@ def test_citation_cff(record):
     assert "url" in result
     assert "version" in result
     assert "identifiers" in result
+
+def test_citation_cff_validation(record, tmp_path, caplog):
+    result = citation_cff.citation_cff(record, output_format='yaml', language="en")
+    (tmp_path / "CITATION.cff").write_text(result, encoding='utf-8')
+    # run cffconvert validate cli
+    result = subprocess.run(['cffconvert', '--validate', '-i', str(tmp_path / "CITATION.cff")], capture_output=True)
+    assert result.returncode == 0, result.stderr
