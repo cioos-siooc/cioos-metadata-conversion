@@ -46,4 +46,9 @@ jobs:
           output-file: CITATION.cff
           output-format: cff
           commit: false
-        
+      - name: Install cffconvert
+        run: pip install cffconvert
+      - name: Validate CITATION.cff
+        run: cffconvert validate CITATION.cff
+      - name: Convert CITATION.cff to CITATION.bib
+        run: cffconvert CITATION.cff --format=bib
