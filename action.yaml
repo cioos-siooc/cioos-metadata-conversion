@@ -2,17 +2,16 @@
 name: Synchronize CKAN record to dataset repository contribution.cff
 description: 'This action synchronizes a CKAN record to a dataset repository contribution.cff file.'
 inputs:
-  ckan-server:
-    description: 'CKAN server URL'
-    required: false
-    default: 'https://catalogue.hakai.org'
-  record-id:
-    description: 'Catalogue record ID to synchronize'
+  input:
+    description: 'glob path to the input files'
     required: true
-  output:
-    description: 'The output of the action'
+  output-dir:
+    description: 'The output directory of the action'
     required: false
-    default: 'citation.cff'
+    default: '.'
+  output-file:
+    description: 'The output file of the action'
+    required: false
   output-format:
     description: 'The format of the outputs'
     required: false
@@ -50,10 +49,7 @@ inputs:
     required: false
     default: |
       ## Update Repository Metadata
-      This pull request updates the contribution.cff file.\
-
-      ### Changes
-      - Updated the contribution.cff file with the latest metadata from the CKAN record.
+      This pull request updates the metadata files in the repository.
 
 runs:
   using: "composite"
@@ -66,15 +62,15 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: pip install git+https://github.com/HakaiInstitute/hakai-ckan-records-conversion.git
+      run: pip install git+https://github.com/HakaiInstitute/hakai-metadata-conversion.git
 
     - name: Run conversion
       shell: bash
       run: |
-        hakai_ckan_records_conversion \
-        --ckan-server ${{ inputs.ckan-server }} \
-        --record-id ${{ inputs.record-id }} \
-        --output-file ${{ inputs.output }} \
+        hakai_metadata_conversion \
+        --input ${{ inputs.input }} \
+        --output-dir ${{ inputs.output-dir }} \
+        --output-file ${{ inputs.output-file }} \
         --output-format ${{ inputs.output-format }}
 
     - name: Commit outputs

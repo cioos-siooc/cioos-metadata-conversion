@@ -5,6 +5,7 @@ from pathlib import Path
 import click
 import yaml
 from loguru import logger
+import requests
 
 from hakai_metadata_conversion import citation_cff, erddap
 
@@ -17,18 +18,23 @@ output_formats = {
 
 input_formats = ["json", "yaml"]
 
-
-def load(file, format, encoding="utf-8") -> dict:
+@logger.catch(reraise=True)
+def load(input, format, encoding="utf-8") -> dict:
     """Load a metadata record from a file."""
+    
+    if input.startswith("http"):
+        response = requests.get(input)
+        response.raise_for_status()
+        data = response.text
+    else:
+        data = Path(input).read_text(encoding=encoding)
 
     if format == "json":
-        with open(file) as f:
-            return json.load(f, encoding=encoding)
+        return json.loads(data, encoding=encoding)
     elif format == "yaml":
-        with open(file) as f:
-            return yaml.safe_load(f)
+        return yaml.safe_load(data)
 
-    with open(file) as f:
+    with open(input) as f:
         return input_formats[format](f)
 
 
@@ -101,13 +107,18 @@ def main(
 ):
     """Convert metadata records to different metadata formats or standards."""
 
-    logger.info("Loading file {}", input)
-    returned_output = ""
-    files = glob(input, recursive=recursive)
+    logger.info("Loading input {}", input)
+    if input.startswith("http"):
+        files = [input]
+    else:
+        files = glob(input, recursive=recursive)
+    
+
     if len(files) > 1 and output_file:
         raise ValueError("Cannot specify output file when processing multiple files. Define an output directory instead.")
     
     logger.debug("Processing {} files", len(files))
+    returned_output = ""
     for file in files:
         logger.debug("Processing file {}", file)
         input_file_path = Path(file)

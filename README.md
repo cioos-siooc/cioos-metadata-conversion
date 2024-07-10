@@ -48,6 +48,24 @@ To use this tool, follow these steps:
     python hakai_metadata_conversion --help
     ```
 
+## Use within an action
+
+The tool can be use within a github action by adding the following step within your action:
+
+```yaml
+job: 
+    sync:
+        step:
+            - use: action/checkout@v4
+            - name: Sync metadata
+              use: hakaiinsitute/hakai-metadata-conversion
+              with:
+                - input: url or file path within repo
+                - output-file: CITATION.cff
+                - output-format: cff
+```
+
+
 ## How to Contribute
 
 We welcome contributions! If you would like to add support for more metadata standards or improve the tool, please follow these steps:

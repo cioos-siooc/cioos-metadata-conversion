@@ -57,3 +57,23 @@ def test_cli_output_file(runner, tmpdir):
     assert len(tmpdir.listdir()) == 1
     assert tmpdir.join("CITATION.cff").check(file=True)
     assert "cff-version: 1.2.0" in tmpdir.join("CITATION.cff").read_text(encoding="UTF-8")
+
+
+def test_cli_with_http_input(runner, tmpdir):
+    ouput_file = "CITATION.cff"
+    args = [
+        "--input",
+        "https://raw.githubusercontent.com/HakaiInstitute/hakai-metadata-conversion/main/tests/records/test_record1.yaml",
+        "--input-file-format",
+        "yaml",
+        "--output-format",
+        "cff",
+        "--output-file",
+        str(tmpdir/ ouput_file),
+    ]
+    result = runner.invoke(cli_main, args)
+    assert result.exit_code == 0
+    assert result.output == ""
+    assert len(tmpdir.listdir()) == 1
+    assert tmpdir.join(ouput_file).check(file=True)
+    assert "cff-version: 1.2.0" in tmpdir.join(ouput_file).read_text(encoding="UTF-8")
