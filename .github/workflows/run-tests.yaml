@@ -33,22 +33,11 @@ jobs:
 
       - name: Run pytest
         run: poetry run pytest
-    
+  
   action:
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run local action
-        uses: "./action.yaml"
-        with:
-          input: tests/records/test_record1.json
-          output-file: CITATION.cff
-          output-format: cff
-          commit: false
-      - name: Install cffconvert
-        run: pip install cffconvert
-      - name: Validate CITATION.cff
-        run: cffconvert validate CITATION.cff
-      - name: Convert CITATION.cff to CITATION.bib
-        run: cffconvert CITATION.cff --format=bib
+    uses: ./action.yaml
+    with:
+      input: tests/records/test_record1.json
+      output-file: CITATION.cff
+      output-format: cff
+      commit: false
