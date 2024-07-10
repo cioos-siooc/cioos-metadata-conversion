@@ -3,11 +3,12 @@ Module dedicated to the citation file format:
 <https://citation-file-format.github.io>
 """
 
+import pycountry
 import yaml
 from loguru import logger
-import pycountry
 
 from hakai_metadata_conversion.utils import drop_empty_values
+
 
 def _get_country_code(country_name):
     if not country_name:
@@ -18,36 +19,42 @@ def _get_country_code(country_name):
         logger.warning(f"Country {country_name} not found in pycountry")
         return None
 
+
 def _fix_url(url):
     return url if url.startswith("http") else f"https://{url}"
 
+
 def get_cff_person(author):
     """Generate a CFF person"""
-    return drop_empty_values({
-        "given-names": author["individual"]["name"].split(", ")[1],
-        "family-names": author["individual"]["name"].split(", ")[0],
-        "email": author["individual"]["email"],
-        "orcid": author["individual"]["orcid"],
-        "affiliation": author["organization"]["name"],
-        "address": author["organization"]["address"],
-        "city": author["organization"]["city"],
-        "country": _get_country_code(author["organization"]["country"]),
-        "website": _fix_url(author["organization"]["url"]),
-        # "ror": author["organization"].get("ror"), # not in CFF schema
-    })
+    return drop_empty_values(
+        {
+            "given-names": author["individual"]["name"].split(", ")[1],
+            "family-names": author["individual"]["name"].split(", ")[0],
+            "email": author["individual"]["email"],
+            "orcid": author["individual"]["orcid"],
+            "affiliation": author["organization"]["name"],
+            "address": author["organization"]["address"],
+            "city": author["organization"]["city"],
+            "country": _get_country_code(author["organization"]["country"]),
+            "website": _fix_url(author["organization"]["url"]),
+            # "ror": author["organization"].get("ror"), # not in CFF schema
+        }
+    )
 
 
 def get_cff_entity(entity):
-    return drop_empty_values({
-        "name": entity["organization"]["name"],
-        "address": entity["organization"].get("address"),
-        "city": entity["organization"].get("city"),
-        "country": _get_country_code(entity["organization"].get("country")),
-        "email": entity["organization"].get("email"),
-        "website": _fix_url(entity["organization"].get("url")),
-        "orcid": entity["organization"].get("orcid"),
-        # "ror": entity["organization"].get("ror"), # not in CFF schema
-    })
+    return drop_empty_values(
+        {
+            "name": entity["organization"]["name"],
+            "address": entity["organization"].get("address"),
+            "city": entity["organization"].get("city"),
+            "country": _get_country_code(entity["organization"].get("country")),
+            "email": entity["organization"].get("email"),
+            "website": _fix_url(entity["organization"].get("url")),
+            "orcid": entity["organization"].get("orcid"),
+            # "ror": entity["organization"].get("ror"), # not in CFF schema
+        }
+    )
 
 
 def get_cff_contact(contact):
@@ -87,7 +94,7 @@ def citation_cff(
         ],
         "title": record["identification"]["title"][language],
         "abstract": record["identification"]["abstract"][language],
-        "date-released": record["metadata"]["dates"]["revision"].split('T')[0],
+        "date-released": record["metadata"]["dates"]["revision"].split("T")[0],
         "contact": [
             get_cff_contact(contact)
             for contact in record["contact"]
@@ -108,7 +115,9 @@ def citation_cff(
                 "description": "Hakai Metadata record DOI",
                 "type": "doi",
                 "value": (
-                    record["identification"]["identifier"].replace('https://doi.org/','')
+                    record["identification"]["identifier"].replace(
+                        "https://doi.org/", ""
+                    )
                     if "doi.org" in record["identification"]["identifier"]
                     else None
                 ),
