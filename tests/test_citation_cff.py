@@ -8,7 +8,7 @@ def test_citation_cff(record):
     assert result
     assert isinstance(result, dict)
     assert "cff-version" in result
-    assert "date" in result
+    assert "date-released" in result
     assert "contact" in result
     assert "authors" in result
     assert "identifiers" in result
