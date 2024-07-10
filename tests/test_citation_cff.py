@@ -20,7 +20,8 @@ def test_citation_cff(record):
     assert "version" in result
     assert "identifiers" in result
 
-def test_citation_cff_validation(record, tmp_path, caplog):
+def test_citation_cff_validation(record, tmp_path):
+    
     result = citation_cff.citation_cff(record, output_format='yaml', language="en")
     (tmp_path / "CITATION.cff").write_text(result, encoding='utf-8')
     # run cffconvert validate cli
