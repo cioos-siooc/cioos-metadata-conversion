@@ -35,9 +35,15 @@ jobs:
         run: poetry run pytest
 
   action:
-    uses: hakaiinstitute/hakai-metadata-conversion@main
-    with:
-      input: tests/records/test_record1.json
-      output-file: CITATION.cff
-      output-format: cff
-      commit: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Convert test record to CITATION.cff
+        uses: hakaiinstitute/hakai-metadata-conversion@main
+        with:
+          input: tests/records/test_record1.json
+          output-file: CITATION.cff
+          output-format: cff
+          commit: false
