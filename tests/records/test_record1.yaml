@@ -1,0 +1,210 @@
+contact:
+- inCitation: true
+  organization:
+    address: 1713 Hyacinthe Bay Road
+    city: Heriot Bay
+    country: Canada
+    email: data@hakai.org
+    name: Hakai Institute
+    url: hakai.org
+  roles:
+  - distributor
+  - owner
+  - funder
+  - publisher
+- inCitation: false
+  individual:
+    email: something@google.com
+    name: lastname, firstname
+    orcid: https://orcid.org/0000-0000-0000-0000
+    position: Test position
+  organization:
+    address: 1713 Hyacinthe Bay Road
+    city: Campbell River
+    country: Canada
+    email: data@hakai.org
+    name: Hakai Institute
+    ror: https://ror.org/02pry0c91
+    url: https://www.hakai.org/
+  roles:
+  - custodian
+  - pointOfContact
+  - processor
+- inCitation: false
+  individual:
+    name: asd, as
+  organization:
+    city: Campbell River
+    country: Canada
+    name: Hakai Institute
+    ror: https://ror.org/02pry0c91
+    url: https://www.hakai.org/
+  roles:
+  - processor
+- inCitation: true
+  organization:
+    city: Vancouver
+    country: Canada
+    name: Tula Foundation
+    ror: https://ror.org/0029jxk29
+    url: https://tula.org
+  roles:
+  - funder
+distribution:
+- description:
+    en: Complete Hakai provisional vertical water properties profile dataset  measured
+      by oceanographic profilers
+    fr: Ensemble de données complet de profil des propriétés verticales provisoires
+      de l'eau de Hakai mesuré par les profileurs océanographiques
+    translations:
+      fr:
+        message: text translated using the Amazon translate service / texte traduit
+          à l'aide du service de traduction Amazon
+        verified: false
+  name:
+    en: ERDDAP Dataset
+  url: https://catalogue.hakai.org/erddap/tabledap/HakaiWaterPropertiesInstrumentProfileResearch.html
+- name:
+    en: Hakai Water Properties Profile Processing and QA/QC Procedure Manual
+  url: https://github.com/HakaiInstitute/hakai-datasets/raw/development/datasets_documents/HakaiWaterPropertiesProfiles/Hakai_Water_Properties_Processing_and_QAQC_Procedure_20210331.pdf
+identification:
+  abstract:
+    en: "Temperature, conductivity, dissolved oxygen, fluorescence, photosynthetic\
+      \ active radiation, and turbidity data collected from 2012 to present by the\
+      \ Hakai Institute in waters surrounding Calvert Island, Johnstone Strait, and\
+      \ Quadra Island areas. This dataset presents data collected by oceanographic\
+      \ profiler instruments (RBR XR-620, RBR Concerto, RBR Maestro, and Seabird SBE\
+      \ 19plus v2) which have been automatically processed by following respective\
+      \ manufacturer's guidelines (see Hakai Water Properties Profile Processing and\
+      \ QA/QC Procedure Manual). \n\nThe provisional processed data are then quality\
+      \ controlled by applying a series of tests that are following the QARTOD standards\
+      \ and more tests specific to the Hakai Institute data (see Hakai Water Properties\
+      \ Profile Processing and QA/QC Procedure Manual).  \n\nThe research dataset\
+      \ provides a subset of the provisional dataset which has been manually reviewed\
+      \ and judged good for science quality level.\n\nData were collected by the Hakai\
+      \ Institute Oceanography Program, the Nearshore Program, and the Juvenile Salmon\
+      \ Program."
+    fr: "Données sur la température, la conductivité, l'oxygène dissous, la fluorescence,\
+      \ le rayonnement actif photosynthétique et la turbidité recueillies de 2012\
+      \ à aujourd'hui par l'Institut Hakai dans les eaux entourant les régions de\
+      \ l'île Calvert, du détroit de Johnstone et de l'île Quadra. Ce jeu de données\
+      \ présente les données collectées par les instruments de profilage océanographique\
+      \ (RBR XR-620, RBR Concerto, RBR Maestro et Seabird SBE 19plus v2) qui ont été\
+      \ traitées automatiquement en suivant les directives du fabricant respectif\
+      \ (voir... documentation). \n\nLes données traitées provisoires sont ensuite\
+      \ contrôlées par l'application d'une série de tests conformes aux normes QARTOD\
+      \ et d'autres tests spécifiques aux données de l'Institut Hakai (voir... documentation).\
+      \ \n\nL'ensemble de données de recherche fournit un sous-ensemble de données\
+      \ provisoires qui a été révisé manuellement et jugé bon pour le niveau de qualité\
+      \ scientifique.\n\nLes données ont été recueillies par le Programme océanographique\
+      \ de l'Institut Hakai, le Programme des zones côtières et le Programme du saumon\
+      \ juvénile."
+    translations:
+      fr:
+        message: text translated using the Amazon translate service / texte traduit
+          à l'aide du service de traduction Amazon
+        verified: false
+  associated_resources: []
+  dates:
+    creation: '2012-06-01'
+  edition: 1.0.0
+  identifier: https://doi.org/10.21966/kace-2d24
+  keywords:
+    default:
+      en:
+      - fluorescence
+      - turbidity
+      - PAR
+      - photosynthetically active radiation
+      - Calvert Island
+      - Quadra Island
+      - transmissometer
+      - Johnstone Strait
+      - Queen Charlotte Sound
+      - Strait of Georgia
+      - salinity
+      - coastal zone
+      fr:
+      - fluorescence
+      - PAR
+      - photosynthetically active radiation
+      - Calvert Island
+      - Quadra Island
+      - transmissometer
+      - Johnstone Strait
+      - Queen Charlotte Sound
+      - Strait of Georgia
+      - salinité
+      - zone côtière
+      - turbidité
+    eov:
+      en:
+      - oxygen
+      - subSurfaceSalinity
+      - subSurfaceTemperature
+      fr:
+      - Oxygène
+      - Salinité sous la surface
+      - Température sous la surface
+    taxa:
+      en: []
+      fr: []
+  progress_code: onGoing
+  project:
+  - Oceanography
+  - Nearshore
+  - Watersheds
+  status: published
+  temporal_begin: '2012-06-01T17:07:00.000Z'
+  title:
+    en: Hakai Water Properties Vertical Profile Data Measured by Oceanographic Profilers,
+      Research
+    fr: Données de profil vertical des propriétés de l'eau de Hakai mesurées par des
+      profileurs océanographiques, recherche
+    translations:
+      fr:
+        message: text translated using the Amazon translate service / texte traduit
+          à l'aide du service de traduction Amazon
+        verified: false
+metadata:
+  dates:
+    publication: '2024-03-19'
+    revision: '2024-03-18T19:28:21.285Z'
+  history:
+    en: These data have been solely funded by the Tula Foundation. Data collection
+      started near Calvert Island in 2012, near Quadra Island in 2014, and in Johnstone
+      Strait from 2015 to 2019.
+    fr: Ces données ont été financées uniquement par la Fondation Tula. La collecte
+      de données a commencé près de l'île Calvert en 2012, près de l'île Quadra en
+      2014 et dans le détroit de Johnstone de 2015 à 2019.
+  identifier: ba41d935-f293-447f-be3d-7098e569b431
+  language: en
+  maintenance_note: Generated from https://hakaiinstitute.github.io/hakai-metadata-entry-form#/en/hakai/tV5qE0aUgaOjSVmgPgiZ6MyHuSy1/-MX35qgX-BrwJDdeJKe1
+  naming_authority: ca.cioos
+  use_constraints:
+    licence:
+      code: CC-BY-4.0
+      title:
+        en: Creative Commons Attribution 4.0 Attribution
+      url: https://creativecommons.org/licenses/by/4.0
+    limitations:
+      en: Instruments sensors are generally calibrated once a year by the manufacturer,
+        no comparison and post-calibration correction based on data sampled by another
+        method is applied to this dataset.
+      fr: Les capteurs d'instruments sont généralement étalonnés une fois par an par
+        le fabricant, aucune comparaison et correction post-étalonnage basée sur des
+        données échantillonnées par une autre méthode n'est appliquée à cet ensemble
+        de données.
+      translations:
+        fr:
+          message: text translated using the Amazon translate service / texte traduit
+            à l'aide du service de traduction Amazon
+          verified: false
+platform: []
+spatial:
+  polygon: -128.5,52.27 -127.4,52.21 -127.2,51.66 -125.6,51.13 -124.8,50.96 -124.1,50.43
+    -124.7,49.98 -124.9,49.80 -126.7,50.45 -128.1,51.37 -128.4,51.69 -128.5,52.27
+  vertical:
+  - 1.0
+  - 700.0
+  vertical_positive: depthPositive

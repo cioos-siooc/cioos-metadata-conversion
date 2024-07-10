@@ -1,0 +1,90 @@
+---
+name: Synchronize CKAN record to dataset repository contribution.cff
+description: 'This action synchronizes a CKAN record to a dataset repository contribution.cff file.'
+inputs:
+  ckan-server:
+    description: 'CKAN server URL'
+    required: false
+    default: 'https://catalogue.hakai.org'
+  record-id:
+    description: 'Catalogue record ID to synchronize'
+    required: true
+  output:
+    description: 'The output of the action'
+    required: false
+    default: 'citation.cff'
+  output-format:
+    description: 'The format of the outputs'
+    required: false
+    default: 'cff'
+  commit:
+    description: 'Commit the outputs to the repository'
+    required: false
+    default: 'true'
+  branch:
+    description: 'The pull request branch name.'
+    required: false
+    default: 'fix-contribution-cff'
+  base:
+    description: 'Sets the pull request base branch.'
+    required: false
+    default: 'main'
+  token:
+    description: 'GitHub token'
+    required: true
+    default: ${{ github.token }}
+  labels:
+    description: 'Labels to add to the pull request'
+    required: false
+    default: 'automated'
+  commit-message:
+    description: 'Commit message'
+    required: false
+    default: 'Update contribution.cff'
+  title:
+    description: 'Title of the pull request'
+    required: false
+    default: 'Update contribution.cff'
+  body:
+    description: 'Body of the pull request'
+    required: false
+    default: |
+      ## Update Repository Metadata
+      This pull request updates the contribution.cff file.\
+
+      ### Changes
+      - Updated the contribution.cff file with the latest metadata from the CKAN record.
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      shell: bash
+      run: pip install git+https://github.com/HakaiInstitute/hakai-ckan-records-conversion.git
+
+    - name: Run conversion
+      shell: bash
+      run: |
+        hakai_ckan_records_conversion \
+        --ckan-server ${{ inputs.ckan-server }} \
+        --record-id ${{ inputs.record-id }} \
+        --output-file ${{ inputs.output }} \
+        --output-format ${{ inputs.output-format }}
+
+    - name: Commit outputs
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: ${{ inputs.commit-message }}
+        title: ${{ inputs.title }}
+        body: ${{ inputs.body }}
+        branch: ${{ inputs.branch }}
+        base: ${{ inputs.base }}
+        branch-suffix: ${{ inputs.branch-suffix }}
+        token: ${{ inputs.token }}
+        labels: ${{ inputs.labels }}
