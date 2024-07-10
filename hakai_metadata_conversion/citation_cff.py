@@ -127,7 +127,7 @@ def citation_cff(
         "url": resource_url,
         "version": record["identification"]["edition"],
     }
-    
+
     if output_format == "yaml":
         return yaml.dump(record, default_flow_style=False)
     return record

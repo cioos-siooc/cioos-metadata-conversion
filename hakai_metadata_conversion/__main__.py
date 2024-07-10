@@ -3,25 +3,26 @@ from glob import glob
 from pathlib import Path
 
 import click
+import requests
 import yaml
 from loguru import logger
-import requests
 
 from hakai_metadata_conversion import citation_cff, erddap
 
 output_formats = {
     "json": lambda x: json.dumps(x, indent=2),
     "yaml": lambda x: yaml.dump(x, default_flow_style=False),
-    "erddap": erddap.dataset_xml,
+    "erddap": erddap.global_attributes,
     "cff": citation_cff.citation_cff,
 }
 
 input_formats = ["json", "yaml"]
 
+
 @logger.catch(reraise=True)
 def load(input, format, encoding="utf-8") -> dict:
     """Load a metadata record from a file."""
-    
+
     if input.startswith("http"):
         response = requests.get(input)
         response.raise_for_status()
@@ -45,7 +46,7 @@ def convert(record, format) -> str:
     elif format == "yaml":
         return yaml.dump(record)
     elif format == "erddap":
-        return erddap.dataset_xml(record)
+        return erddap.global_attributes(record)
     elif format == "cff":
         return citation_cff.citation_cff(record)
     else:
@@ -72,13 +73,22 @@ def convert(record, format) -> str:
     show_default=True,
 )
 @click.option(
-    "--output-dir", "-p", type=click.Path(file_okay=False), help="Output directory, the original file name will be used.", default=".", show_default=True
+    "--output-dir",
+    "-p",
+    type=click.Path(file_okay=False),
+    help="Output directory, the original file name will be used.",
+    default=".",
+    show_default=True,
 )
 @click.option(
-    "--output-file", "-o", type=click.Path(), help="Output file, this will override the output directory and is only valid for a single input file."
+    "--output-file",
+    "-o",
+    type=click.Path(),
+    help="Output file, this will override the output directory and is only valid for a single input file.",
 )
 @click.option(
-    "--output-format","-f",
+    "--output-format",
+    "-f",
     required=True,
     help="Output format",
     type=click.Choice(list(output_formats.keys())),
@@ -112,11 +122,12 @@ def main(
         files = [input]
     else:
         files = glob(input, recursive=recursive)
-    
 
     if len(files) > 1 and output_file:
-        raise ValueError("Cannot specify output file when processing multiple files. Define an output directory instead.")
-    
+        raise ValueError(
+            "Cannot specify output file when processing multiple files. Define an output directory instead."
+        )
+
     logger.debug("Processing {} files", len(files))
     returned_output = ""
     for file in files:
