@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run local action
-        uses: ./action.yml
+        uses: ./action.yaml
         with:
           input: tests/records/test_record1.json
           output-file: CITATION.cff
