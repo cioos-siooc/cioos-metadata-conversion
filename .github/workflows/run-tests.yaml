@@ -33,9 +33,9 @@ jobs:
 
       - name: Run pytest
         run: poetry run pytest
-  
+
   action:
-    uses: ./action.yaml
+    uses: hakaiinstitute/hakai-metadata-conversion@main
     with:
       input: tests/records/test_record1.json
       output-file: CITATION.cff
