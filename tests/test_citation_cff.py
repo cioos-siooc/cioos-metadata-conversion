@@ -1,10 +1,12 @@
-from pathlib import Path
 import subprocess
 from glob import glob
+from pathlib import Path
 
 import pytest
+
 from hakai_metadata_conversion import citation_cff
 from hakai_metadata_conversion.__main__ import load
+
 
 def test_citation_cff(record):
     result = citation_cff.citation_cff(record, output_format=None, language="en")
@@ -24,9 +26,10 @@ def test_citation_cff(record):
     assert "version" in result
     assert "identifiers" in result
 
-def test_ctation_cff_yaml(record):
+
+def test_ctation_cff_yaml(record, tmp_path):
     result = citation_cff.citation_cff(record, output_format="yaml", language="en")
-    Path("CITATION.cff").write_text(result, encoding="utf-8")
+    (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
 
 
 def test_citation_cff_validation(record, tmp_path):
@@ -41,7 +44,10 @@ def test_citation_cff_validation(record, tmp_path):
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.parametrize("file", glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True))
+@pytest.mark.parametrize(
+    "file",
+    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+)
 def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
     data = load(file, "yaml")
     result = citation_cff.citation_cff(data, output_format="yaml", language="en")
@@ -54,7 +60,11 @@ def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
         capture_output=True,
     )
 
-@pytest.mark.parametrize("file", glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True))
+
+@pytest.mark.parametrize(
+    "file",
+    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+)
 def test_hakai_metadata_entry_form_files_cff_fr(file, tmp_path):
     data = load(file, "yaml")
     result_fr = citation_cff.citation_cff(data, output_format="yaml", language="fr")

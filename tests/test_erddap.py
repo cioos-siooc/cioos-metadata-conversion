@@ -1,11 +1,15 @@
-import pytest
 from glob import glob
+from pathlib import Path
+from xml.etree import ElementTree as ET
+
+import pytest
+
+import hakai_metadata_conversion.erddap as erddap
 from hakai_metadata_conversion.__main__ import load
-from hakai_metadata_conversion.erddap import global_attributes
 
 
 def test_erddap_global_attributes(record):
-    result = global_attributes(record, output=None, language="en")
+    result = erddap.global_attributes(record, output=None, language="en")
     assert result
     assert isinstance(result, dict)
     assert "title" in result
@@ -34,20 +38,81 @@ def test_erddap_global_attributes(record):
     assert "metadata_link" in result
 
 
-def test_erddap_global_attirbutes_xml(record):
-    result = global_attributes(record, output="xml", language="en")
+def test_erddap_global_attributes_xml(record):
+    result = erddap.global_attributes(record, output="xml", language="en")
     assert result
 
-@pytest.mark.parametrize("file", glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True))
+
+@pytest.mark.parametrize(
+    "file",
+    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+)
 def test_hakai_metadata_files_to_erddap(file):
     data = load(file, "yaml")
-    result = global_attributes(data, output="xml", language="en")
+    result = erddap.global_attributes(data, output="xml", language="en")
 
     assert result
 
-@pytest.mark.parametrize("file", glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True))
+
+@pytest.mark.parametrize(
+    "file",
+    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+)
 def test_hakai_metadata_files_to_erddap_fr(file):
     data = load(file, "yaml")
-    result_fr = global_attributes(data, output="xml", language="fr")
+    result_fr = erddap.global_attributes(data, output="xml", language="fr")
 
     assert result_fr
+
+
+def test_erddap_update_dataset_xml(record):
+    comment = "Some commented text that should remain"
+    attributes = erddap.global_attributes(record, output=None, language="en")
+    datasets = erddap.ERDDAP("tests/erddap_xmls/test_datasets.xml")
+    datasets.read()
+    dataset_xml_content = datasets.tostring()
+    assert comment in dataset_xml_content
+
+    datasets.update( "TestDataset1", attributes)
+    result = datasets.tostring()
+    assert result
+    assert isinstance(result, str)
+    assert "TestDataset1" in result
+    assert comment in result
+    for key,value in attributes.items():
+        assert key in result
+        assert not value or value in result
+
+    Path("tests/results/test_erddap_update_dataset.xml").write_text(
+        result, encoding="utf-8"
+    )
+
+    # test that output can be parsed
+    root = ET.fromstring(result)
+    assert root
+
+def test_erddap_update_datasets_d_xml(record):
+    comment = "Some commented text that should remain"
+    attributes = erddap.global_attributes(record, output=None, language="en")
+    dataset_d_files = list(Path("tests/erddap_xmls/datasets.d").glob("*.xml"))
+    
+    assert dataset_d_files, "No dataset files found in test_datasets.d"
+    for file in dataset_d_files:
+        dataset= erddap.ERDDAP(file)
+        dataset.read()
+        dataset_xml_content = dataset.tostring()
+        assert comment in dataset_xml_content
+        dataset.update("TestDataset1", attributes)
+        result = dataset.tostring()
+        assert result
+        assert isinstance(result, str)
+        assert "TestDataset1" in result
+        assert comment in result
+
+        Path("tests/results/test_erddap_update_datasets_d.xml").write_text(
+            result, encoding="utf-8"
+        )
+
+        # test that output can be parsed
+        root = ET.fromstring(result)
+        assert root
