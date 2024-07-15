@@ -21,6 +21,8 @@ def _get_country_code(country_name):
 
 
 def _fix_url(url):
+    if not url:
+        return None
     return url if url.startswith("http") else f"https://{url}"
 
 
@@ -28,15 +30,15 @@ def get_cff_person(author):
     """Generate a CFF person"""
     return drop_empty_values(
         {
-            "given-names": author["individual"]["name"].split(", ")[1],
-            "family-names": author["individual"]["name"].split(", ")[0],
-            "email": author["individual"]["email"],
-            "orcid": author["individual"]["orcid"],
-            "affiliation": author["organization"]["name"],
-            "address": author["organization"]["address"],
-            "city": author["organization"]["city"],
-            "country": _get_country_code(author["organization"]["country"]),
-            "website": _fix_url(author["organization"]["url"]),
+            "given-names": author["individual"]["name"].split(", ")[1] if ", " in author["individual"].get("name","") else "",
+            "family-names": author["individual"].get("name","").split(", ")[0],
+            "email": author["individual"].get("email"),
+            "orcid": author["individual"].get("orcid"),
+            "affiliation": author.get("organization",{}).get("name"),
+            "address": author.get("organization",{}).get("address"),
+            "city": author.get("organization",{}).get("city"),
+            "country": _get_country_code(author.get("organization",{}).get("country")),
+            "website": _fix_url(author.get("organization",{}).get("url")),
             # "ror": author["organization"].get("ror"), # not in CFF schema
         }
     )
@@ -118,7 +120,7 @@ def citation_cff(
                     record["identification"]["identifier"].replace(
                         "https://doi.org/", ""
                     )
-                    if "doi.org" in record["identification"]["identifier"]
+                    if "doi.org" in record["identification"].get("identifier","")
                     else None
                 ),
             },
@@ -132,7 +134,7 @@ def citation_cff(
             # Generate ressources links
             *[
                 {
-                    "description": f"{distribution['name'].get(language)}: {distribution.get('description',{}).get(language)}",
+                    "description": ": ".join([item for item in [distribution.get('name',{}).get(language,""), distribution.get('description',{}).get(language)] if item]),
                     "type": "url",
                     "value": distribution["url"],
                 }
@@ -144,11 +146,11 @@ def citation_cff(
             for _, group in record["identification"]["keywords"].items()
             for keyword in group[language]
         ],
-        "license": record["metadata"]["use_constraints"]["licence"]["code"],
-        "license-url": record["metadata"]["use_constraints"]["licence"]["url"],
+        "license": record["metadata"]["use_constraints"].get("licence",{}).get("code"),
+        "license-url": record["metadata"]["use_constraints"].get("licence",{}).get("url"),
         "type": record_type,
         "url": resource_url,
-        "version": record["identification"]["edition"],
+        "version": record["identification"].get("edition"),
     }
     record = drop_empty_values(record)
 
