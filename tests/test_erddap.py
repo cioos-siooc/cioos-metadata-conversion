@@ -1,3 +1,6 @@
+import pytest
+from glob import glob
+from hakai_metadata_conversion.__main__ import load
 from hakai_metadata_conversion.erddap import global_attributes
 
 
@@ -34,3 +37,17 @@ def test_erddap_global_attributes(record):
 def test_erddap_global_attirbutes_xml(record):
     result = global_attributes(record, output="xml", language="en")
     assert result
+
+@pytest.mark.parametrize("file", glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True))
+def test_hakai_metadata_files_to_erddap(file):
+    data = load(file, "yaml")
+    result = global_attributes(data, output="xml", language="en")
+
+    assert result
+
+@pytest.mark.parametrize("file", glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True))
+def test_hakai_metadata_files_to_erddap_fr(file):
+    data = load(file, "yaml")
+    result_fr = global_attributes(data, output="xml", language="fr")
+
+    assert result_fr

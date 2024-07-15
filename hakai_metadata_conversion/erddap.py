@@ -1,5 +1,6 @@
 from jinja2 import Template
 from loguru import logger
+import yaml
 
 KEYWORDS_PREFIX_MAPPING = {
     "default": {
@@ -32,25 +33,29 @@ def _get_contact(contact: dict, role: str) -> dict:
     """Generate a CFF contact from a metadata contact."""
     if "individual" in contact:
         attrs = {
-            f"{role}_name": contact["individual"]["name"],
-            f"{role}_email": contact["individual"]["email"],
+            f"{role}_name": contact["individual"].get("name"),
+            f"{role}_email": contact["individual"].get("email"),
             f"{role}_orcid": contact["individual"].get("orcid"),
             f"{role}_type": "person",
         }
     else:
         attrs = {
             f"{role}_name": contact["organization"]["name"],
-            f"{role}_email": contact["organization"]["email"],
+            f"{role}_email": contact["organization"].get("email"),
             f"{role}_type": "institution",
         }
+    
+    if not contact.get("organization"):
+        logger.warning(f"No organization found for {role} contact.")
+        return attrs
 
     return {
         **attrs,
-        f"{role}_institution": contact["organization"]["name"],
-        f"{role}_address": contact["organization"]["address"],
-        f"{role}_city": contact["organization"]["city"],
-        f"{role}_country": contact["organization"]["country"],
-        f"{role}_url": contact["organization"]["url"],
+        f"{role}_institution": contact["organization"].get("name"),
+        f"{role}_address": contact["organization"].get("address"),
+        f"{role}_city": contact["organization"].get("city"),
+        f"{role}_country": contact["organization"].get("country"),
+        f"{role}_url": contact["organization"].get("url"),
         f"{role}_ror": contact["organization"].get("ror"),
     }
 
@@ -62,7 +67,7 @@ def _get_contributors(contacts: list, separator=";") -> dict:
             [
                 (
                     contact["individual"]["name"]
-                    if "individual" in contact
+                    if ("individual" in contact and contact["individual"].get("name"))
                     else contact["organization"]["name"]
                 )
                 for contact in contacts
@@ -73,6 +78,17 @@ def _get_contributors(contacts: list, separator=";") -> dict:
         ),
     }
 
+def generate_history(record, language="en"):
+    """Generate a history string from a metadata record."""
+    history = record["metadata"].get("history")
+    if not history:
+        return None
+    if isinstance(history, dict):
+        return record["metadata"]["history"][language]
+    elif isinstance(history, list):
+        return "Metadata record history:\n" + yaml.dump(history)
+    else:
+        logger.warning("Invalid history format.")
 
 def global_attributes(
     record, output="xml", language="en", base_url="https://catalogue.hakai.org"
@@ -92,20 +108,30 @@ def global_attributes(
         logger.warning("Multiple publishers found, using the first one.")
 
     comment = []
-    if record["metadata"]["use_constraints"]["limitations"]:
+    if record["metadata"]["use_constraints"].get("limitations",{}).get(language):
         comment += [
             "##Limitations:\n"
             + record["metadata"]["use_constraints"]["limitations"][language]
         ]
-    if record["metadata"]["use_constraints"]["limitations"].get("translations").get(
-        language
-    ):
+    translation_comment = record["metadata"]["use_constraints"].get("limitations",{}).get("translations",{}).get(
+                language
+            )
+    if not translation_comment:
+        pass
+    elif isinstance(translation_comment,str):
         comment += [
             "##Translation:\n"
-            + record["metadata"]["use_constraints"]["limitations"]["translations"][
+            + record["metadata"]["use_constraints"]["limitations"]["translations"].get(
                 language
-            ]
+            )
         ]
+    elif isinstance(translation_comment ,dict) and "message" in translation_comment:
+        comment += [
+            "##Translation:\n"
+            + translation_comment["message"]
+        ]
+    else:
+        logger.warning("Invalid translation comment format: {}",translation_comment)
 
     metadata_link = (
         base_url
@@ -117,7 +143,7 @@ def global_attributes(
     global_attributes = {
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
-        "project": ",".join(record["identification"]["project"]),
+        "project": ",".join(record["identification"].get("project",[])),
         "comment": "\n\n".join(comment),
         "progress": record["identification"][
             "progress_code"
@@ -126,7 +152,7 @@ def global_attributes(
             [
                 KEYWORDS_PREFIX_MAPPING.get(group, {}).get("prefix", "") + keyword
                 for group, keywords in record["identification"]["keywords"].items()
-                for keyword in keywords[language]
+                for keyword in keywords.get(language,[])
             ]
         ),
         "keywords_vocabulary": ",".join(
@@ -135,25 +161,25 @@ def global_attributes(
                 + " "
                 + KEYWORDS_PREFIX_MAPPING[group]["label"]
                 for group, keywords in record["identification"]["keywords"].items()
-                if keywords[language]
+                if keywords.get(language)
                 and group in KEYWORDS_PREFIX_MAPPING
                 and KEYWORDS_PREFIX_MAPPING[group]["label"]
             ]
         ),
         "id": record["metadata"]["identifier"],
         "naming_authority": record["metadata"]["naming_authority"],
-        "date_modified": record["metadata"]["dates"]["revision"],
-        "date_created": record["metadata"]["dates"]["publication"],
-        "product_version": record["identification"]["edition"],
-        "history": record["metadata"]["history"][language],
-        "license": record["metadata"]["use_constraints"]["licence"]["code"],
+        "date_modified": record["metadata"]["dates"].get("revision"),
+        "date_created": record["metadata"]["dates"].get("publication"),
+        "product_version": record["identification"].get("edition"),
+        "history": generate_history(record, language),
+        "license": record["metadata"]["use_constraints"].get("licence",{}).get("code"),
         **(_get_contact(creator[0], "creator") if creator else {}),
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
-        "doi": record["identification"]["identifier"],
+        "doi": record["identification"].get("identifier"),
         "metadata_link": metadata_link,
         "infoUrl": metadata_link,
-        "metadata_form": record["metadata"]["maintenance_note"].replace(
+        "metadata_form": record["metadata"].get("maintenance_note","").replace(
             "Generated from ", ""
         ),
     }
