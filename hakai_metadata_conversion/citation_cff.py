@@ -94,8 +94,8 @@ def citation_cff(
             for contact in record["contact"]
             if contact["inCitation"]
         ],
-        "title": record["identification"]["title"][language],
-        "abstract": record["identification"]["abstract"][language],
+        "title": record["identification"]["title"].get(language),
+        "abstract": record["identification"]["abstract"].get(language),
         "date-released": record["metadata"]["dates"]["revision"].split("T")[0],
         "contact": [
             get_cff_contact(contact)
@@ -144,7 +144,7 @@ def citation_cff(
         "keywords": [
             keyword
             for _, group in record["identification"]["keywords"].items()
-            for keyword in group[language]
+            for keyword in group.get(language,[])
         ],
         "license": record["metadata"]["use_constraints"].get("licence",{}).get("code"),
         "license-url": record["metadata"]["use_constraints"].get("licence",{}).get("url"),

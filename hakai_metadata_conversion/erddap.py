@@ -97,7 +97,7 @@ def global_attributes(
             "##Limitations:\n"
             + record["metadata"]["use_constraints"]["limitations"][language]
         ]
-    if record["metadata"]["use_constraints"]["limitations"]["translations"].get(
+    if record["metadata"]["use_constraints"]["limitations"].get("translations").get(
         language
     ):
         comment += [
