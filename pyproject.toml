@@ -32,4 +32,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-hakai_metadata_conversion = "hakai_metadata_conversion.__main__:cli_main"
+hakai_metadata_conversion = "hakai_metadata_conversion.__main__:cli"

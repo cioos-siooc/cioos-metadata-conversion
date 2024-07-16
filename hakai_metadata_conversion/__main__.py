@@ -52,8 +52,20 @@ def convert(record, format) -> str:
     else:
         raise ValueError(f"Unknown output format: {format}")
 
+@click.group()
+@click.pass_context
+def cli(ctx):
+    """Hakai Metadata Conversion CLI. 
+    Convert metadata records to different metadata formats or standards.
 
-@click.command()
+    Default to convert subcommand if no subcommand is provided.
+    """
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(cli_main)
+
+cli.add_command(erddap.update, name="erddap-update")
+
+@cli.command(name="convert")
 @click.option("--input", "-i", required=True, help="Input file.")
 @click.option(
     "--recursive", "-r", is_flag=True, help="Process files recursively.", default=False
@@ -100,12 +112,12 @@ def convert(record, format) -> str:
     show_default=True,
 )
 @logger.catch(reraise=True)
-def cli_main(**kwargs):
+def cli_convert(**kwargs):
     """Convert metadata records to different metadata formats or standards."""
     main(**kwargs)
 
 
-def main(
+def convert(
     input,
     recursive,
     input_file_format,
@@ -163,4 +175,4 @@ def main(
 
 
 if __name__ == "__main__":
-    cli_main()
+    cli()

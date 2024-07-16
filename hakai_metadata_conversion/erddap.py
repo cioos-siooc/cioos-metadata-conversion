@@ -1,6 +1,8 @@
 from glob import glob
 from pathlib import Path
+from typing import Union
 
+import click
 import yaml
 from loguru import logger
 from lxml import etree
@@ -291,12 +293,17 @@ class ERDDAP:
 
 def update_dataset_xml(
     dataset_xml: str,
-    records: list,
+    records: Union[str, list],
     erddap_url: str,
     output_dir: str = None,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
-
+    
+    # Find dataset xml
+    if isinstance(records, str):
+        record_files = glob(records, recursive=True)
+        records = [yaml.safe_load(Path(record_file).read_text()) for record_file in record_files]
+    
     # Find dataset xml
     erddap_files = glob(dataset_xml, recursive=True)
     if not erddap_files:
@@ -323,3 +330,17 @@ def update_dataset_xml(
     ]:
         logger.warning(f"Dataset ID {missing_datasets} not found in {dataset_xml}.")
     return updated
+
+
+@click.command()
+@click.option("--dataset-xml", "-d", required=True, help="ERDDAP dataset.xml file.")
+@click.option("--records", "-r", required=True, help="Metadata records.")
+@click.option("--erddap-url", "-u", required=True, help="ERDDAP base URL.")
+@click.option("--output-dir", "-o", help="Output directory.")
+def update(dataset_xml, records, erddap_url, output_dir):
+    """Update ERDDAP dataset xml with metadata records."""
+    update_dataset_xml(dataset_xml, records, erddap_url, output_dir)
+
+
+if __name__ == "__main__":
+    main()
