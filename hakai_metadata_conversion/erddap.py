@@ -1,4 +1,3 @@
-from jinja2 import Template
 from loguru import logger
 import yaml
 
@@ -18,15 +17,12 @@ KEYWORDS_PREFIX_MAPPING = {
 }
 
 
-# dataset xml global attributes jinja2 template
-dataset_xml_template = Template(
-    """
-    <addAttributes>
-    {% for key, value in global_attributes.items() %}
-        <att name="{{ key }}">{{ value }}</att>{% endfor %}
-    </addAttributes>
-"""
-)
+def generate_dataset_xml(global_attributes:dict):
+    output = ["<addAttributes>"]
+    for key,value in global_attributes.items():
+        output += [f"    <att name='{key}'>{value}</att>"]
+    output += ["</addAttributes>"]
+    return "\n".join(output)
 
 
 def _get_contact(contact: dict, role: str) -> dict:
@@ -186,4 +182,4 @@ def global_attributes(
     if not output:
         return global_attributes
     if output == "xml":
-        return dataset_xml_template.render(global_attributes=global_attributes)
+        return generate_dataset_xml(global_attributes)
