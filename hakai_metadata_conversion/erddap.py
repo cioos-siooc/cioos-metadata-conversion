@@ -2,7 +2,6 @@ from glob import glob
 from pathlib import Path
 
 import yaml
-from jinja2 import Template
 from loguru import logger
 from lxml import etree
 
