@@ -193,8 +193,8 @@ def global_attributes(
 
 
 @logger.catch(reraise=True)
-def update_dataset_id(tree, dataset_id:str, global_attributes:dict):
-    
+def update_dataset_id(tree, dataset_id: str, global_attributes: dict):
+
     # Retrive dataset
     matching_dataset = tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
     if not matching_dataset:
@@ -221,6 +221,7 @@ def update_dataset_id(tree, dataset_id:str, global_attributes:dict):
 
     return tree
 
+
 # Function to update XML
 @logger.catch(reraise=True)
 def _update_xml(xml_file, dataset_id, updates, encoding="utf-8") -> str:
@@ -230,10 +231,15 @@ def _update_xml(xml_file, dataset_id, updates, encoding="utf-8") -> str:
     # Write back to the same file (or use a different file name to save a new version.
     return etree.tostring(tree, pretty_print=True).decode(encoding)
 
+
 def _get_dataset_id_from_record(record, erddap_url):
-    for ressource in record["metadata"]["resources"]:
+    for ressource in record["distribution"]:
         if erddap_url in ressource["url"]:
-            return ressource["url"].split("/")[-1]
+            return ressource["url"].split("/")[-1].replace(
+                ".html", ""
+            ), global_attributes(record, output=None)
+    return None, None
+
 
 class ERDDAP:
     def __init__(self, path) -> None:
@@ -244,7 +250,7 @@ class ERDDAP:
 
     def read(self):
         self.tree = etree.parse(self.path)
-    
+
     def tostring(self, encoding="utf-8") -> str:
         return etree.tostring(self.tree, pretty_print=True).decode(encoding)
 
@@ -254,9 +260,9 @@ class ERDDAP:
 
     def has_dataset_id(self, dataset_id) -> bool:
         return bool(self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']"))
-    
-    def update(self, dataset_id:str, global_attributes:dict):
-        
+
+    def update(self, dataset_id: str, global_attributes: dict):
+
         # Retrive dataset
         matching_dataset = self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
         if not matching_dataset:
@@ -284,10 +290,10 @@ class ERDDAP:
         return
 
 
-
 def update_dataset_xml(
     dataset_xml: str,
     records: list,
+    erddap_url: str,
     output_dir: str = None,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
@@ -297,20 +303,24 @@ def update_dataset_xml(
     if not erddap_files:
         assert ValueError(f"No files found in {dataset_xml}")
 
-    datasets = {_get_dataset_id_from_record(record) for record in records}
-
+    datasets = [_get_dataset_id_from_record(record, erddap_url) for record in records]
 
     updated = []
     for file in erddap_files:
         erddap = ERDDAP(file)
         for dataset_id, attrs in datasets:
+            if not dataset_id:
+                continue
             if erddap.has_dataset_id(dataset_id):
                 # Update the XML
                 erddap.update(dataset_id, attrs)
                 updated += [dataset_id]
         file_output = Path(output_dir) / Path(file).name if output_dir else file
+        logger.debug("Writing updated XML to {}", file_output)
         erddap.save(file_output or file)
-    
-    if missing_datasets := datasets - set(updated):
+
+    if missing_datasets := [
+        dataset for dataset, _ in datasets if dataset not in updated
+    ]:
         logger.warning(f"Dataset ID {missing_datasets} not found in {dataset_xml}.")
     return updated

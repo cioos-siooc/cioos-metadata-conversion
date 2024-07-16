@@ -61,3 +61,24 @@ def test_hakai_metadata_files_to_erddap_fr(file):
     result_fr = erddap.global_attributes(data, output="xml", language="fr")
 
     assert result_fr
+
+
+def test_erddap_dataset_xml_update(record, tmp_path):
+    erddap.update_dataset_xml(
+        "tests/erddap_xmls/test_datasets.xml",
+        [record],
+        erddap_url="https://catalogue.hakai.org/erddap",
+        output_dir=tmp_path,
+    )
+    assert (tmp_path / "test_datasets.xml").exists()
+
+
+def test_erddap_dataset_d_xml_update(record, tmp_path):
+    erddap.update_dataset_xml(
+        "tests/erddap_xmls/dataset.d/*.xml",
+        [record],
+        erddap_url="https://catalogue.hakai.org/erddap",
+        output_dir=tmp_path,
+    )
+    files = tmp_path.glob("dataset.d/*.xml")
+    assert files
