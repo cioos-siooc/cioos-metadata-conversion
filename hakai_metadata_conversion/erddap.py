@@ -1,5 +1,5 @@
-from loguru import logger
 import yaml
+from loguru import logger
 
 KEYWORDS_PREFIX_MAPPING = {
     "default": {
@@ -17,9 +17,9 @@ KEYWORDS_PREFIX_MAPPING = {
 }
 
 
-def generate_dataset_xml(global_attributes:dict):
+def generate_dataset_xml(global_attributes: dict):
     output = ["<addAttributes>"]
-    for key,value in global_attributes.items():
+    for key, value in global_attributes.items():
         output += [f"    <att name='{key}'>{value}</att>"]
     output += ["</addAttributes>"]
     return "\n".join(output)
@@ -40,7 +40,7 @@ def _get_contact(contact: dict, role: str) -> dict:
             f"{role}_email": contact["organization"].get("email"),
             f"{role}_type": "institution",
         }
-    
+
     if not contact.get("organization"):
         logger.warning(f"No organization found for {role} contact.")
         return attrs
@@ -74,6 +74,7 @@ def _get_contributors(contacts: list, separator=";") -> dict:
         ),
     }
 
+
 def generate_history(record, language="en"):
     """Generate a history string from a metadata record."""
     history = record["metadata"].get("history")
@@ -85,6 +86,7 @@ def generate_history(record, language="en"):
         return "Metadata record history:\n" + yaml.dump(history)
     else:
         logger.warning("Invalid history format.")
+
 
 def global_attributes(
     record, output="xml", language="en", base_url="https://catalogue.hakai.org"
@@ -104,30 +106,30 @@ def global_attributes(
         logger.warning("Multiple publishers found, using the first one.")
 
     comment = []
-    if record["metadata"]["use_constraints"].get("limitations",{}).get(language):
+    if record["metadata"]["use_constraints"].get("limitations", {}).get(language):
         comment += [
             "##Limitations:\n"
             + record["metadata"]["use_constraints"]["limitations"][language]
         ]
-    translation_comment = record["metadata"]["use_constraints"].get("limitations",{}).get("translations",{}).get(
-                language
-            )
+    translation_comment = (
+        record["metadata"]["use_constraints"]
+        .get("limitations", {})
+        .get("translations", {})
+        .get(language)
+    )
     if not translation_comment:
         pass
-    elif isinstance(translation_comment,str):
+    elif isinstance(translation_comment, str):
         comment += [
             "##Translation:\n"
             + record["metadata"]["use_constraints"]["limitations"]["translations"].get(
                 language
             )
         ]
-    elif isinstance(translation_comment ,dict) and "message" in translation_comment:
-        comment += [
-            "##Translation:\n"
-            + translation_comment["message"]
-        ]
+    elif isinstance(translation_comment, dict) and "message" in translation_comment:
+        comment += ["##Translation:\n" + translation_comment["message"]]
     else:
-        logger.warning("Invalid translation comment format: {}",translation_comment)
+        logger.warning("Invalid translation comment format: {}", translation_comment)
 
     metadata_link = (
         base_url
@@ -139,7 +141,7 @@ def global_attributes(
     global_attributes = {
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
-        "project": ",".join(record["identification"].get("project",[])),
+        "project": ",".join(record["identification"].get("project", [])),
         "comment": "\n\n".join(comment),
         "progress": record["identification"][
             "progress_code"
@@ -148,7 +150,7 @@ def global_attributes(
             [
                 KEYWORDS_PREFIX_MAPPING.get(group, {}).get("prefix", "") + keyword
                 for group, keywords in record["identification"]["keywords"].items()
-                for keyword in keywords.get(language,[])
+                for keyword in keywords.get(language, [])
             ]
         ),
         "keywords_vocabulary": ",".join(
@@ -168,16 +170,16 @@ def global_attributes(
         "date_created": record["metadata"]["dates"].get("publication"),
         "product_version": record["identification"].get("edition"),
         "history": generate_history(record, language),
-        "license": record["metadata"]["use_constraints"].get("licence",{}).get("code"),
+        "license": record["metadata"]["use_constraints"].get("licence", {}).get("code"),
         **(_get_contact(creator[0], "creator") if creator else {}),
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
         "doi": record["identification"].get("identifier"),
         "metadata_link": metadata_link,
         "infoUrl": metadata_link,
-        "metadata_form": record["metadata"].get("maintenance_note","").replace(
-            "Generated from ", ""
-        ),
+        "metadata_form": record["metadata"]
+        .get("maintenance_note", "")
+        .replace("Generated from ", ""),
     }
     if not output:
         return global_attributes
