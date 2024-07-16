@@ -1,6 +1,7 @@
 import json
 from glob import glob
 from pathlib import Path
+import sys
 
 import click
 import requests
@@ -39,7 +40,7 @@ def load(input, format, encoding="utf-8") -> dict:
         return input_formats[format](f)
 
 
-def convert(record, format) -> str:
+def converter(record, format) -> str:
     """Run the conversion to the desired format."""
     if format == "json":
         return json.dumps(record, indent=2)
@@ -52,16 +53,12 @@ def convert(record, format) -> str:
     else:
         raise ValueError(f"Unknown output format: {format}")
 
-@click.group()
-@click.pass_context
-def cli(ctx):
-    """Hakai Metadata Conversion CLI. 
+@click.group(name="hakai-metadata-conversion")
+def cli():
+    """Hakai Metadata Conversion CLI.
     Convert metadata records to different metadata formats or standards.
-
-    Default to convert subcommand if no subcommand is provided.
     """
-    if ctx.invoked_subcommand is None:
-        ctx.invoke(cli_main)
+    pass
 
 cli.add_command(erddap.update, name="erddap-update")
 
@@ -114,18 +111,18 @@ cli.add_command(erddap.update, name="erddap-update")
 @logger.catch(reraise=True)
 def cli_convert(**kwargs):
     """Convert metadata records to different metadata formats or standards."""
-    main(**kwargs)
+    convert(**kwargs)
 
-
+@logger.catch(reraise=True)
 def convert(
     input,
-    recursive,
-    input_file_format,
-    encoding,
-    output_dir,
-    output_file,
-    output_format,
-    output_encoding,
+    output_format: str,
+    recursive:bool =False,
+    input_file_format:str="yaml",
+    encoding: str = "utf-8",
+    output_dir: str = ".",
+    output_file: str=None,
+    output_encoding: str = "utf-8",
 ):
     """Convert metadata records to different metadata formats or standards."""
 
@@ -154,7 +151,7 @@ def convert(
             continue
 
         logger.debug(f"Converting to {output_format}")
-        converted_record = convert(record, output_format)
+        converted_record = converter(record, output_format)
 
         # Generate output file path
         if output_dir and not output_file:

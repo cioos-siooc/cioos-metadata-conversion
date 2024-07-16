@@ -3,7 +3,7 @@ from glob import glob
 import pytest
 from click.testing import CliRunner
 
-from hakai_metadata_conversion.__main__ import cli_main
+from hakai_metadata_conversion.__main__ import cli
 
 
 @pytest.fixture
@@ -12,21 +12,22 @@ def runner():
 
 
 def test_cli_no_args(runner):
-    result = runner.invoke(cli_main)
-    assert result.exit_code == 2
-    assert "Error: Missing option '--input'" in result.output
+    result = runner.invoke(cli)
+    assert result.exit_code == 0
+    assert "Usage: hakai-metadata-conversion [OPTIONS] COMMAND [ARGS]" in result.output
 
 
 def test_cli_help(runner):
-    result = runner.invoke(cli_main, ["--help"])
+    result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
-    assert "Usage: cli-main [OPTIONS]" in result.output
+    assert "Usage: cli [OPTIONS]" in result.output
 
 
 def test_cli_on_test_files(runner, tmpdir):
     input_files = "tests/records/*.yaml"
     n_test_files = len(glob(input_files))
     args = [
+        "convert",
         "--input",
         input_files,
         "--input-file-format",
@@ -36,14 +37,15 @@ def test_cli_on_test_files(runner, tmpdir):
         "--output-dir",
         str(tmpdir),
     ]
-    result = runner.invoke(cli_main, args)
-    assert result.exit_code == 0
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.output
     assert result.output == ""
     assert len(tmpdir.listdir()) == n_test_files
 
 
 def test_cli_output_file(runner, tmpdir):
     args = [
+        "convert",
         "--input",
         "tests/records/*.yaml",
         "--input-file-format",
@@ -53,7 +55,7 @@ def test_cli_output_file(runner, tmpdir):
         "--output-file",
         str(tmpdir / "CITATION.cff"),
     ]
-    result = runner.invoke(cli_main, args)
+    result = runner.invoke(cli, args)
     assert result.exit_code == 0
     assert result.output == ""
     assert len(tmpdir.listdir()) == 1
@@ -66,6 +68,7 @@ def test_cli_output_file(runner, tmpdir):
 def test_cli_with_http_input(runner, tmpdir):
     ouput_file = "CITATION.cff"
     args = [
+        "convert",
         "--input",
         "https://raw.githubusercontent.com/HakaiInstitute/hakai-metadata-conversion/main/tests/records/test_record1.yaml",
         "--input-file-format",
@@ -75,8 +78,8 @@ def test_cli_with_http_input(runner, tmpdir):
         "--output-file",
         str(tmpdir / ouput_file),
     ]
-    result = runner.invoke(cli_main, args)
-    assert result.exit_code == 0
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.output
     assert result.output == ""
     assert len(tmpdir.listdir()) == 1
     assert tmpdir.join(ouput_file).check(file=True)
