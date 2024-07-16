@@ -17,7 +17,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      - name: Checkout hakai metadata files
+        uses: actions/checkout@v4
+        with:
+          repository: HakaiInstitute/hakai-metadata-entry-form-files
+          path: tests/records
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
