@@ -1,6 +1,5 @@
 import pytest
 from glob import glob
-from pathlib import Path
 
 from hakai_metadata_conversion.__main__ import load
 from hakai_metadata_conversion.xml import xml

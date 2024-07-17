@@ -1,6 +1,5 @@
 import subprocess
 from glob import glob
-from pathlib import Path
 
 import pytest
 
@@ -55,7 +54,7 @@ def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
 
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
-    result = subprocess.run(
+    subprocess.run(
         ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
@@ -72,7 +71,7 @@ def test_hakai_metadata_entry_form_files_cff_fr(file, tmp_path):
 
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result_fr, encoding="utf-8")
-    result = subprocess.run(
+    subprocess.run(
         ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
