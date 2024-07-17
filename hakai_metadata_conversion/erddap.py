@@ -147,6 +147,7 @@ def global_attributes(
     )
 
     global_attributes = {
+        "institution": creator["creator_institution"] if creator else "",
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
         "project": ",".join(record["identification"].get("project", [])),
