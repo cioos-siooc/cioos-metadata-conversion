@@ -316,7 +316,7 @@ def update_dataset_xml(
         assert ValueError(f"No files found in {datasets_xml}")
 
     datasets = [_get_dataset_id_from_record(record, erddap_url) for record in records]
-
+    dataset_ids = [dataset_id for dataset_id, _ in datasets]
     updated = []
     for file in erddap_files:
         erddap = ERDDAP(file)
@@ -332,7 +332,7 @@ def update_dataset_xml(
         erddap.save(file_output or file)
 
     if missing_datasets := [
-        dataset for dataset, _ in datasets if dataset not in updated
+        dataset_id for dataset_id in dataset_ids if dataset_id not in updated
     ]:
         logger.warning(f"Dataset ID {missing_datasets} not found in {datasets_xml}.")
     return updated
