@@ -20,7 +20,7 @@ def test_cli_no_args(runner):
 def test_cli_help(runner):
     result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
-    assert "Usage: cli [OPTIONS]" in result.output
+    assert "Usage: hakai-metadata-conversion [OPTIONS]" in result.output
 
 
 def test_cli_on_test_files(runner, tmpdir):
