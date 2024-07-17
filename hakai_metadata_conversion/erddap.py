@@ -83,6 +83,17 @@ def _get_contributors(contacts: list, separator=";") -> dict:
     }
 
 
+@logger.catch(default={})
+def _get_platform(record):
+    if not record.get("platform"):
+        return {}
+    platform = record["platform"]
+    return {
+        "platform": platform[0]["type"],
+        "platform_vocabulary": "http://vocab.nerc.ac.uk/collection/L06/current/"
+    }
+    
+
 def generate_history(record, language="en"):
     """Generate a history string from a metadata record."""
     history = record["metadata"].get("history")
@@ -190,6 +201,7 @@ def global_attributes(
         "metadata_form": record["metadata"]
         .get("maintenance_note", "")
         .replace("Generated from ", ""),
+        **_get_platform(record),
     }
     # Remove empty values
     global_attributes = drop_empty_values(global_attributes)
