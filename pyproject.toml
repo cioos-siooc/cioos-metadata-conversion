@@ -9,10 +9,11 @@ readme = "README.md"
 python = "^3.11"
 click = "^8.1.7"
 loguru = "^0.7.2"
-pyyaml = "^6.0.1"
 requests = "^2.32.3"
 cffconvert = "^2.0.0"
 pycountry = "^24.6.1"
+metadata-xml = {git = "https://github.com/HakaiInstitute/metadata-xml.git"}
+pyyaml = "^6.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
