@@ -333,7 +333,7 @@ def update_dataset_xml(
 
 
 @click.command()
-@click.option("--dataset-xml", "-d", required=True, help="ERDDAP dataset.xml file.")
+@click.option("--datasets-xml", "-d", required=True, help="ERDDAP dataset.xml file.")
 @click.option("--records", "-r", required=True, help="Metadata records.")
 @click.option("--erddap-url", "-u", required=True, help="ERDDAP base URL.")
 @click.option("--output-dir", "-o", help="Output directory.")
@@ -341,6 +341,3 @@ def update(dataset_xml, records, erddap_url, output_dir):
     """Update ERDDAP dataset xml with metadata records."""
     update_dataset_xml(dataset_xml, records, erddap_url, output_dir)
 
-
-if __name__ == "__main__":
-    main()
