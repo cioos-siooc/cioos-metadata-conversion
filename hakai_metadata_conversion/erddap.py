@@ -192,7 +192,7 @@ def global_attributes(
     }
     # Remove empty values
     global_attributes = drop_empty_values(global_attributes)
-    
+
     if not output:
         return global_attributes
     if output == "xml":
@@ -298,7 +298,7 @@ class ERDDAP:
 
 
 def update_dataset_xml(
-    dataset_xml: str,
+    datasets_xml: str,
     records: Union[str, list],
     erddap_url: str,
     output_dir: str = None,
@@ -311,9 +311,9 @@ def update_dataset_xml(
         records = [yaml.safe_load(Path(record_file).read_text()) for record_file in record_files]
     
     # Find dataset xml
-    erddap_files = glob(dataset_xml, recursive=True)
+    erddap_files = glob(datasets_xml, recursive=True)
     if not erddap_files:
-        assert ValueError(f"No files found in {dataset_xml}")
+        assert ValueError(f"No files found in {datasets_xml}")
 
     datasets = [_get_dataset_id_from_record(record, erddap_url) for record in records]
 
@@ -334,7 +334,7 @@ def update_dataset_xml(
     if missing_datasets := [
         dataset for dataset, _ in datasets if dataset not in updated
     ]:
-        logger.warning(f"Dataset ID {missing_datasets} not found in {dataset_xml}.")
+        logger.warning(f"Dataset ID {missing_datasets} not found in {datasets_xml}.")
     return updated
 
 
@@ -343,7 +343,7 @@ def update_dataset_xml(
 @click.option("--records", "-r", required=True, help="Metadata records.")
 @click.option("--erddap-url", "-u", required=True, help="ERDDAP base URL.")
 @click.option("--output-dir", "-o", help="Output directory.")
-def update(dataset_xml, records, erddap_url, output_dir):
+def update(datasets_xml, records, erddap_url, output_dir):
     """Update ERDDAP dataset xml with metadata records."""
-    update_dataset_xml(dataset_xml, records, erddap_url, output_dir)
+    update_dataset_xml(datasets_xml, records, erddap_url, output_dir)
 
