@@ -97,7 +97,7 @@ def generate_history(record, language="en"):
 
 
 def global_attributes(
-    record, output="xml", language="en", base_url="https://catalogue.hakai.org/"
+    record, output="xml", language="en", base_url="https://catalogue.hakai.org"
 ) -> str:
     """Generate an ERDDAP dataset.xml global attributes from a metadata record
     which follows the ACDD 1.3 conventions.
@@ -141,6 +141,7 @@ def global_attributes(
 
     metadata_link = (
         base_url
+        + "/dataset/"
         + record["metadata"]["naming_authority"].replace(".", "-")
         + "_"
         + record["metadata"]["identifier"]
