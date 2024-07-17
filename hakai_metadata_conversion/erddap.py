@@ -7,6 +7,8 @@ import yaml
 from loguru import logger
 from lxml import etree
 
+from hakai_metadata_conversion.utils import drop_empty_values
+
 KEYWORDS_PREFIX_MAPPING = {
     "default": {
         "prefix": "",
@@ -187,6 +189,9 @@ def global_attributes(
         .get("maintenance_note", "")
         .replace("Generated from ", ""),
     }
+    # Remove empty values
+    global_attributes = drop_empty_values(global_attributes)
+    
     if not output:
         return global_attributes
     if output == "xml":
