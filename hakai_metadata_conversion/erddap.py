@@ -180,7 +180,7 @@ def global_attributes(
         "date_created": record["metadata"]["dates"].get("publication"),
         "product_version": record["identification"].get("edition"),
         "history": generate_history(record, language),
-        "license": record["metadata"]["use_constraints"].get("licence", {}).get("code"),
+        "license": record["metadata"]["use_constraints"].get("licence", {}).get("url"),
         **(_get_contact(creator[0], "creator") if creator else {}),
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
