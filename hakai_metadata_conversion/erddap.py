@@ -90,9 +90,9 @@ def _get_platform(record):
     platform = record["platform"]
     return {
         "platform": platform[0]["type"],
-        "platform_vocabulary": "http://vocab.nerc.ac.uk/collection/L06/current/"
+        "platform_vocabulary": "http://vocab.nerc.ac.uk/collection/L06/current/",
     }
-    
+
 
 def generate_history(record, language="en"):
     """Generate a history string from a metadata record."""
@@ -159,7 +159,9 @@ def global_attributes(
     )
 
     global_attributes = {
-        "institution": creator[0].get("organization",{}).get("name") if creator else "",
+        "institution": (
+            creator[0].get("organization", {}).get("name") if creator else ""
+        ),
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
         "project": ",".join(record["identification"].get("project", [])),
@@ -317,12 +319,15 @@ def update_dataset_xml(
     output_dir: str = None,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
-    
+
     # Find dataset xml
     if isinstance(records, str):
         record_files = glob(records, recursive=True)
-        records = [yaml.safe_load(Path(record_file).read_text()) for record_file in record_files]
-    
+        records = [
+            yaml.safe_load(Path(record_file).read_text())
+            for record_file in record_files
+        ]
+
     # Find dataset xml
     erddap_files = glob(datasets_xml, recursive=True)
     if not erddap_files:
@@ -359,4 +364,3 @@ def update_dataset_xml(
 def update(datasets_xml, records, erddap_url, output_dir):
     """Update ERDDAP dataset xml with metadata records."""
     update_dataset_xml(datasets_xml, records, erddap_url, output_dir)
-

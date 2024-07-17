@@ -52,6 +52,7 @@ def converter(record, format) -> str:
     else:
         raise ValueError(f"Unknown output format: {format}")
 
+
 @click.group(name="hakai-metadata-conversion")
 def cli():
     """Hakai Metadata Conversion CLI.
@@ -59,7 +60,9 @@ def cli():
     """
     pass
 
+
 cli.add_command(erddap.update, name="erddap-update")
+
 
 @cli.command(name="convert")
 @click.option("--input", "-i", required=True, help="Input file.")
@@ -112,15 +115,16 @@ def cli_convert(**kwargs):
     """Convert metadata records to different metadata formats or standards."""
     convert(**kwargs)
 
+
 @logger.catch(reraise=True)
 def convert(
     input,
     output_format: str,
-    recursive:bool =False,
-    input_file_format:str="yaml",
+    recursive: bool = False,
+    input_file_format: str = "yaml",
     encoding: str = "utf-8",
     output_dir: str = ".",
-    output_file: str=None,
+    output_file: str = None,
     output_encoding: str = "utf-8",
 ):
     """Convert metadata records to different metadata formats or standards."""

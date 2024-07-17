@@ -72,6 +72,7 @@ def test_erddap_dataset_xml_update(record, tmp_path):
     )
     assert (tmp_path / "test_datasets.xml").exists()
 
+
 def test_erddap_dataset_xml_update_string(tmp_path):
     erddap.update_dataset_xml(
         "tests/erddap_xmls/test_datasets.xml",
@@ -80,6 +81,7 @@ def test_erddap_dataset_xml_update_string(tmp_path):
         output_dir=tmp_path,
     )
     assert (tmp_path / "test_datasets.xml").exists()
+
 
 def test_erddap_dataset_d_xml_update(record, tmp_path):
     erddap.update_dataset_xml(
