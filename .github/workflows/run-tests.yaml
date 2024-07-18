@@ -40,8 +40,9 @@ jobs:
       - name: Run pytest
         run: poetry run pytest
       
-      - name: Convert test record to CITATION.cff
+      - name: Convert test record to CITATION.cff if main branch
         uses: hakaiinstitute/hakai-metadata-conversion@main
+        if: github.ref == 'refs/heads/main'
         with:
           input: tests/records/test_record1.json
           output-file: CITATION.cff
