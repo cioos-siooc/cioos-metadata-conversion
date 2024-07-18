@@ -54,10 +54,11 @@ def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
 
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
-    subprocess.run(
+    validation_result = subprocess.run(
         ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
+    assert validation_result.returncode == 0, validation_result.stderr.decode("utf-8")
 
 
 @pytest.mark.parametrize(
@@ -71,7 +72,8 @@ def test_hakai_metadata_entry_form_files_cff_fr(file, tmp_path):
 
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result_fr, encoding="utf-8")
-    subprocess.run(
+    validation_result = subprocess.run(
         ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
+    assert validation_result.returncode == 0, validation_result.stderr.decode("utf-8")
