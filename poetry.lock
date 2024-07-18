@@ -578,7 +578,7 @@ files = [
 [[package]]
 name = "metadata_xml"
 version = "0.1"
-description = "Python module for converting ACDD style metadata into the CIOOS ISO profile"
+description = ""
 optional = false
 python-versions = "*"
 files = []
