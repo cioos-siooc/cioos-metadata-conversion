@@ -71,6 +71,27 @@ def get_cff_contact(contact):
     )
 
 
+def _get_doi(record):
+    if not record["identification"].get("identifier", ""):
+        return []
+    return [
+        {
+            "description": "DOI",
+            "type": "doi",
+            "value": record["identification"]["identifier"].replace("https://doi.org/", "")
+            if "doi.org" in record["identification"].get("identifier", "")
+            else None,
+        }
+    ]
+
+def _get_unique_authors(record):
+    authors = []
+    for author in record["contact"]:
+        contact = get_cff_contact(author)
+        if contact not in authors:
+            authors.append(contact)
+    return authors
+
 def citation_cff(
     record,
     output_format="yaml",
@@ -90,14 +111,11 @@ def citation_cff(
         + "_"
         + record["metadata"]["identifier"]
     )
+
     record = {
         "cff-version": "1.2.0",
         "message": message,
-        "authors": [
-            get_cff_contact(contact)
-            for contact in record["contact"]
-            if contact["inCitation"]
-        ],
+        "authors": _get_unique_authors(record),
         "title": record["identification"]["title"].get(language),
         "abstract": record["identification"]["abstract"].get(language),
         "date-released": record["metadata"]["dates"]["revision"].split("T")[0],
@@ -117,17 +135,7 @@ def citation_cff(
                 "type": "url",
                 "value": resource_url,
             },
-            {
-                "description": "Hakai Metadata record DOI",
-                "type": "doi",
-                "value": (
-                    record["identification"]["identifier"].replace(
-                        "https://doi.org/", ""
-                    )
-                    if "doi.org" in record["identification"].get("identifier", "")
-                    else None
-                ),
-            },
+            *_get_doi(record),
             {
                 "description": "Hakai Metadata Form used to generate this record",
                 "type": "url",
@@ -154,11 +162,11 @@ def citation_cff(
                 for distribution in record["distribution"]
             ],
         ],
-        "keywords": [
+        "keywords": list(set([
             keyword
             for _, group in record["identification"]["keywords"].items()
             for keyword in group.get(language, [])
-        ],
+        ])),
         "license": record["metadata"]["use_constraints"].get("licence", {}).get("code"),
         "license-url": record["metadata"]["use_constraints"]
         .get("licence", {})
