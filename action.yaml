@@ -67,7 +67,7 @@ runs:
     - name: Run conversion
       shell: bash
       run: |
-        hakai_metadata_conversion \
+        hakai_metadata_conversion convert \
         --input ${{ inputs.input }} \
         --output-dir ${{ inputs.output-dir }} \
         --output-file ${{ inputs.output-file }} \

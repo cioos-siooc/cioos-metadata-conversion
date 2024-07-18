@@ -1,6 +1,5 @@
 import subprocess
 from glob import glob
-from pathlib import Path
 
 import pytest
 
@@ -27,9 +26,9 @@ def test_citation_cff(record):
     assert "identifiers" in result
 
 
-def test_ctation_cff_yaml(record):
+def test_ctation_cff_yaml(record, tmp_path):
     result = citation_cff.citation_cff(record, output_format="yaml", language="en")
-    Path("CITATION.cff").write_text(result, encoding="utf-8")
+    (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
 
 
 def test_citation_cff_validation(record, tmp_path):
@@ -55,10 +54,11 @@ def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
 
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
-    result = subprocess.run(
+    validation_result = subprocess.run(
         ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
+    assert validation_result.returncode == 0, validation_result.stderr.decode("utf-8")
 
 
 @pytest.mark.parametrize(
@@ -72,7 +72,8 @@ def test_hakai_metadata_entry_form_files_cff_fr(file, tmp_path):
 
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result_fr, encoding="utf-8")
-    result = subprocess.run(
+    validation_result = subprocess.run(
         ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
+    assert validation_result.returncode == 0, validation_result.stderr.decode("utf-8")

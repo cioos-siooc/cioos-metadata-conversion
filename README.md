@@ -58,7 +58,7 @@ job:
         step:
             - use: action/checkout@v4
             - name: Sync metadata
-              use: hakaiinsitute/hakai-metadata-conversion
+              use: hakaiinstitute/hakai-metadata-conversion
               with:
                 - input: url or file path within repo
                 - output-file: CITATION.cff

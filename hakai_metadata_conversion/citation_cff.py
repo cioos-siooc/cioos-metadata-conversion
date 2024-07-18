@@ -10,6 +10,15 @@ from loguru import logger
 from hakai_metadata_conversion.utils import drop_empty_values
 
 
+def _get_placeholder(language):
+    if language == "en":
+        return "Not available"
+    elif language == "fr":
+        return "Non disponible"
+    else:
+        return "Not available"
+
+
 def _get_country_code(country_name):
     if not country_name:
         return None
@@ -71,6 +80,58 @@ def get_cff_contact(contact):
     )
 
 
+def _get_doi(record):
+    if not record["identification"].get("identifier", ""):
+        return []
+    return [
+        {
+            "description": "DOI",
+            "type": "doi",
+            "value": (
+                record["identification"]["identifier"].replace("https://doi.org/", "")
+                if "doi.org" in record["identification"].get("identifier", "")
+                else None
+            ),
+        }
+    ]
+
+
+def _get_ressources(record, language):
+    ressources = []
+    for distribution in record["distribution"]:
+        if not distribution["url"].startswith("http"):
+            logger.warning(f"Invalid URL: {distribution['url']}")
+            continue
+        ressources.append(
+            {
+                "description": ": ".join(
+                    [
+                        item
+                        for item in [
+                            distribution.get("name", {}).get(language, ""),
+                            distribution.get("description", {}).get(
+                                language, _get_placeholder(language)
+                            ),
+                        ]
+                        if item
+                    ]
+                ),
+                "type": "url",
+                "value": distribution["url"],
+            }
+        )
+    return ressources
+
+
+def _get_unique_authors(record):
+    authors = []
+    for author in record["contact"]:
+        contact = get_cff_contact(author)
+        if contact not in authors:
+            authors.append(contact)
+    return authors
+
+
 def citation_cff(
     record,
     output_format="yaml",
@@ -90,14 +151,11 @@ def citation_cff(
         + "_"
         + record["metadata"]["identifier"]
     )
+
     record = {
         "cff-version": "1.2.0",
         "message": message,
-        "authors": [
-            get_cff_contact(contact)
-            for contact in record["contact"]
-            if contact["inCitation"]
-        ],
+        "authors": _get_unique_authors(record),
         "title": record["identification"]["title"].get(language),
         "abstract": record["identification"]["abstract"].get(language),
         "date-released": record["metadata"]["dates"]["revision"].split("T")[0],
@@ -113,52 +171,29 @@ def citation_cff(
                 "value": record["metadata"]["identifier"],
             },
             {
-                "description": "Hakai Metadata record URL",
+                "description": "Metadata record URL",
                 "type": "url",
                 "value": resource_url,
             },
+            *_get_doi(record),
             {
-                "description": "Hakai Metadata record DOI",
-                "type": "doi",
-                "value": (
-                    record["identification"]["identifier"].replace(
-                        "https://doi.org/", ""
-                    )
-                    if "doi.org" in record["identification"].get("identifier", "")
-                    else None
-                ),
-            },
-            {
-                "description": "Hakai Metadata Form used to generate this record",
+                "description": "Metadata Form used to generate this record",
                 "type": "url",
                 "value": record["metadata"]["maintenance_note"].replace(
                     "Generated from ", ""
                 ),
             },
-            # Generate ressources links
-            *[
-                {
-                    "description": ": ".join(
-                        [
-                            item
-                            for item in [
-                                distribution.get("name", {}).get(language, ""),
-                                distribution.get("description", {}).get(language),
-                            ]
-                            if item
-                        ]
-                    ),
-                    "type": "url",
-                    "value": distribution["url"],
-                }
-                for distribution in record["distribution"]
-            ],
+            *_get_ressources(record, language=language),
         ],
-        "keywords": [
-            keyword
-            for _, group in record["identification"]["keywords"].items()
-            for keyword in group.get(language, [])
-        ],
+        "keywords": list(
+            set(
+                [
+                    keyword
+                    for _, group in record["identification"]["keywords"].items()
+                    for keyword in group.get(language, [])
+                ]
+            )
+        ),
         "license": record["metadata"]["use_constraints"].get("licence", {}).get("code"),
         "license-url": record["metadata"]["use_constraints"]
         .get("licence", {})
