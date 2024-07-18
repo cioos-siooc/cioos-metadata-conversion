@@ -39,7 +39,7 @@ def load(input, format, encoding="utf-8") -> dict:
         return input_formats[format](f)
 
 
-def convert(record, format) -> str:
+def converter(record, format) -> str:
     """Run the conversion to the desired format."""
     if format == "json":
         return json.dumps(record, indent=2)
@@ -53,7 +53,18 @@ def convert(record, format) -> str:
         raise ValueError(f"Unknown output format: {format}")
 
 
-@click.command()
+@click.group(name="hakai-metadata-conversion")
+def cli():
+    """Hakai Metadata Conversion CLI.
+    Convert metadata records to different metadata formats or standards.
+    """
+    pass
+
+
+cli.add_command(erddap.update, name="erddap-update")
+
+
+@cli.command(name="convert")
 @click.option("--input", "-i", required=True, help="Input file.")
 @click.option(
     "--recursive", "-r", is_flag=True, help="Process files recursively.", default=False
@@ -100,20 +111,21 @@ def convert(record, format) -> str:
     show_default=True,
 )
 @logger.catch(reraise=True)
-def cli_main(**kwargs):
+def cli_convert(**kwargs):
     """Convert metadata records to different metadata formats or standards."""
-    main(**kwargs)
+    convert(**kwargs)
 
 
-def main(
+@logger.catch(reraise=True)
+def convert(
     input,
-    recursive,
-    input_file_format,
-    encoding,
-    output_dir,
-    output_file,
-    output_format,
-    output_encoding,
+    output_format: str,
+    recursive: bool = False,
+    input_file_format: str = "yaml",
+    encoding: str = "utf-8",
+    output_dir: str = ".",
+    output_file: str = None,
+    output_encoding: str = "utf-8",
 ):
     """Convert metadata records to different metadata formats or standards."""
 
@@ -142,7 +154,7 @@ def main(
             continue
 
         logger.debug(f"Converting to {output_format}")
-        converted_record = convert(record, output_format)
+        converted_record = converter(record, output_format)
 
         # Generate output file path
         if output_dir and not output_file:
@@ -163,4 +175,4 @@ def main(
 
 
 if __name__ == "__main__":
-    cli_main()
+    cli()

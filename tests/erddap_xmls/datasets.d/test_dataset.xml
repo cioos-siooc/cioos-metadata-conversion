@@ -1,0 +1,805 @@
+<!-- Some more comments at the beginning of the file -->
+<dataset type="EDDTableFromDatabase" datasetID="TestDataset1">
+  <!-- Some comments at the beginning --> 
+  <sourceUrl>hakai_erddap_sourceUrl</sourceUrl>
+  <driverName>org.postgresql.Driver</driverName>
+  <schemaName>erddap</schemaName>
+  <tableName>"HakaiBamfieldBoL5min"</tableName>
+  <addAttributes>
+    <att name="cde_ingest">false</att>
+    <att name="standard_name_vocabulary">CF Standard Name Table v79</att>
+    <att name="subsetVariables">station</att>
+    <att name="cdm_data_type">TimeSeries</att>
+    <att name="cdm_timeseries_variables">station</att>
+    <att name="platform">coastal structure</att>
+    <att name="platform_vocabulary">http://vocab.nerc.ac.uk/collection/L06/current/</att>
+    <att name="citation">Evans, W., Pocock, K., &amp; Weekes, C. (2023). Real-Time Provisional High-Resolution Record of Seawater Carbon Dioxide (CO2) Content Collected from the Nova Harvest Ltd Hatchery in Bamfield BC Canada (Version v).</att>
+    <att name="license">https://creativecommons.org/licenses/by/4.0</att>
+    <att name="instrument">Dakunalytics, LLC - Burke-o-Lator pCO2/TCO2 analyzer - ,Seabird Electronics - SBE 45 - </att>
+    <att name="id">fb5c9e1e-a911-46b7-8c1d-e34215a105ed</att>
+    <att name="naming_authority">ca.cioos</att>
+    <att name="keywords">Continuous measurement,Discrete measurement,Surface measurement,Ocean Acidification,Practical Salinity,Sea Surface Temperature,Sea Surface Practical Salinity,CO2,Barkley Sound,Trevor Channel</att>
+    <att name="platform">land/onshore structure</att>
+    <att name="platform_vocabulary">http://vocab.nerc.ac.uk/collection/L06/current/</att>
+    <att name="summary">summary</att>
+    <att name="title">title</att>
+    <!-- Some commented text that should remain -->v
+  </addAttributes>
+  <dataVariable>
+    <sourceName>measurementTime</sourceName>
+    <destinationName>time</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="standard_name">time</att>
+      <att name="units">seconds since 1970-01-01T00:00:00Z</att>
+      <att name="cell_methods">time: point (interval: 5.0 minutes comment: time correspond to the end of the interval)</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>=48.836633</sourceName>
+    <destinationName>latitude</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="description">Fixed latitude of the site</att>
+      <att name="long_name">Latitude</att>
+      <att name="standard_name">latitude</att>
+      <att name="units">degrees_north</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>=-125.1362667</sourceName>
+    <destinationName>longitude</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="description">Fixed longitude of the site</att>
+      <att name="long_name">Longitude</att>
+      <att name="standard_name">longitude</att>
+      <att name="units">degrees_east</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>=20</sourceName>
+    <destinationName>depth</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="description">Approximative depth</att>
+      <att name="long_name">Depth</att>
+      <att name="standard_name">depth</att>
+      <att name="units">m</att>
+    </addAttributes>
+  </dataVariable>
+
+  <dataVariable>
+    <sourceName>="Nova Harvest Fisheries Burke-o-Lator"</sourceName>
+    <destinationName>station</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="ioos_category">Location</att>
+      <att name="cf_role">timeseries_id</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_Med</sourceName>
+    <destinationName>pCO2_uatm_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">partial_pressure_of_carbon_dioxide_in_sea_water</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pCO2_Med</att>
+      <att name="units">μatm</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_Avg</sourceName>
+    <destinationName>pCO2_uatm_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">partial_pressure_of_carbon_dioxide_in_sea_water</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pCO2_Avg</att>
+      <att name="units">μatm</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_Min</sourceName>
+    <destinationName>pCO2_uatm_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">partial_pressure_of_carbon_dioxide_in_sea_water</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pCO2_Min</att>
+      <att name="units">μatm</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_Max</sourceName>
+    <destinationName>pCO2_uatm_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">partial_pressure_of_carbon_dioxide_in_sea_water</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pCO2_Max</att>
+      <att name="units">μatm</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_Std</sourceName>
+    <destinationName>pCO2_uatm_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">partial_pressure_of_carbon_dioxide_in_sea_water</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pCO2_Std</att>
+      <att name="units">μatm</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_UQL</sourceName>
+    <destinationName>pCO2_uatm_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">pCO2 UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:pCO2_uatm_QC</sourceName>
+    <destinationName>pCO2_uatm_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">pCO2 Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_Med</sourceName>
+    <destinationName>calcTCO2_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TCO2_Med</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_Avg</sourceName>
+    <destinationName>calcTCO2_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TCO2_Avg</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_Min</sourceName>
+    <destinationName>calcTCO2_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TCO2_Min</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_Max</sourceName>
+    <destinationName>calcTCO2_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TCO2_Max</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_Std</sourceName>
+    <destinationName>calcTCO2_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TCO2_Std</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_UQL</sourceName>
+    <destinationName>calcTCO2_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">TCO2 UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcTCO2_QC</sourceName>
+    <destinationName>calcTCO2_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">TCO2 Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_Med</sourceName>
+    <destinationName>TSG_T_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_temperature</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Water temperature_Med</att>
+      <att name="units">degree_Celsius</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_Avg</sourceName>
+    <destinationName>TSG_T_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_temperature</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Water temperature_Avg</att>
+      <att name="units">degree_Celsius</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_Min</sourceName>
+    <destinationName>TSG_T_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_temperature</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Water temperature_Min</att>
+      <att name="units">degree_Celsius</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_Max</sourceName>
+    <destinationName>TSG_T_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_temperature</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Water temperature_Max</att>
+      <att name="units">degree_Celsius</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_Std</sourceName>
+    <destinationName>TSG_T_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_temperature</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Water temperature_Std</att>
+      <att name="units">degree_Celsius</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_UQL</sourceName>
+    <destinationName>TSG_T_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">Water temperature UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_T_QC</sourceName>
+    <destinationName>TSG_T_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">Water temperature Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_Med</sourceName>
+    <destinationName>TSG_S_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_practical_salinity</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Salinity_Med</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_Avg</sourceName>
+    <destinationName>TSG_S_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_practical_salinity</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Salinity_Avg</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_Min</sourceName>
+    <destinationName>TSG_S_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_practical_salinity</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Salinity_Min</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_Max</sourceName>
+    <destinationName>TSG_S_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_practical_salinity</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Salinity_Max</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_Std</sourceName>
+    <destinationName>TSG_S_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_practical_salinity</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Salinity_Std</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_UQL</sourceName>
+    <destinationName>TSG_S_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">Salinity UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:TSG_S_QC</sourceName>
+    <destinationName>TSG_S_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">Salinity Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_Med</sourceName>
+    <destinationName>AlkS_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TA_Med</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_Avg</sourceName>
+    <destinationName>AlkS_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TA_Avg</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_Min</sourceName>
+    <destinationName>AlkS_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TA_Min</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_Max</sourceName>
+    <destinationName>AlkS_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TA_Max</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_Std</sourceName>
+    <destinationName>AlkS_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">TA_Std</att>
+      <att name="units">μmol/kg</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_UQL</sourceName>
+    <destinationName>AlkS_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">TA UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:AlkS_QC</sourceName>
+    <destinationName>AlkS_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">TA Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_Med</sourceName>
+    <destinationName>calcOmega_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Ω arag_Med</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_Avg</sourceName>
+    <destinationName>calcOmega_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Ω arag_Avg</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_Min</sourceName>
+    <destinationName>calcOmega_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Ω arag_Min</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_Max</sourceName>
+    <destinationName>calcOmega_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Ω arag_Max</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_Std</sourceName>
+    <destinationName>calcOmega_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">Ω arag_Std</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_UQL</sourceName>
+    <destinationName>calcOmega_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">Ω arag UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcOmega_QC</sourceName>
+    <destinationName>calcOmega_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">Ω arag Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_Med</sourceName>
+    <destinationName>calcpH_Med</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_ph_reported_on_total_scale</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pH_T_Med</att>
+      <att name="units">total scale</att>
+      <att name="cell_methods">time: median (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_Avg</sourceName>
+    <destinationName>calcpH_Avg</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_ph_reported_on_total_scale</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pH_T_Avg</att>
+      <att name="units">total scale</att>
+      <att name="cell_methods">time: mean (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_Min</sourceName>
+    <destinationName>calcpH_Min</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_ph_reported_on_total_scale</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pH_T_Min</att>
+      <att name="units">total scale</att>
+      <att name="cell_methods">time: mininum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_Max</sourceName>
+    <destinationName>calcpH_Max</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_ph_reported_on_total_scale</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pH_T_Max</att>
+      <att name="units">total scale</att>
+      <att name="cell_methods">time: maximum (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_Std</sourceName>
+    <destinationName>calcpH_Std</destinationName>
+    <dataType>double</dataType>
+    <addAttributes>
+      <att name="standard_name">sea_water_ph_reported_on_total_scale</att>
+      <att name="sensor_type">BoL</att>
+      <att name="sensor_description">Burke-o-Lator</att>
+      <att name="long_name">pH_T_Std</att>
+      <att name="units">total scale</att>
+      <att name="cell_methods">time: standard_deviation (interval: 5.0 minutes)</att>
+      <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_UQL</sourceName>
+    <destinationName>calcpH_UQL</destinationName>
+    <dataType>byte</dataType>
+    <addAttributes>
+      <att name="long_name">pH_T UNESCO Q level</att>
+      <att name="flag_meaning">PASS NOT_EVALUATED SUSPECT FAIL MISSING</att>
+      <att name="flag_values" type="byteList">1 2 3 4 9</att>
+      <att name="units">1</att>
+      <att name="standard_name">aggregate_quality_flag</att>
+      <att name="missing_value" type="byte">2</att>
+    </addAttributes>
+  </dataVariable>
+
+
+  <dataVariable>
+    <sourceName>BamfieldBoL:calcpH_QC</sourceName>
+    <destinationName>calcpH_flags</destinationName>
+    <dataType>String</dataType>
+    <addAttributes>
+      <att name="long_name">pH_T Q flags</att>
+      <att name="units">Quality flags</att>
+    </addAttributes>
+  </dataVariable>
+
+</dataset>
