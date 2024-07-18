@@ -10,6 +10,15 @@ from loguru import logger
 from hakai_metadata_conversion.utils import drop_empty_values
 
 
+def _get_placeholder(language):
+    if language == "en":
+        return "Not available"
+    elif language == "fr":
+        return "Non disponible"
+    else:
+        return "Not available"
+
+
 def _get_country_code(country_name):
     if not country_name:
         return None
@@ -100,7 +109,9 @@ def _get_ressources(record, language):
                         item
                         for item in [
                             distribution.get("name", {}).get(language, ""),
-                            distribution.get("description", {}).get(language),
+                            distribution.get("description", {}).get(
+                                language, _get_placeholder(language)
+                            ),
                         ]
                         if item
                     ]
