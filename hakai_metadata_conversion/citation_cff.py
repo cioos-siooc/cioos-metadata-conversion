@@ -78,11 +78,39 @@ def _get_doi(record):
         {
             "description": "DOI",
             "type": "doi",
-            "value": record["identification"]["identifier"].replace("https://doi.org/", "")
-            if "doi.org" in record["identification"].get("identifier", "")
-            else None,
+            "value": (
+                record["identification"]["identifier"].replace("https://doi.org/", "")
+                if "doi.org" in record["identification"].get("identifier", "")
+                else None
+            ),
         }
     ]
+
+
+def _get_ressources(record, language):
+    ressources = []
+    for distribution in record["distribution"]:
+        if not distribution["url"].startswith("http"):
+            logger.warning(f"Invalid URL: {distribution['url']}")
+            continue
+        ressources.append(
+            {
+                "description": ": ".join(
+                    [
+                        item
+                        for item in [
+                            distribution.get("name", {}).get(language, ""),
+                            distribution.get("description", {}).get(language),
+                        ]
+                        if item
+                    ]
+                ),
+                "type": "url",
+                "value": distribution["url"],
+            }
+        )
+    return ressources
+
 
 def _get_unique_authors(record):
     authors = []
@@ -91,6 +119,7 @@ def _get_unique_authors(record):
         if contact not in authors:
             authors.append(contact)
     return authors
+
 
 def citation_cff(
     record,
@@ -131,42 +160,29 @@ def citation_cff(
                 "value": record["metadata"]["identifier"],
             },
             {
-                "description": "Hakai Metadata record URL",
+                "description": "Metadata record URL",
                 "type": "url",
                 "value": resource_url,
             },
             *_get_doi(record),
             {
-                "description": "Hakai Metadata Form used to generate this record",
+                "description": "Metadata Form used to generate this record",
                 "type": "url",
                 "value": record["metadata"]["maintenance_note"].replace(
                     "Generated from ", ""
                 ),
             },
-            # Generate ressources links
-            *[
-                {
-                    "description": ": ".join(
-                        [
-                            item
-                            for item in [
-                                distribution.get("name", {}).get(language, ""),
-                                distribution.get("description", {}).get(language),
-                            ]
-                            if item
-                        ]
-                    ),
-                    "type": "url",
-                    "value": distribution["url"],
-                }
-                for distribution in record["distribution"]
-            ],
+            *_get_ressources(record, language=language),
         ],
-        "keywords": list(set([
-            keyword
-            for _, group in record["identification"]["keywords"].items()
-            for keyword in group.get(language, [])
-        ])),
+        "keywords": list(
+            set(
+                [
+                    keyword
+                    for _, group in record["identification"]["keywords"].items()
+                    for keyword in group.get(language, [])
+                ]
+            )
+        ),
         "license": record["metadata"]["use_constraints"].get("licence", {}).get("code"),
         "license-url": record["metadata"]["use_constraints"]
         .get("licence", {})
