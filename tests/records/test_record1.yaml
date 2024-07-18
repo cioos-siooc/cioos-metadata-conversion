@@ -63,7 +63,7 @@ distribution:
         verified: false
   name:
     en: ERDDAP Dataset
-  url: https://catalogue.hakai.org/erddap/tabledap/HakaiWaterPropertiesInstrumentProfileResearch.html
+  url: https://catalogue.hakai.org/erddap/tabledap/TestDataset1.html
 - name:
     en: Hakai Water Properties Profile Processing and QA/QC Procedure Manual
   url: https://github.com/HakaiInstitute/hakai-datasets/raw/development/datasets_documents/HakaiWaterPropertiesProfiles/Hakai_Water_Properties_Processing_and_QAQC_Procedure_20210331.pdf

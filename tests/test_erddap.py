@@ -2,12 +2,12 @@ from glob import glob
 
 import pytest
 
+import hakai_metadata_conversion.erddap as erddap
 from hakai_metadata_conversion.__main__ import load
-from hakai_metadata_conversion.erddap import global_attributes
 
 
 def test_erddap_global_attributes(record):
-    result = global_attributes(record, output=None, language="en")
+    result = erddap.global_attributes(record, output=None, language="en")
     assert result
     assert isinstance(result, dict)
     assert "title" in result
@@ -36,8 +36,8 @@ def test_erddap_global_attributes(record):
     assert "metadata_link" in result
 
 
-def test_erddap_global_attirbutes_xml(record):
-    result = global_attributes(record, output="xml", language="en")
+def test_erddap_global_attributes_xml(record):
+    result = erddap.global_attributes(record, output="xml", language="en")
     assert result
 
 
@@ -47,7 +47,7 @@ def test_erddap_global_attirbutes_xml(record):
 )
 def test_hakai_metadata_files_to_erddap(file):
     data = load(file, "yaml")
-    result = global_attributes(data, output="xml", language="en")
+    result = erddap.global_attributes(data, output="xml", language="en")
 
     assert result
 
@@ -58,6 +58,37 @@ def test_hakai_metadata_files_to_erddap(file):
 )
 def test_hakai_metadata_files_to_erddap_fr(file):
     data = load(file, "yaml")
-    result_fr = global_attributes(data, output="xml", language="fr")
+    result_fr = erddap.global_attributes(data, output="xml", language="fr")
 
     assert result_fr
+
+
+def test_erddap_dataset_xml_update(record, tmp_path):
+    erddap.update_dataset_xml(
+        "tests/erddap_xmls/test_datasets.xml",
+        [record],
+        erddap_url="https://catalogue.hakai.org/erddap",
+        output_dir=tmp_path,
+    )
+    assert (tmp_path / "test_datasets.xml").exists()
+
+
+def test_erddap_dataset_xml_update_string(tmp_path):
+    erddap.update_dataset_xml(
+        "tests/erddap_xmls/test_datasets.xml",
+        "tests/records/*.yaml",
+        erddap_url="https://catalogue.hakai.org/erddap",
+        output_dir=tmp_path,
+    )
+    assert (tmp_path / "test_datasets.xml").exists()
+
+
+def test_erddap_dataset_d_xml_update(record, tmp_path):
+    erddap.update_dataset_xml(
+        "tests/erddap_xmls/dataset.d/*.xml",
+        [record],
+        erddap_url="https://catalogue.hakai.org/erddap",
+        output_dir=tmp_path,
+    )
+    files = tmp_path.glob("dataset.d/*.xml")
+    assert files

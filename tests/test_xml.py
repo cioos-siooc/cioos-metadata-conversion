@@ -1,15 +1,15 @@
-import pytest
 from glob import glob
-from pathlib import Path
+
+import pytest
 
 from hakai_metadata_conversion.__main__ import load
 from hakai_metadata_conversion.xml import xml
+
 
 def test_xml(record):
     result = xml(record)
     assert result
     assert isinstance(result, str)
-
 
 
 @pytest.mark.parametrize(
@@ -19,6 +19,6 @@ def test_xml(record):
 def test_hakai_records_xml(file):
     record = load(file, "yaml")
     result = xml(record)
-    
+
     assert result
     assert isinstance(result, str)

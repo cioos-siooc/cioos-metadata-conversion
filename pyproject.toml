@@ -14,6 +14,7 @@ cffconvert = "^2.0.0"
 pycountry = "^24.6.1"
 metadata-xml = {git = "https://github.com/HakaiInstitute/metadata-xml.git"}
 pyyaml = "^6.0.1"
+lxml = "^5.2.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +22,7 @@ pytest = "^8.2.2"
 isort = "^5.13.2"
 ruff = "^0.5.0"
 black = "^24.4.2"
+pytest-xdist = "^3.6.1"
 
 
 [tool.poetry.group.docs.dependencies]
@@ -31,4 +33,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-hakai_metadata_conversion = "hakai_metadata_conversion.__main__:cli_main"
+hakai_metadata_conversion = "hakai_metadata_conversion.__main__:cli"
