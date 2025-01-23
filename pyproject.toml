@@ -12,9 +12,9 @@ loguru = "^0.7.2"
 requests = "^2.32.3"
 cffconvert = "^2.0.0"
 pycountry = "^24.6.1"
-metadata-xml = {git = "https://github.com/hakaiinstitute/metadata-xml.git"}
 pyyaml = "^6.0.1"
 lxml = "^5.2.2"
+metadata-xml = {git = "https://github.com/cioos-siooc/metadata-xml.git"}
 
 
 [tool.poetry.group.dev.dependencies]
