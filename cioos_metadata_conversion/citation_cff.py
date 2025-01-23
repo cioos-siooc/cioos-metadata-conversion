@@ -7,7 +7,7 @@ import pycountry
 import yaml
 from loguru import logger
 
-from hakai_metadata_conversion.utils import drop_empty_values
+from cioos_metadata_conversion.utils import drop_empty_values
 
 
 def _get_placeholder(language):

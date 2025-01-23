@@ -7,7 +7,7 @@ import requests
 import yaml
 from loguru import logger
 
-from hakai_metadata_conversion import citation_cff, erddap
+from cioos_metadata_conversion import citation_cff, erddap
 
 output_formats = {
     "json": lambda x: json.dumps(x, indent=2),

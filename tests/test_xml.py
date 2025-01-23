@@ -2,8 +2,8 @@ from glob import glob
 
 import pytest
 
-from hakai_metadata_conversion.__main__ import load
-from hakai_metadata_conversion.xml import xml
+from cioos_metadata_conversion.__main__ import load
+from cioos_metadata_conversion.xml import xml
 
 
 def test_xml(record):
@@ -14,7 +14,7 @@ def test_xml(record):
 
 @pytest.mark.parametrize(
     "file",
-    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+    glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_hakai_records_xml(file):
     record = load(file, "yaml")

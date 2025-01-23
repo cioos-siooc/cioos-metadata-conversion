@@ -7,7 +7,7 @@ import yaml
 from loguru import logger
 from lxml import etree
 
-from hakai_metadata_conversion.utils import drop_empty_values
+from cioos_metadata_conversion.utils import drop_empty_values
 
 KEYWORDS_PREFIX_MAPPING = {
     "default": {

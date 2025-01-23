@@ -3,7 +3,7 @@ from glob import glob
 import pytest
 from click.testing import CliRunner
 
-from hakai_metadata_conversion.__main__ import cli
+from cioos_metadata_conversion.__main__ import cli
 
 
 @pytest.fixture

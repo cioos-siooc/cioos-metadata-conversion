@@ -3,8 +3,8 @@ from glob import glob
 
 import pytest
 
-from hakai_metadata_conversion import citation_cff
-from hakai_metadata_conversion.__main__ import load
+from cioos_metadata_conversion import citation_cff
+from cioos_metadata_conversion.__main__ import load
 
 
 def test_citation_cff(record):
@@ -45,7 +45,7 @@ def test_citation_cff_validation(record, tmp_path):
 
 @pytest.mark.parametrize(
     "file",
-    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+    glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
     data = load(file, "yaml")
@@ -63,7 +63,7 @@ def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
 
 @pytest.mark.parametrize(
     "file",
-    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+    glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_hakai_metadata_entry_form_files_cff_fr(file, tmp_path):
     data = load(file, "yaml")

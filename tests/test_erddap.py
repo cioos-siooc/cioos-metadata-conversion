@@ -2,8 +2,8 @@ from glob import glob
 
 import pytest
 
-import hakai_metadata_conversion.erddap as erddap
-from hakai_metadata_conversion.__main__ import load
+import cioos_metadata_conversion.erddap as erddap
+from cioos_metadata_conversion.__main__ import load
 
 
 def test_erddap_global_attributes(record):
@@ -43,7 +43,7 @@ def test_erddap_global_attributes_xml(record):
 
 @pytest.mark.parametrize(
     "file",
-    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+    glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_hakai_metadata_files_to_erddap(file):
     data = load(file, "yaml")
@@ -54,7 +54,7 @@ def test_hakai_metadata_files_to_erddap(file):
 
 @pytest.mark.parametrize(
     "file",
-    glob("tests/records/hakai-metadata-entry-form-files/**/*.yaml", recursive=True),
+    glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_hakai_metadata_files_to_erddap_fr(file):
     data = load(file, "yaml")

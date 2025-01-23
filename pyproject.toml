@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hakai-metadata-conversion"
+name = "cioos-metadata-conversion"
 version = "0.1.0"
 description = ""
 authors = ["Jessy Barrette <30420025+JessyBarrette@users.noreply.github.com>"]
@@ -33,4 +33,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-hakai_metadata_conversion = "hakai_metadata_conversion.__main__:cli"
+cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"

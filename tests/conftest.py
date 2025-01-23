@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from hakai_metadata_conversion.__main__ import load
+from cioos_metadata_conversion.__main__ import load
 
 Path("tests/results").mkdir(exist_ok=True)
 
