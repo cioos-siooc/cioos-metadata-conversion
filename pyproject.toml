@@ -7,7 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-click = "^8.1.7"
 loguru = "^0.7.2"
 requests = "^2.32.3"
 cffconvert = "^2.0.0"
@@ -15,6 +14,7 @@ pycountry = "^24.6.1"
 pyyaml = "^6.0.1"
 lxml = "^5.2.2"
 metadata-xml = {git = "https://github.com/cioos-siooc/metadata-xml.git"}
+click = ">=7,<9"
 
 
 [tool.poetry.group.dev.dependencies]
