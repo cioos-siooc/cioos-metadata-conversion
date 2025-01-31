@@ -137,7 +137,7 @@ def citation_cff(
     output_format="yaml",
     language: str = "en",
     message="If you use this software, please cite it as below",
-    ressource_base_url="https://catalogue.hakai.org/dataset/",
+    ressource_base_url="https://catalogue.cioos.org/dataset/",
     record_type="dataset",
 ) -> str:
     """Generate a convention.cff file from a CKAN record.

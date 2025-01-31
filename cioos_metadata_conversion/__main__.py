@@ -53,9 +53,9 @@ def converter(record, format) -> str:
         raise ValueError(f"Unknown output format: {format}")
 
 
-@click.group(name="hakai-metadata-conversion")
+@click.group(name="cioos-metadata-conversion")
 def cli():
-    """Hakai Metadata Conversion CLI.
+    """CIOOS Metadata Conversion CLI.
     Convert metadata records to different metadata formats or standards.
     """
     pass

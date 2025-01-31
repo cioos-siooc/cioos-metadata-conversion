@@ -47,7 +47,7 @@ def test_citation_cff_validation(record, tmp_path):
     "file",
     glob("tests/records/**/*.yaml", recursive=True),
 )
-def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
+def test_cioos_metadata_entry_form_files_cff(file, tmp_path):
     data = load(file, "yaml")
     result = citation_cff.citation_cff(data, output_format="yaml", language="en")
     assert result
@@ -65,7 +65,7 @@ def test_hakai_metadata_entry_form_files_cff(file, tmp_path):
     "file",
     glob("tests/records/**/*.yaml", recursive=True),
 )
-def test_hakai_metadata_entry_form_files_cff_fr(file, tmp_path):
+def test_cioos_metadata_entry_form_files_cff_fr(file, tmp_path):
     data = load(file, "yaml")
     result_fr = citation_cff.citation_cff(data, output_format="yaml", language="fr")
     assert result_fr

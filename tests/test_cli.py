@@ -14,13 +14,13 @@ def runner():
 def test_cli_no_args(runner):
     result = runner.invoke(cli)
     assert result.exit_code == 0
-    assert "Usage: hakai-metadata-conversion [OPTIONS] COMMAND [ARGS]" in result.output
+    assert "Usage: cioos-metadata-conversion [OPTIONS] COMMAND [ARGS]" in result.output
 
 
 def test_cli_help(runner):
     result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
-    assert "Usage: hakai-metadata-conversion [OPTIONS]" in result.output
+    assert "Usage: cioos-metadata-conversion [OPTIONS]" in result.output
 
 
 def test_cli_on_test_files(runner, tmpdir):
@@ -70,7 +70,7 @@ def test_cli_with_http_input(runner, tmpdir):
     args = [
         "convert",
         "--input",
-        "https://raw.githubusercontent.com/HakaiInstitute/hakai-metadata-conversion/main/tests/records/test_record1.yaml",
+        "https://raw.githubusercontent.com/cioos-siooc/cioos-metadata-conversion/main/tests/records/test_record1.yaml",
         "--input-file-format",
         "yaml",
         "--output-format",

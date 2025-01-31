@@ -16,7 +16,7 @@ def test_xml(record):
     "file",
     glob("tests/records/**/*.yaml", recursive=True),
 )
-def test_hakai_records_xml(file):
+def test_cioos_records_xml(file):
     record = load(file, "yaml")
     result = xml(record)
 

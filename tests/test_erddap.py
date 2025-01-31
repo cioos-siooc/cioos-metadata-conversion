@@ -45,7 +45,7 @@ def test_erddap_global_attributes_xml(record):
     "file",
     glob("tests/records/**/*.yaml", recursive=True),
 )
-def test_hakai_metadata_files_to_erddap(file):
+def test_cioos_metadata_files_to_erddap(file):
     data = load(file, "yaml")
     result = erddap.global_attributes(data, output="xml", language="en")
 
@@ -56,7 +56,7 @@ def test_hakai_metadata_files_to_erddap(file):
     "file",
     glob("tests/records/**/*.yaml", recursive=True),
 )
-def test_hakai_metadata_files_to_erddap_fr(file):
+def test_cioos_metadata_files_to_erddap_fr(file):
     data = load(file, "yaml")
     result_fr = erddap.global_attributes(data, output="xml", language="fr")
 
@@ -67,7 +67,7 @@ def test_erddap_dataset_xml_update(record, tmp_path):
     erddap.update_dataset_xml(
         "tests/erddap_xmls/test_datasets.xml",
         [record],
-        erddap_url="https://catalogue.hakai.org/erddap",
+        erddap_url="https://catalogue.cioos.org/erddap",
         output_dir=tmp_path,
     )
     assert (tmp_path / "test_datasets.xml").exists()
@@ -77,7 +77,7 @@ def test_erddap_dataset_xml_update_string(tmp_path):
     erddap.update_dataset_xml(
         "tests/erddap_xmls/test_datasets.xml",
         "tests/records/*.yaml",
-        erddap_url="https://catalogue.hakai.org/erddap",
+        erddap_url="https://catalogue.cioos.org/erddap",
         output_dir=tmp_path,
     )
     assert (tmp_path / "test_datasets.xml").exists()
@@ -87,7 +87,7 @@ def test_erddap_dataset_d_xml_update(record, tmp_path):
     erddap.update_dataset_xml(
         "tests/erddap_xmls/dataset.d/*.xml",
         [record],
-        erddap_url="https://catalogue.hakai.org/erddap",
+        erddap_url="https://catalogue.cioos.org/erddap",
         output_dir=tmp_path,
     )
     files = tmp_path.glob("dataset.d/*.xml")
