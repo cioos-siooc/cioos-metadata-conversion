@@ -19,11 +19,11 @@ jobs:
         uses: actions/checkout@v4
         with: 
           path: "."
-      - name: Checkout hakai metadata filesxz
+      - name: Checkout cioos metadata files
         uses: actions/checkout@v4
         with:
-          repository: HakaiInstitute/hakai-metadata-entry-form-files
-          path: ./tests/records/hakai-metadata-entry-form-files
+          repository: cioos-siooc/cioos-metadata-entry-form-files
+          path: ./tests/records/cioos-metadata-entry-form-files
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -41,7 +41,7 @@ jobs:
         run: poetry run pytest
       
       - name: Convert test record to CITATION.cff if main branch
-        uses: hakaiinstitute/hakai-metadata-conversion@main
+        uses: cioos-siooc/cioos-metadata-conversion@main
         if: github.ref == 'refs/heads/main'
         with:
           input: tests/records/test_record1.json
