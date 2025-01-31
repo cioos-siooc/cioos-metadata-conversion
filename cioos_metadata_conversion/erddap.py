@@ -108,10 +108,16 @@ def generate_history(record, language="en"):
 
 
 def global_attributes(
-    record, output="xml", language="en", base_url="https://catalogue.hakai.org"
+    record, output="xml", language="en", **kwargs
 ) -> str:
     """Generate an ERDDAP dataset.xml global attributes from a metadata record
     which follows the ACDD 1.3 conventions.
+
+    Args:
+        record (dict): A metadata record.
+        output (str, optional): The output format. Defaults to "xml".
+        language (str, optional): The language to use. Defaults to "en".
+        **kwargs: Additional attributes to add to the global attributes.
     """
     creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
     publisher = [
@@ -149,14 +155,6 @@ def global_attributes(
         comment += ["##Translation:\n" + translation_comment["message"]]
     else:
         logger.warning("Invalid translation comment format: {}", translation_comment)
-
-    metadata_link = (
-        base_url
-        + "/dataset/"
-        + record["metadata"]["naming_authority"].replace(".", "-")
-        + "_"
-        + record["metadata"]["identifier"]
-    )
 
     global_attributes = {
         "institution": (
@@ -198,12 +196,11 @@ def global_attributes(
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
         "doi": record["identification"].get("identifier"),
-        "metadata_link": metadata_link,
-        "infoUrl": metadata_link,
         "metadata_form": record["metadata"]
         .get("maintenance_note", "")
         .replace("Generated from ", ""),
         **_get_platform(record),
+        **kwargs,
     }
     # Remove empty values
     global_attributes = drop_empty_values(global_attributes)
