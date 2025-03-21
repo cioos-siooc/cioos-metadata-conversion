@@ -43,7 +43,7 @@ def converter(record, format) -> str:
     """Run the conversion to the desired format."""
     if format == "json":
         return json.dumps(record, indent=2)
-    elif format == "yaml":
+    elif format in ("yaml","yml"):
         return yaml.dump(record)
     elif format == "erddap":
         return erddap.global_attributes(record)
