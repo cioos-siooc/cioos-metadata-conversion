@@ -7,7 +7,7 @@ import requests
 import yaml
 from loguru import logger
 
-from cioos_metadata_conversion import citation_cff, erddap, xml
+from cioos_metadata_conversion import citation_cff, erddap, xml, acdd
 
 output_formats = {
     "json": lambda x: json.dumps(x, indent=2),
@@ -51,6 +51,8 @@ def converter(record, format) -> str:
         return citation_cff.citation_cff(record)
     elif format == "xml":
         return xml.xml(record)
+    elif format == "acdd":
+        return acdd.global_attributes(record)
     else:
         raise ValueError(f"Unknown output format: {format}")
 
