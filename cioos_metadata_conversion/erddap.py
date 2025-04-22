@@ -108,7 +108,7 @@ def generate_history(record, language="en"):
 
 
 def global_attributes(
-    record, output="xml", language="en", **kwargs
+    record, output="xml", language="en", metadata_link=None, **kwargs
 ) -> str:
     """Generate an ERDDAP dataset.xml global attributes from a metadata record
     which follows the ACDD 1.3 conventions.
@@ -196,6 +196,7 @@ def global_attributes(
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
         "doi": record["identification"].get("identifier"),
+        "metadata_link": record["identification"].get("identifier") or metadata_link,	
         "metadata_form": record["metadata"]
         .get("maintenance_note", "")
         .replace("Generated from ", ""),
