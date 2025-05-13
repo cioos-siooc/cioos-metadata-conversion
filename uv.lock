@@ -118,6 +118,7 @@ source = { editable = "." }
 dependencies = [
     { name = "cffconvert" },
     { name = "click" },
+    { name = "datacite" },
     { name = "loguru" },
     { name = "lxml" },
     { name = "metadata-xml" },
@@ -139,6 +140,7 @@ dev = [
 requires-dist = [
     { name = "cffconvert", specifier = ">=2.0.0,<3" },
     { name = "click", specifier = ">=7,<9" },
+    { name = "datacite", specifier = ">=1.2.0" },
     { name = "loguru", specifier = ">=0.7.2,<0.8" },
     { name = "lxml", specifier = ">=5.2.2,<6" },
     { name = "metadata-xml", git = "https://github.com/cioos-siooc/metadata-xml.git" },
@@ -178,6 +180,22 @@ wheels = [
 ]
 
 [[package]]
+name = "datacite"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "idutils" },
+    { name = "importlib-metadata" },
+    { name = "jsonschema" },
+    { name = "lxml" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fd/65/50d319f7a60be79a4e865ffdb725c566fdbfbd532c60a6fa3b4d21a84596/datacite-1.2.0.tar.gz", hash = "sha256:e506dc6ce62bd930d6980b32c07c3186f3dfc8d327cd2f817b8423e4f9dd171d", size = 143128 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b4/27/3168279180fa3e2797617a022c30861415357e6fffa14d4b038de3e7f110/datacite-1.2.0-py2.py3-none-any.whl", hash = "sha256:be2731b189ddc558a42efcd402268f03edbc206fe1030c80147c1c48cc7552a7", size = 51326 },
+]
+
+[[package]]
 name = "decorator"
 version = "5.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -211,12 +229,46 @@ wheels = [
 ]
 
 [[package]]
+name = "idutils"
+version = "1.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "importlib-metadata" },
+    { name = "isbnlib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8f/dd/e603c89c3706ea6161586b87f883a5f2bbe044b1ca813cb10bc289412098/idutils-1.4.3.tar.gz", hash = "sha256:4cf14790de15a8c68cc928cabcdd0c633a7709ad2f3ca63edbb63e0020f48222", size = 32048 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f5/0f/e7e6e692da812306bb3643aff80894583365ce0f40841859554e450f822c/idutils-1.4.3-py2.py3-none-any.whl", hash = "sha256:53638fcc2eb2a696009f0f0c28f2d761ebe678f6eddb61979f97ebcfbf1391d5", size = 21679 },
+]
+
+[[package]]
+name = "importlib-metadata"
+version = "8.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "zipp" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/b0/36bd937216ec521246249be3bf9855081de4c5e06a0c9b4219dbeda50373/importlib_metadata-8.7.0-py3-none-any.whl", hash = "sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd", size = 27656 },
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7", size = 4793 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl", hash = "sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760", size = 6050 },
+]
+
+[[package]]
+name = "isbnlib"
+version = "3.10.14"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9e/6d/55b9ee89fdfb3aacb92b975a60357c7aa547db358817e16be3b6f8f5d781/isbnlib-3.10.14.tar.gz", hash = "sha256:96f90864c77b01f55fa11e5bfca9fd909501d9842f3bc710d4eab85195d90539", size = 48046 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dd/ce/1eb1e2afaca49add3185e202ce9c2c6d5779b7eecb20973e43ad804eb2a4/isbnlib-3.10.14-py2.py3-none-any.whl", hash = "sha256:f885b350fc8e600a919ed46e3b07253062cd604af69885455a25a299217b3fe2", size = 52535 },
 ]
 
 [[package]]
@@ -688,3 +740,12 @@ name = "yattag"
 version = "1.14.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a2/dc/53ce10a508df291c973293535536961fdc014de088cf0c9534165af880d5/yattag-1.14.0.tar.gz", hash = "sha256:5731a31cb7452c0c6930dd1a284e0170b39eee959851a2aceb8d6af4134a5fa8", size = 26857 }
+
+[[package]]
+name = "zipp"
+version = "3.21.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/50/bad581df71744867e9468ebd0bcd6505de3b275e06f202c2cb016e3ff56f/zipp-3.21.0.tar.gz", hash = "sha256:2c9958f6430a2040341a52eb608ed6dd93ef4392e02ffe219417c1b28b5dd1f4", size = 24545 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/1a/7e4798e9339adc931158c9d69ecc34f5e6791489d469f5e50ec15e35f458/zipp-3.21.0-py3-none-any.whl", hash = "sha256:ac1bbe05fd2991f160ebce24ffbac5f6d11d83dc90891255885223d42b3cd931", size = 9630 },
+]
