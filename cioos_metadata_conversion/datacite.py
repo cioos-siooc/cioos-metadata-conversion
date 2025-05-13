@@ -2,9 +2,12 @@
 # 
 # This follow the DataCite schema v4.6 as described in:
 # https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/overview/
+import json
 
 from loguru import logger
 from datetime import datetime
+
+from datacite import schema45
 
 # TODO map cioos roles to datacite contributor roles
 CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
@@ -236,7 +239,6 @@ def generate_record(record) -> dict:
             return 
         optional_fields[field] = value
         
-
     optional_fields = {}
     _add_optional("doi", record["identification"].get("identifier","").replace("https://doi.org/",""))
 
@@ -318,3 +320,29 @@ def generate_record(record) -> dict:
         **_get_related_items(record),
         "schemaVersion": "http://datacite.org/schema/kernel-4",
     }
+
+
+def to_json(record, output=None) -> dict:
+    """
+    Convert the DataCite record to JSON.
+    """
+    datacite_record = generate_record(record)
+    if output:
+        logger.debug(f"Output file: {output}")
+        with open(output, "w") as f:
+            json.dump(datacite_record, f, indent=4)
+    return datacite_record
+
+
+def to_xml(record, output=None) -> str:
+    """
+    Convert the DataCite record to XML.
+    """
+    datacite_record = generate_record(record)
+    xml = schema45.tostring(datacite_record)
+    
+    if output:
+        logger.debug(f"Output file: {output}")
+        with open(output, "w") as f:
+            f.write(xml)
+    return xml
