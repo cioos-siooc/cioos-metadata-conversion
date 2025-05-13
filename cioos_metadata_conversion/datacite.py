@@ -120,6 +120,29 @@ def _get_publisher(record) -> dict:
         
     logger.warning("No publisher found in the record.")
 
+def _get_funding_references(record) -> dict:
+    """
+    Get the funding references from the Cioos record.
+    """
+    def _get_funder_ror(contact) -> dict:
+        if not contact["organization"].get('ror'):
+            return {}
+        return{
+            "funderIdentifier": contact["organization"]['ror'],
+            "funderIdentifierType": "ROR",
+        }
+
+    return {
+        "fundingReferences": [
+            {
+                "funderName": contact["organization"]['name'],
+                **_get_funder_ror(contact),
+            }
+            for contact in record["contact"]
+            if "funder" in contact["roles"]
+        ]
+    }
+
 def _get_subject_scheme(group) -> dict:
     """
     Get the subject scheme from the Cioos record.
@@ -178,6 +201,28 @@ def _get_dates(record) -> list:
         }]
     )
 
+def _get_alternate_identifiers(record) -> dict:
+    """
+    Get the alternate identifiers from the Cioos record.
+    """
+    return {"alternateIdentifiers":[
+    ]}
+
+def _get_related_identifiers(record) -> dict:
+    """
+    Get the related identifiers from the Cioos record.
+    """
+    return {"relatedIdentifiers":[
+    ]}
+
+def _get_related_items(record) -> dict:
+    """
+    Get the related items from the Cioos record.
+    """
+    return {"relatedItems":[
+    ]}
+
+
 def generate_record(record) -> dict:
     """
     Generate a DataCite record from a Cioos record.
@@ -228,10 +273,10 @@ def generate_record(record) -> dict:
             "resourceTypeGeneral": "Dataset", # TODO revise with latest version of cioos
             "resourceType": "CIOOS Dataset Record", # TODO revise with latest version of cioos
         },
-        # "alternatedIdentifiers": [],
-        # "relatedIdentifiers": [],
-        "sizes": [],
-        "formats": [],
+        **_get_alternate_identifiers(record),
+        **_get_related_identifiers(record),
+        # "sizes": [],
+        # "formats": [],
         "version": record["identification"]["edition"],
         "rightsList": [
             {
@@ -269,7 +314,7 @@ def generate_record(record) -> dict:
                 for loc in record["spatial"]["polygon"].split(" ")
             ]}
         ],
-        # "fundingReferences": [],
-        # "relatedItems": [],
+        **_get_funding_references(record),
+        **_get_related_items(record),
         "schemaVersion": "http://datacite.org/schema/kernel-4",
     }
