@@ -196,7 +196,7 @@ def global_attributes(
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
         "doi": record["identification"].get("identifier"),
-        "metadata_link": record["identification"].get("identifier") or metadata_link,	
+        "metadata_link": record["identification"].get("identifier") or metadata_link,
         "metadata_form": record["metadata"]
         .get("maintenance_note", "")
         .replace("Generated from ", ""),
@@ -214,7 +214,6 @@ def global_attributes(
 
 @logger.catch(reraise=True)
 def update_dataset_id(tree, dataset_id: str, global_attributes: dict):
-
     # Retrive dataset
     matching_dataset = tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
     if not matching_dataset:
@@ -282,7 +281,6 @@ class ERDDAP:
         return bool(self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']"))
 
     def update(self, dataset_id: str, global_attributes: dict):
-
         # Retrive dataset
         matching_dataset = self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
         if not matching_dataset:
