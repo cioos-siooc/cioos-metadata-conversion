@@ -6,14 +6,24 @@ authors = [{ name = "Jessy Barrette", email = "30420025+JessyBarrette@users.nore
 requires-python = "~=3.11"
 readme = "README.md"
 dependencies = [
+
     "loguru>=0.7.2,<0.8",
+
     "requests>=2.32.3,<3",
+
     "cffconvert>=2.0.0,<3",
+
     "pycountry>=24.6.1,<25",
+
     "pyyaml>=6.0.1,<7",
+
     "lxml>=5.2.2,<6",
+
     "metadata-xml",
+
     "click>=7,<9",
+
+    "firebase-to-xml",
 ]
 
 [project.scripts]
@@ -30,6 +40,7 @@ dev-dependencies = [
 
 [tool.uv.sources]
 metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
+firebase-to-xml = { git = "https://github.com/cioos-siooc/metadata-entry-form.git", subdirectory = "firebase_to_xml" }
 
 [build-system]
 requires = ["hatchling"]
