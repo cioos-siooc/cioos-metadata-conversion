@@ -1,7 +1,7 @@
-# CKAN Metadata Format Generator
+# CIOOS Metadata Conversion
 
 This project provides a tool to generate various metadata formats and standards
-from the CIOOS metadata catalog form `yaml` format. It aims to
+from the CIOOS metadata catalogue form schema. It aims to
 facilitate the sharing and citation of datasets by converting metadata records into
 widely recognized standards.
 
@@ -9,14 +9,16 @@ widely recognized standards.
 
 - `citation.cff`: Citation File Format, a human and machine-readable file format
   which provides citation metadata for software.
+- `ACDD-1.3`: ACDD-1.3 standard attributes.
+- ERDDAP<sup>TM</sup>: XML metadata attributes following the CF1.6 and ACDD 1.3 standards.
+- `ISO19115-3` schema: CIOOS standard ISO19115-3 schema. 
 
 ## Features
 
 - **Easy Integration**: Seamlessly integrates with existing CKAN instances to
-  fetch catalog records.
-- **Extensible**: Designed with extensibility in mind, allowing for the addition
-  of more metadata standards in the future.
-- **User-Friendly**: Provides a simple and intuitive interface for generating
+  fetch catalogue records.
+- **Extensible**: Designed with extensibility in mind, allowing for adding more metadata standards in the future.
+- **User-Friendly**: Provides a simple, intuitive interface for generating
   metadata files.
 
 ## Getting Started
@@ -61,8 +63,3 @@ We welcome contributions! If you would like to add support for more metadata sta
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-Thanks to the CKAN community for providing the platform that inspired this tool.
-Special thanks to all contributors who have helped extend and maintain this project.
