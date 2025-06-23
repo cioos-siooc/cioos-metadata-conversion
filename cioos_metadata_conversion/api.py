@@ -1,11 +1,14 @@
 import os
 from enum import Enum
+import tomllib
+from pathlib import Path
 
 import requests
 import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from loguru import logger
+
 
 from cioos_metadata_conversion.__main__ import (
     converter,
@@ -21,10 +24,12 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
+version = tomllib.loads((Path(__file__).parent / "../pyproject.toml").read_text())["project"]["version"]
+
 app = FastAPI(
     title="CIOOS Metadata Conversion API",
     description="Convert CIOOS forms to different available formats.",
-    version="1.0.0",
+    version=version,
 )
 
 # Example supported formats
