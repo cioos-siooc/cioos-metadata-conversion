@@ -33,9 +33,9 @@ SOURCE_FORMATS = Enum("InputFormats", {key: key for key in input_formats})
 SCHEMA_OPTIONS = Enum("SchemaOptions", {"CIOOS": "CIOOS", "firebase": "firebase"})
 
 
-@app.post("convert/text")
+@app.post("/convert/text")
 @logger.catch(reraise=True)
-def convert_text(
+def convert_from_text(
     output_format: SUPPORTED_FORMATS,
     request: Request,
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
@@ -52,9 +52,9 @@ def convert_text(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("convert/file")
+@app.post("/convert/file")
 @logger.catch(reraise=True)
-def convert_file(
+def convert_from_file(
     output_format: SUPPORTED_FORMATS,
     file: UploadFile = File(..., description="File containing metadata"),
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
@@ -75,9 +75,9 @@ def convert_file(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("convert/url")
+@app.get("/convert/url")
 @logger.catch(reraise=True)
-def convert_url(
+def convert_from_url(
     output_format: SUPPORTED_FORMATS,
     url: str = Query(..., description="URL to fetch metadata from"),
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
