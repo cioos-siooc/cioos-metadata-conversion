@@ -1,6 +1,8 @@
+import os
 from enum import Enum
 
 import requests
+import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from loguru import logger
@@ -13,6 +15,13 @@ from cioos_metadata_conversion.__main__ import (
 )
 
 load_dotenv()
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    # Add data like request headers and IP for users, if applicable;
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 app = FastAPI(
     title="CIOOS Metadata Conversion API",

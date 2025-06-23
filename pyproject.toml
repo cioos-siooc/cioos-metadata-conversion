@@ -26,6 +26,7 @@ api = [
     "fastapi>=0.115.13",
     "python-dotenv>=1.1.0",
     "python-multipart>=0.0.20",
+    "sentry-sdk[loguru]>=2.30.0",
     "uvicorn>=0.34.3",
 ]
 
