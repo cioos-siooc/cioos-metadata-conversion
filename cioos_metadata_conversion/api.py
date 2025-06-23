@@ -30,7 +30,7 @@ SCHEMA_OPTIONS = Enum("SchemaOptions", {"CIOOS": "CIOOS", "firebase": "firebase"
 
 @app.post("convert/text")
 @logger.catch(reraise=True)
-async def convert_text(
+def convert_text(
     output_format: SUPPORTED_FORMATS,
     request: Request,
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
@@ -38,7 +38,7 @@ async def convert_text(
     encoding: str = "utf-8",
 ):
     """Convert text input containing metadata to a different format."""
-    raw_body = await request.body()
+    raw_body = request.body()
     try:
         record_metadata = load(raw_body, format=source_format.value, encoding=encoding)
         converted = converter(record_metadata, output_format.value, schema=schema.value)
@@ -49,7 +49,7 @@ async def convert_text(
 
 @app.post("convert/file")
 @logger.catch(reraise=True)
-async def convert_file(
+def convert_file(
     output_format: SUPPORTED_FORMATS,
     file: UploadFile = File(..., description="File containing metadata"),
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
@@ -72,7 +72,7 @@ async def convert_file(
 
 @app.get("convert/url")
 @logger.catch(reraise=True)
-async def convert_url(
+def convert_url(
     output_format: SUPPORTED_FORMATS,
     url: str = Query(..., description="URL to fetch metadata from"),
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
