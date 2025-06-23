@@ -1,6 +1,8 @@
 from firebase_to_xml import (
-    record_json_to_yaml,
     get_records_from_firebase as firebase_records,
+)
+from firebase_to_xml import (
+    record_json_to_yaml,
 )
 
 
