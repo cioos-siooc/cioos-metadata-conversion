@@ -15,10 +15,22 @@ dependencies = [
     "metadata-xml",
     "click>=7,<9",
     "datacite>=1.2.0",
+    "firebase-to-xml",
+    "python-dotenv>=1.1.0",
+
 ]
 
 [project.scripts]
 cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115.13",
+    "python-dotenv>=1.1.0",
+    "python-multipart>=0.0.20",
+    "sentry-sdk[loguru]>=2.30.0",
+    "uvicorn>=0.34.3",
+]
 
 [tool.uv]
 dev-dependencies = [
@@ -31,6 +43,7 @@ dev-dependencies = [
 
 [tool.uv.sources]
 metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
+firebase-to-xml = { git = "https://github.com/cioos-siooc/metadata-entry-form.git", subdirectory = "firebase_to_xml" }
 
 [build-system]
 requires = ["hatchling"]
