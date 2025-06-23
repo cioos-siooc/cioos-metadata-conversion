@@ -15,6 +15,8 @@ output_formats = {
     "yaml": lambda x: yaml.dump(x, default_flow_style=False),
     "erddap": erddap.global_attributes,
     "cff": citation_cff.citation_cff,
+    "xml": xml.xml,
+    "iso19115": xml.xml,
 }
 
 input_formats = ["json", "yaml"]
@@ -49,16 +51,8 @@ def converter(record, format, schema:str='CIOOS') -> str:
     else:
         raise ValueError(f"Unsupported schema: {schema}. Supported schemas are: CIOOS, firebase")
 
-    if format == "json":
-        return json.dumps(record, indent=2)
-    elif format in ("yaml", "yml"):
-        return yaml.dump(record)
-    elif format == "erddap":
-        return erddap.global_attributes(record)
-    elif format == "cff":
-        return citation_cff.citation_cff(record)
-    elif format == "xml":
-        return xml.xml(record)
+    if format in output_formats:
+        return output_formats[format](record)
     else:
         raise ValueError(f"Unknown output format: {format}")
 
