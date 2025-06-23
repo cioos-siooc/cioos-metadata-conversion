@@ -23,8 +23,16 @@ input_formats = ["json", "yaml"]
 
 
 @logger.catch(reraise=True)
-def load(data, format, encoding="utf-8") -> dict:
+def load(input, format, encoding="utf-8") -> dict:
     """Load a metadata record from a file."""
+    if Path(input).is_file():
+        data = Path(input).read_text(encoding=encoding)
+    elif input.startswith("http"):
+        response = requests.get(input)
+        response.raise_for_status()
+        data = response.text
+    else:
+        data = input
 
     if format == "json":
         return json.loads(data, encoding=encoding)
@@ -151,7 +159,7 @@ def convert(
         # Load metadata record
 
         record = load(
-            file.read_text(encoding=encoding), input_file_format, encoding=encoding
+            file, input_file_format, encoding=encoding
         )
 
         if not record:
