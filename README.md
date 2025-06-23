@@ -50,6 +50,16 @@ To use this tool, follow these steps:
    python cioos_metadata_conversion --help
    ```
 
+## API Service
+
+The tool can be used via an API service. The API service requires to install the optional api packages:
+
+```
+uv sync --extra api
+```
+
+You can either run the api locally with the command: `uv run uvicorn cioos_metadata_conversion.api:app --reload`, in debugging mode in (VSCode)[.launch.json] or with docker compose.
+
 ## How to Contribute
 
 We welcome contributions! If you would like to add support for more metadata standards or improve the tool, please follow these steps:

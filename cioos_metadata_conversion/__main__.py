@@ -8,12 +8,15 @@ import yaml
 from loguru import logger
 
 from cioos_metadata_conversion import citation_cff, erddap, xml
+from cioos_metadata_conversion.cioos import cioos_firebase_to_cioos_schema
 
 output_formats = {
     "json": lambda x: json.dumps(x, indent=2),
     "yaml": lambda x: yaml.dump(x, default_flow_style=False),
     "erddap": erddap.global_attributes,
     "cff": citation_cff.citation_cff,
+    "xml": xml.xml,
+    "iso19115": xml.xml,
 }
 
 input_formats = ["json", "yaml"]
@@ -22,35 +25,40 @@ input_formats = ["json", "yaml"]
 @logger.catch(reraise=True)
 def load(input, format, encoding="utf-8") -> dict:
     """Load a metadata record from a file."""
-
-    if input.startswith("http"):
+    if Path(input).is_file():
+        data = Path(input).read_text(encoding=encoding)
+    elif input.startswith("http"):
         response = requests.get(input)
         response.raise_for_status()
         data = response.text
     else:
-        data = Path(input).read_text(encoding=encoding)
+        data = input
 
     if format == "json":
         return json.loads(data, encoding=encoding)
     elif format == "yaml":
         return yaml.safe_load(data)
+    else:
+        raise ValueError(
+            f"Unsupported input format: {format}. Supported formats are: {list(input_formats)}"
+        )
 
-    with open(input) as f:
-        return input_formats[format](f)
 
-
-def converter(record, format) -> str:
+@logger.catch(reraise=True)
+def converter(record, format, schema: str = "CIOOS") -> str:
     """Run the conversion to the desired format."""
-    if format == "json":
-        return json.dumps(record, indent=2)
-    elif format in ("yaml","yml"):
-        return yaml.dump(record)
-    elif format == "erddap":
-        return erddap.global_attributes(record)
-    elif format == "cff":
-        return citation_cff.citation_cff(record)
-    elif format == "xml":
-        return xml.xml(record)
+    if schema == "firebase":
+        record = cioos_firebase_to_cioos_schema(record)
+    elif schema == "CIOOS":
+        pass
+    else:
+        raise ValueError(
+            f"Unsupported schema: {schema}. Supported schemas are: CIOOS, firebase"
+        )
+
+    if format in output_formats:
+        logger.debug(f"Converting record to {format} format: {output_formats[format]}")
+        return output_formats[format](record)
     else:
         raise ValueError(f"Unknown output format: {format}")
 
@@ -149,6 +157,7 @@ def convert(
         input_file_path = Path(file)
 
         # Load metadata record
+
         record = load(file, input_file_format, encoding=encoding)
 
         if not record:

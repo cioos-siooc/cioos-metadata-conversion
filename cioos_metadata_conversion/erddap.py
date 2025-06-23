@@ -7,6 +7,10 @@ import yaml
 from loguru import logger
 from lxml import etree
 
+from cioos_metadata_conversion.cioos import (
+    get_records_from_firebase,
+    record_json_to_yaml,
+)
 from cioos_metadata_conversion.utils import drop_empty_values
 
 KEYWORDS_PREFIX_MAPPING = {
@@ -196,7 +200,7 @@ def global_attributes(
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),
         "doi": record["identification"].get("identifier"),
-        "metadata_link": record["identification"].get("identifier") or metadata_link,	
+        "metadata_link": record["identification"].get("identifier") or metadata_link,
         "metadata_form": record["metadata"]
         .get("maintenance_note", "")
         .replace("Generated from ", ""),
@@ -214,7 +218,6 @@ def global_attributes(
 
 @logger.catch(reraise=True)
 def update_dataset_id(tree, dataset_id: str, global_attributes: dict):
-
     # Retrive dataset
     matching_dataset = tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
     if not matching_dataset:
@@ -282,7 +285,6 @@ class ERDDAP:
         return bool(self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']"))
 
     def update(self, dataset_id: str, global_attributes: dict):
-
         # Retrive dataset
         matching_dataset = self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
         if not matching_dataset:
@@ -356,9 +358,46 @@ def update_dataset_xml(
 
 @click.command()
 @click.option("--datasets-xml", "-d", required=True, help="ERDDAP dataset.xml file.")
-@click.option("--records", "-r", required=True, help="Metadata records.")
+@click.option("--records", "-r", help="Metadata records.")
 @click.option("--erddap-url", "-u", required=True, help="ERDDAP base URL.")
 @click.option("--output-dir", "-o", help="Output directory.")
-def update(datasets_xml, records, erddap_url, output_dir):
+@click.option(
+    "--submission-status", "-s", default="published", help="Submission status."
+)
+@click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
+@click.option("--region", "-r", help="Region to fetch records for.")
+@click.option("--database-url", "-b", help="Firebase database URL.")
+def update(
+    datasets_xml,
+    records,
+    erddap_url,
+    output_dir,
+    submission_status,
+    firebase_auth_key,
+    region,
+    database_url,
+):
     """Update ERDDAP dataset xml with metadata records."""
+
+    if not records and firebase_auth_key and region and database_url:
+        logger.info(
+            "Fetching records from Firebase for region: {}, status: {}, database URL: {}",
+            region,
+            submission_status,
+            database_url,
+        )
+
+        records = get_records_from_firebase(
+            region,
+            firebase_auth_key,
+            None,
+            submission_status,
+            database_url,
+        )
+        # Convert firebase records to CIOOS schema
+        records = [
+            record_json_to_yaml(record) if isinstance(record, dict) else record
+            for record in records
+        ]
+
     update_dataset_xml(datasets_xml, records, erddap_url, output_dir)

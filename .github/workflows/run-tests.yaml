@@ -17,34 +17,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with: 
-          path: "."
-      - name: Checkout cioos metadata files
-        uses: actions/checkout@v4
         with:
-          repository: cioos-siooc/cioos-metadata-entry-form-files
-          path: ./tests/records/cioos-metadata-entry-form-files
-      - name: Set up Python 3.11
+          path: "."
+      # - name: Checkout cioos metadata files
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: cioos-siooc/cioos-metadata-entry-form-files
+      #     path: ./tests/records/cioos-metadata-entry-form-files
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.poetry/bin:$PATH"
-
-      - name: Install dependencies
-        run: poetry install
+          python-version-file: ".python-version"
 
       - name: Run pytest
-        run: poetry run pytest
-      
-      - name: Convert test record to CITATION.cff if main branch
-        uses: cioos-siooc/cioos-metadata-conversion@main
-        if: github.ref == 'refs/heads/main'
-        with:
-          input: tests/records/test_record1.json
-          output-file: CITATION.cff
-          output-format: cff
-          commit: false
+        run: uv run pytest
