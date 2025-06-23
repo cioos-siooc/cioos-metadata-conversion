@@ -6,28 +6,28 @@ authors = [{ name = "Jessy Barrette", email = "30420025+JessyBarrette@users.nore
 requires-python = "~=3.11"
 readme = "README.md"
 dependencies = [
-
     "loguru>=0.7.2,<0.8",
-
     "requests>=2.32.3,<3",
-
     "cffconvert>=2.0.0,<3",
-
     "pycountry>=24.6.1,<25",
-
     "pyyaml>=6.0.1,<7",
-
     "lxml>=5.2.2,<6",
-
     "metadata-xml",
-
     "click>=7,<9",
-
     "firebase-to-xml",
+    "python-dotenv>=1.1.0",
 ]
 
 [project.scripts]
 cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115.13",
+    "python-dotenv>=1.1.0",
+    "python-multipart>=0.0.20",
+    "uvicorn>=0.34.3",
+]
 
 [tool.uv]
 dev-dependencies = [

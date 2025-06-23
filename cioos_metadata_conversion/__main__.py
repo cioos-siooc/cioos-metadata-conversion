@@ -23,35 +23,33 @@ input_formats = ["json", "yaml"]
 
 
 @logger.catch(reraise=True)
-def load(input, format, encoding="utf-8") -> dict:
+def load(data, format, encoding="utf-8") -> dict:
     """Load a metadata record from a file."""
-
-    if input.startswith("http"):
-        response = requests.get(input)
-        response.raise_for_status()
-        data = response.text
-    else:
-        data = Path(input).read_text(encoding=encoding)
 
     if format == "json":
         return json.loads(data, encoding=encoding)
     elif format == "yaml":
         return yaml.safe_load(data)
     else:
-        raise ValueError(f"Unsupported input format: {format}. Supported formats are: {list(input_formats)}")
+        raise ValueError(
+            f"Unsupported input format: {format}. Supported formats are: {list(input_formats)}"
+        )
 
 
-
-def converter(record, format, schema:str='CIOOS') -> str:
+@logger.catch(reraise=True)
+def converter(record, format, schema: str = "CIOOS") -> str:
     """Run the conversion to the desired format."""
-    if schema == 'firebase':
+    if schema == "firebase":
         record = cioos_firebase_to_cioos_schema(record)
-    elif schema == 'CIOOS':
+    elif schema == "CIOOS":
         pass
     else:
-        raise ValueError(f"Unsupported schema: {schema}. Supported schemas are: CIOOS, firebase")
+        raise ValueError(
+            f"Unsupported schema: {schema}. Supported schemas are: CIOOS, firebase"
+        )
 
     if format in output_formats:
+        logger.debug(f"Converting record to {format} format: {output_formats[format]}")
         return output_formats[format](record)
     else:
         raise ValueError(f"Unknown output format: {format}")
@@ -151,7 +149,10 @@ def convert(
         input_file_path = Path(file)
 
         # Load metadata record
-        record = load(file, input_file_format, encoding=encoding)
+
+        record = load(
+            file.read_text(encoding=encoding), input_file_format, encoding=encoding
+        )
 
         if not record:
             logger.error("No metadata record found in file {}.", file)
