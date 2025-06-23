@@ -2,7 +2,7 @@ from enum import Enum
 
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile, Request
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from loguru import logger
 
 from cioos_metadata_conversion.__main__ import (

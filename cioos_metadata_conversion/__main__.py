@@ -158,9 +158,7 @@ def convert(
 
         # Load metadata record
 
-        record = load(
-            file, input_file_format, encoding=encoding
-        )
+        record = load(file, input_file_format, encoding=encoding)
 
         if not record:
             logger.error("No metadata record found in file {}.", file)
