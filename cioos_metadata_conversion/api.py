@@ -1,10 +1,8 @@
-import os
 from enum import Enum
 
 import requests
-import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile, Request
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile, Request
 from loguru import logger
 
 from cioos_metadata_conversion.__main__ import (
