@@ -8,6 +8,7 @@ import yaml
 from loguru import logger
 
 from cioos_metadata_conversion import citation_cff, erddap, xml
+from cioos_metadata_conversion.cioos import cioos_firebase_to_cioos_schema
 
 output_formats = {
     "json": lambda x: json.dumps(x, indent=2),
@@ -34,13 +35,20 @@ def load(input, format, encoding="utf-8") -> dict:
         return json.loads(data, encoding=encoding)
     elif format == "yaml":
         return yaml.safe_load(data)
+    else:
+        raise ValueError(f"Unsupported input format: {format}. Supported formats are: {list(input_formats)}")
 
-    with open(input) as f:
-        return input_formats[format](f)
 
 
-def converter(record, format) -> str:
+def converter(record, format, schema:str='CIOOS') -> str:
     """Run the conversion to the desired format."""
+    if schema == 'firebase':
+        record = cioos_firebase_to_cioos_schema(record)
+    elif schema == 'CIOOS':
+        pass
+    else:
+        raise ValueError(f"Unsupported schema: {schema}. Supported schemas are: CIOOS, firebase")
+
     if format == "json":
         return json.dumps(record, indent=2)
     elif format in ("yaml", "yml"):
