@@ -4,7 +4,7 @@ from enum import Enum
 import requests
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile, Request
 from loguru import logger
 
 from cioos_metadata_conversion.__main__ import (
@@ -32,20 +32,22 @@ SCHEMA_OPTIONS = Enum("SchemaOptions", {"CIOOS": "CIOOS", "firebase": "firebase"
 @logger.catch(reraise=True)
 async def convert_text(
     output_format: SUPPORTED_FORMATS,
-    metadata: str = Form(..., description="Metadata as a string"),
+    request: Request,
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
     schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
     encoding: str = "utf-8",
 ):
+    """Convert text input containing metadata to a different format."""
+    raw_body = await request.body()
     try:
-        record_metadata = load(metadata, format=source_format.value, encoding=encoding)
+        record_metadata = load(raw_body, format=source_format.value, encoding=encoding)
         converted = converter(record_metadata, output_format.value, schema=schema.value)
         return converted
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/convert/file")
+@app.post("convert/file")
 @logger.catch(reraise=True)
 async def convert_file(
     output_format: SUPPORTED_FORMATS,
@@ -54,6 +56,7 @@ async def convert_file(
     schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
     encoding: str = "utf-8",
 ):
+    """Convert a file containing metadata to a different format."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="File must have a filename")
 
@@ -67,7 +70,7 @@ async def convert_file(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/convert/url")
+@app.get("convert/url")
 @logger.catch(reraise=True)
 async def convert_url(
     output_format: SUPPORTED_FORMATS,
@@ -76,6 +79,7 @@ async def convert_url(
     schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
     encoding: str = "utf-8",
 ):
+    """Convert metadata fetched from a URL to a different format."""
     if not url.startswith(("http://", "https://")):
         raise HTTPException(
             status_code=400, detail="URL must start with http:// or https://"
