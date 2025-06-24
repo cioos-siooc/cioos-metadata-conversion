@@ -1,0 +1,116 @@
+import json
+import yaml
+from cioos_metadata_conversion import citation_cff, erddap, xml, datacite, cioos
+import requests
+from enum import Enum
+from loguru import logger
+
+SOURCE_FILE_EXTENSIONS = ('.json', '.yaml', '.yml')
+
+class OutputFormats(Enum):
+    """
+    Available output formats for CIOOS metadata conversion.
+    """
+    JSON = staticmethod(lambda x: json.dumps(x, indent=2))
+    YAML = staticmethod(lambda x: yaml.dump(x, default_flow_style=False))
+    ERDDAP = staticmethod(erddap.global_attributes)
+    CFF = staticmethod(citation_cff.citation_cff)
+    XML = staticmethod(xml.xml)
+    ISO19115_XML = staticmethod(xml.xml)
+    DATACITE_JSON = staticmethod(datacite.to_json)
+    DATACITE_XML = staticmethod(datacite.to_xml)
+
+class InputSchemas(Enum):
+    """
+    Available input schemas for CIOOS metadata conversion.
+    """
+
+    CIOOS = "CIOOS"
+    firebase = "firebase"
+
+class Converter:
+    """
+    Base class for converters.
+    """
+
+    def __init__(self, source, metadata=None, schema: InputSchemas = InputSchemas.CIOOS):
+        self.source = source
+        self.schema = schema
+        self.metadata = metadata
+
+    def source_is_path(self):
+        """
+        Check if the source is a file path.
+        """
+        return isinstance(self.source, str) and self.source.endswith(SOURCE_FILE_EXTENSIONS)
+    
+    def load(self, encoding='utf-8'):
+        """
+        Load the source data.
+        """
+        if isinstance(self.source, str) and (self.source.startswith("http://") or self.source.startswith("https://")):
+            # Load from URL
+            self.load_from_url(self.source)
+        elif self.source.endswith(('.json', '.JSON', '.yaml', '.YAML', '.yml', '.YML')):
+            self.load_from_file(self.source, encoding=encoding)
+        elif isinstance(self.source, dict):
+            self.metadata = self.source
+        else:
+            logger.error("Unsupported source type. Must be a file path or URL.")
+        
+    def load_from_file(self, file_path, encoding='utf-8'):
+        """
+        Load the source data from a file.
+        """
+        if file_path.endswith('.json'):
+            with open(file_path, 'r', encoding=encoding) as f:
+                self.metadata = json.load(f)
+        elif file_path.endswith('.yaml') or file_path.endswith('.yml'):
+            with open(file_path, 'r', encoding=encoding) as f:
+                self.metadata = yaml.safe_load(f)
+        else:
+            raise ValueError("Unsupported file format. Must be .json or .yaml/.yml.")
+    def load_from_url(self, url):
+        """
+        Load the source data from a URL.
+        """
+        response = requests.get(url)
+        response.raise_for_status()
+        self.load_from_text(response.text)
+    
+    def load_from_text(self, text):
+        """
+        Load the source data from a text string.
+        """
+        if text.startswith('{') or text.startswith('['):
+            self.metadata = json.loads(text)
+        else:
+            self.metadata = yaml.safe_load(text)
+
+    def convert_to_cioos_schema(self):
+        """
+        Convert the metadata to the specified schema.
+        """
+        if self.schema == InputSchemas.CIOOS:
+            # Already in CIOOS schema, no conversion needed
+            pass
+        elif self.schema == InputSchemas.firebase:
+            self.metadata = cioos.cioos_firebase_to_cioos_schema(self.metadata)
+            self.schema = InputSchemas.CIOOS
+        else:
+            raise ValueError(f"Unsupported schema: {self.schema}. Supported schemas are: {list(InputSchemas.__members__.keys())}")
+
+
+    def to(self,output_format):
+        """
+        Convert the source data to the desired format.
+        """
+        if output_format not in OutputFormats.__members__:
+            raise ValueError(f"Unsupported output format: {output_format}. Supported formats are: {list(OutputFormats.__members__.keys())}")
+
+        converter_func = OutputFormats.__members__[output_format].value
+        return converter_func(self.metadata)
+
+    
+
+        

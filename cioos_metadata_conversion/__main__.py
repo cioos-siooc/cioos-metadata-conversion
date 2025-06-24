@@ -1,66 +1,11 @@
-import json
 from glob import glob
 from pathlib import Path
 
 import click
-import requests
-import yaml
 from loguru import logger
 
-from cioos_metadata_conversion import citation_cff, erddap, xml
-from cioos_metadata_conversion.cioos import cioos_firebase_to_cioos_schema
-
-output_formats = {
-    "json": lambda x: json.dumps(x, indent=2),
-    "yaml": lambda x: yaml.dump(x, default_flow_style=False),
-    "erddap": erddap.global_attributes,
-    "cff": citation_cff.citation_cff,
-    "xml": xml.xml,
-    "iso19115": xml.xml,
-}
-
-input_formats = ["json", "yaml"]
-
-
-@logger.catch(reraise=True)
-def load(input, format, encoding="utf-8") -> dict:
-    """Load a metadata record from a file."""
-    if Path(input).is_file():
-        data = Path(input).read_text(encoding=encoding)
-    elif input.startswith("http"):
-        response = requests.get(input)
-        response.raise_for_status()
-        data = response.text
-    else:
-        data = input
-
-    if format == "json":
-        return json.loads(data, encoding=encoding)
-    elif format == "yaml":
-        return yaml.safe_load(data)
-    else:
-        raise ValueError(
-            f"Unsupported input format: {format}. Supported formats are: {list(input_formats)}"
-        )
-
-
-@logger.catch(reraise=True)
-def converter(record, format, schema: str = "CIOOS") -> str:
-    """Run the conversion to the desired format."""
-    if schema == "firebase":
-        record = cioos_firebase_to_cioos_schema(record)
-    elif schema == "CIOOS":
-        pass
-    else:
-        raise ValueError(
-            f"Unsupported schema: {schema}. Supported schemas are: CIOOS, firebase"
-        )
-
-    if format in output_formats:
-        logger.debug(f"Converting record to {format} format: {output_formats[format]}")
-        return output_formats[format](record)
-    else:
-        raise ValueError(f"Unknown output format: {format}")
+from cioos_metadata_conversion.converter import Converter, InputSchemas, OutputFormats
+from cioos_metadata_conversion import erddap
 
 
 @click.group(name="cioos-metadata-conversion")
@@ -84,7 +29,7 @@ cli.add_command(erddap.update, name="erddap-update")
     required=True,
     default="yaml",
     help="Input file format (json or yaml).",
-    type=click.Choice(list(input_formats)),
+    type=click.Choice(InputSchemas.__members__.keys()),
     show_default=True,
 )
 @click.option(
@@ -112,7 +57,7 @@ cli.add_command(erddap.update, name="erddap-update")
     "-f",
     required=True,
     help="Output format",
-    type=click.Choice(list(output_formats.keys())),
+    type=click.Choice(OutputFormats.__members__.keys()),
 )
 @click.option(
     "--output-encoding",
@@ -154,23 +99,26 @@ def convert(
     returned_output = ""
     for file in files:
         logger.debug("Processing file {}", file)
-        input_file_path = Path(file)
+        record = (
+            Converter(
+                source=file,
+                schema=InputSchemas[input_file_format],
+            )
+            .load()
+            .convert_to_cioos_schema()
+        )
 
-        # Load metadata record
-
-        record = load(file, input_file_format, encoding=encoding)
-
-        if not record:
+        if not record.metadata:
             logger.error("No metadata record found in file {}.", file)
             continue
 
         logger.debug(f"Converting to {output_format}")
-        converted_record = converter(record, output_format)
+        converted_record = record.to(output_format)
 
         # Generate output file path
-        if output_dir and not output_file:
+        if output_dir and not output_file and record.source_is_path():
             output_file = (
-                Path(output_dir) / input_file_path.with_suffix(f".{output_format}").name
+                Path(output_dir) / Path(file).with_suffix(f".{output_format}").name
             )
         elif output_file:
             output_file = Path(output_file)
