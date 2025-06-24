@@ -1,14 +1,13 @@
 import os
 from enum import Enum
-import tomllib
 from pathlib import Path
 
 import requests
 import sentry_sdk
+import tomllib
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from loguru import logger
-
 
 from cioos_metadata_conversion.__main__ import (
     converter,

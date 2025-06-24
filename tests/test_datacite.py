@@ -1,5 +1,6 @@
-from cioos_metadata_conversion import datacite
 from datacite import schema45
+
+from cioos_metadata_conversion import datacite
 
 
 def test_dataset_cite(record):

@@ -4,18 +4,23 @@ from pathlib import Path
 import click
 from loguru import logger
 
-from cioos_metadata_conversion.converter import Converter, InputSchemas, OUTPUT_FORMATS
 from cioos_metadata_conversion import erddap
+from cioos_metadata_conversion.converter import OUTPUT_FORMATS, Converter, InputSchemas
 
 
 def load(file: str, schema: str = "CIOOS"):
     """Load a metadata record from a file or URL."""
-    record = Converter(source=file, schema=InputSchemas[schema]).load().convert_to_cioos_schema()
+    record = (
+        Converter(source=file, schema=InputSchemas[schema])
+        .load()
+        .convert_to_cioos_schema()
+    )
 
     if not record.metadata:
         raise ValueError(f"No metadata record found in file {file}.")
 
     return record.metadata
+
 
 @click.group(name="cioos-metadata-conversion")
 def cli():
@@ -108,10 +113,14 @@ def convert(
     returned_output = ""
     for file in files:
         logger.debug("Processing file {}", file)
-        record = Converter(
+        record = (
+            Converter(
                 source=file,
                 schema=InputSchemas[input_schema],
-            ).load(encoding=encoding).convert_to_cioos_schema()
+            )
+            .load(encoding=encoding)
+            .convert_to_cioos_schema()
+        )
 
         if not record.metadata:
             logger.error("No metadata record found in file {}.", file)

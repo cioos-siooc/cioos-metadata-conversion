@@ -3,11 +3,10 @@
 # This follow the DataCite schema v4.6 as described in:
 # https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/overview/
 import json
-
-from loguru import logger
 from datetime import datetime
 
 from datacite import schema45
+from loguru import logger
 
 # TODO map cioos roles to datacite contributor roles
 CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
