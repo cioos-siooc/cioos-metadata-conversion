@@ -13,7 +13,7 @@ def runner():
 
 def test_cli_no_args(runner):
     result = runner.invoke(cli)
-    assert result.exit_code == 0
+    assert result.exit_code == 2, result.output
     assert "Usage: cioos-metadata-conversion [OPTIONS] COMMAND [ARGS]" in result.output
 
 
