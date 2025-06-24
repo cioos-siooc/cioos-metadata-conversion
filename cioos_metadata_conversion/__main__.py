@@ -25,9 +25,9 @@ cli.add_command(erddap.update, name="erddap-update")
     "--recursive", "-r", is_flag=True, help="Process files recursively.", default=False
 )
 @click.option(
-    "--input-file-format",
+    "--input-schema",
     required=True,
-    default="yaml",
+    default="CIOOS",
     help="Input file format (json or yaml).",
     type=click.Choice(InputSchemas.__members__.keys()),
     show_default=True,
@@ -76,7 +76,7 @@ def convert(
     input,
     output_format: str,
     recursive: bool = False,
-    input_file_format: str = "yaml",
+    input_schema: str = "CIOOS",
     encoding: str = "utf-8",
     output_dir: str = ".",
     output_file: str = None,
@@ -99,14 +99,12 @@ def convert(
     returned_output = ""
     for file in files:
         logger.debug("Processing file {}", file)
-        record = (
-            Converter(
+        record = Converter(
                 source=file,
-                schema=InputSchemas[input_file_format],
+                schema=InputSchemas[input_schema],
             )
-            .load()
-            .convert_to_cioos_schema()
-        )
+        record.load(encoding=encoding)
+        record.convert_to_cioos_schema()
 
         if not record.metadata:
             logger.error("No metadata record found in file {}.", file)

@@ -7,18 +7,16 @@ from loguru import logger
 
 SOURCE_FILE_EXTENSIONS = ('.json', '.yaml', '.yml')
 
-class OutputFormats(Enum):
-    """
-    Available output formats for CIOOS metadata conversion.
-    """
-    JSON = staticmethod(lambda x: json.dumps(x, indent=2))
-    YAML = staticmethod(lambda x: yaml.dump(x, default_flow_style=False))
-    ERDDAP = staticmethod(erddap.global_attributes)
-    CFF = staticmethod(citation_cff.citation_cff)
-    XML = staticmethod(xml.xml)
-    ISO19115_XML = staticmethod(xml.xml)
-    DATACITE_JSON = staticmethod(datacite.to_json)
-    DATACITE_XML = staticmethod(datacite.to_xml)
+OUTPUT_FORMATS = {
+    "json": lambda x: json.dumps(x, indent=2),
+    "yaml": lambda x: yaml.dump(x, default_flow_style=False),
+    "erddap": erddap.global_attributes,
+    "cff": citation_cff.citation_cff,
+    "xml": xml.xml,
+    "iso19115_xml": xml.xml,
+    "datacite_json": datacite.to_json,
+    "datacite_xml": datacite.to_xml,
+}
 
 class InputSchemas(Enum):
     """
@@ -105,10 +103,10 @@ class Converter:
         """
         Convert the source data to the desired format.
         """
-        if output_format not in OutputFormats.__members__:
-            raise ValueError(f"Unsupported output format: {output_format}. Supported formats are: {list(OutputFormats.__members__.keys())}")
+        if output_format not in OUTPUT_FORMATS:
+            raise ValueError(f"Unsupported output format: {output_format}. Supported formats are: {list(OUTPUT_FORMATS.keys())}")
 
-        converter_func = OutputFormats.__members__[output_format].value
+        converter_func = OUTPUT_FORMATS[output_format]
         return converter_func(self.metadata)
 
     
