@@ -9,4 +9,7 @@ Path("tests/results").mkdir(exist_ok=True)
 
 @pytest.fixture
 def record():
-    return Converter("tests/records/test_record1.yaml", "yaml").load().convert_to_cioos_schema().metadata
+    record = Converter("tests/records/test_record1.yaml", "yaml")
+    record.load()
+    record.convert_to_cioos_schema()
+    return record.metadata
