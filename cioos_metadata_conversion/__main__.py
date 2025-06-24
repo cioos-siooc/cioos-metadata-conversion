@@ -4,9 +4,20 @@ from pathlib import Path
 import click
 from loguru import logger
 
-from cioos_metadata_conversion.converter import Converter, InputSchemas, OutputFormats
+from cioos_metadata_conversion.converter import Converter, InputSchemas, OUTPUT_FORMATS
 from cioos_metadata_conversion import erddap
 
+
+def load(file: str, schema: str = "CIOOS"):
+    """Load a metadata record from a file or URL."""
+    record = Converter(source=file, schema=InputSchemas[schema])
+    record.load()
+    record.convert_to_cioos_schema()
+
+    if not record.metadata:
+        raise ValueError(f"No metadata record found in file {file}.")
+
+    return record.metadata
 
 @click.group(name="cioos-metadata-conversion")
 def cli():
@@ -57,7 +68,7 @@ cli.add_command(erddap.update, name="erddap-update")
     "-f",
     required=True,
     help="Output format",
-    type=click.Choice(OutputFormats.__members__.keys()),
+    type=click.Choice(OUTPUT_FORMATS.keys()),
 )
 @click.option(
     "--output-encoding",
