@@ -10,9 +10,7 @@ from cioos_metadata_conversion import erddap
 
 def load(file: str, schema: str = "CIOOS"):
     """Load a metadata record from a file or URL."""
-    record = Converter(source=file, schema=InputSchemas[schema])
-    record.load()
-    record.convert_to_cioos_schema()
+    record = Converter(source=file, schema=InputSchemas[schema]).load().convert_to_cioos_schema()
 
     if not record.metadata:
         raise ValueError(f"No metadata record found in file {file}.")
@@ -113,9 +111,7 @@ def convert(
         record = Converter(
                 source=file,
                 schema=InputSchemas[input_schema],
-            )
-        record.load(encoding=encoding)
-        record.convert_to_cioos_schema()
+            ).load(encoding=encoding).convert_to_cioos_schema()
 
         if not record.metadata:
             logger.error("No metadata record found in file {}.", file)

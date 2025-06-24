@@ -55,6 +55,8 @@ class Converter:
             self.metadata = self.source
         else:
             logger.error("Unsupported source type. Must be a file path or URL.")
+            
+        return self
         
     def load_from_file(self, file_path, encoding='utf-8'):
         """
@@ -97,7 +99,7 @@ class Converter:
             self.schema = InputSchemas.CIOOS
         else:
             raise ValueError(f"Unsupported schema: {self.schema}. Supported schemas are: {list(InputSchemas.__members__.keys())}")
-
+        return self
 
     def to(self,output_format):
         """
