@@ -280,9 +280,9 @@ def generate_record(record) -> dict:
         # parse iso date and return year from record['identification']["dates"]["created"]
         "publicationYear": str(
             datetime.strptime(
-                record["metadata"]["dates"]["publication"], "%Y-%m-%d"
+                record["metadata"]["dates"].get("publication"), "%Y-%m-%d"
             ).year
-        ),
+        ) if record["metadata"]["dates"].get("publication") else None,
         "subjects": [
             {
                 "subject": keyword,
@@ -303,7 +303,7 @@ def generate_record(record) -> dict:
         **_get_related_identifiers(record),
         # "sizes": [],
         # "formats": [],
-        "version": record["identification"]["edition"],
+        "version": record["identification"].get("edition"),
         "rightsList": [
             {
                 "rights": record["metadata"]["use_constraints"]["licence"]["title"][
@@ -333,9 +333,9 @@ def generate_record(record) -> dict:
                 "lang": lang,
                 "descriptionType": "Other",
             }
-            for lang, description in record["metadata"]["use_constraints"][
+            for lang, description in record["metadata"]["use_constraints"].get(
                 "limitations"
-            ].items()
+            ,{}).items()
             if lang != "translations"
         ],
         "geoLocations": [
