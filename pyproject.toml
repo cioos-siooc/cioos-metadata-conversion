@@ -14,8 +14,10 @@ dependencies = [
     "lxml>=5.2.2,<6",
     "metadata-xml",
     "click>=7,<9",
+    "datacite>=1.2.0",
     "firebase-to-xml",
     "python-dotenv>=1.1.0",
+
 ]
 
 [project.scripts]
