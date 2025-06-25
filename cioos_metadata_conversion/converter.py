@@ -61,6 +61,8 @@ class Converter:
             self.load_from_url(self.source)
         elif self.source.endswith((".json", ".JSON", ".yaml", ".YAML", ".yml", ".YML")):
             self.load_from_file(self.source, encoding=encoding)
+        elif isinstance(self.source, str):
+            self.load_from_text(self.source)
         elif isinstance(self.source, dict):
             self.metadata = self.source
         else:
