@@ -33,6 +33,7 @@ CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "WorkPackageLeader": "WorkPackageLeader",
     "Other": "Other",
     "processor": "Other",
+    "collaborator": "RelatedPerson",
 }
 
 
