@@ -45,11 +45,31 @@ def get_media_type(output_format: str) -> str:
         return "application/x-yaml"
     elif "cff" in output_format:
         return "text/x-cff"
-    elif "xml" in output_format:
+    elif "xml" in output_format or "erddap" in output_format:
         return "application/xml"
     else:
         raise ValueError(f"Unsupported output format: {output_format}")
 
+def convert_and_respond(
+    content: str,
+    output_format: SUPPORTED_FORMATS,
+    schema: InputSchemas,
+    encoding: str = "utf-8",
+):
+    """Convert content to the specified format and return a Response."""
+    try:
+        converted_content = (
+            Converter(content, schema=schema)
+            .load(encoding=encoding)
+            .convert_to_cioos_schema()
+            .to(output_format.value)
+        )
+        media_type = get_media_type(output_format.value)
+        if media_type == "application/json":
+            return content
+        return Response(converted_content, media_type=media_type)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/convert/text")
 @logger.catch(reraise=True)
@@ -62,8 +82,9 @@ def convert_from_text(
     """Convert text input containing metadata to a different format."""
     raw_body = request.body()
     try:
-        content = Converter(raw_body, schema=schema).load(encoding=encoding).convert_to_cioos_schema().to(output_format.value)
-        return Response(content, media_type=get_media_type(output_format.value))
+        return convert_and_respond(
+            raw_body, output_format, schema, encoding
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -83,8 +104,9 @@ def convert_from_file(
     content = file.file.read().decode(encoding)
 
     try:
-        content = Converter(content, schema=schema).load(encoding=encoding).convert_to_cioos_schema().to(output_format.value)
-        return Response(content, media_type=get_media_type(output_format.value))
+        return convert_and_respond(
+            content, output_format, schema, encoding
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -106,7 +128,8 @@ def convert_from_url(
     try:
         response = requests.get(url)
         response.raise_for_status()
-        content = Converter(response.text, schema=schema).load(encoding=encoding).convert_to_cioos_schema().to(output_format.value)
-        return Response(content, media_type=get_media_type(output_format.value))
+        return convert_and_respond(
+            response.text, output_format, schema, encoding
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
