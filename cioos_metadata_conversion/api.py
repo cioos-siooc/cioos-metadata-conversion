@@ -9,11 +9,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from loguru import logger
 
-from cioos_metadata_conversion.__main__ import (
-    converter,
-    input_formats,
-    load,
-    output_formats,
+from cioos_metadata_conversion.converter import (
+    Converter,
+    InputSchemas,
+    OUTPUT_FORMATS,
 )
 
 load_dotenv()
@@ -34,10 +33,12 @@ app = FastAPI(
 )
 
 # Example supported formats
-SUPPORTED_FORMATS = Enum("OutputFormats", {key: key for key in output_formats.keys()})
-SOURCE_FORMATS = Enum("InputFormats", {key: key for key in input_formats})
-SCHEMA_OPTIONS = Enum("SchemaOptions", {"CIOOS": "CIOOS", "firebase": "firebase"})
+SUPPORTED_FORMATS = Enum("OutputFormats", {key: key for key in OUTPUT_FORMATS.keys()})
+SOURCE_FORMATS = Enum("InputFormats", {key: key for key in ["yaml", "json"]})
 
+def converter(source, output_format, schema="CIOOS"):
+    """Convert metadata to the specified output format."""
+    return Converter(source, schema=schema).load().convert_to_cioos_schema().to(output_format)
 
 @app.post("/convert/text")
 @logger.catch(reraise=True)
@@ -45,15 +46,13 @@ def convert_from_text(
     output_format: SUPPORTED_FORMATS,
     request: Request,
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
-    schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
+    schema: InputSchemas = InputSchemas.CIOOS,
     encoding: str = "utf-8",
 ):
     """Convert text input containing metadata to a different format."""
     raw_body = request.body()
     try:
-        record_metadata = load(raw_body, format=source_format.value, encoding=encoding)
-        converted = converter(record_metadata, output_format.value, schema=schema.value)
-        return converted
+        return Converter(raw_body, schema=schema).load(encoding=encoding).convert_to_cioos_schema().to(output_format.value)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -64,19 +63,17 @@ def convert_from_file(
     output_format: SUPPORTED_FORMATS,
     file: UploadFile = File(..., description="File containing metadata"),
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
-    schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
+    schema: InputSchemas = InputSchemas.CIOOS,
     encoding: str = "utf-8",
 ):
     """Convert a file containing metadata to a different format."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="File must have a filename")
 
+    content = file.file.read().decode(encoding)
+
     try:
-        record_metadata = load(
-            file.file.read().decode(encoding=encoding), format=source_format.value
-        )
-        converted = converter(record_metadata, output_format.value, schema=schema.value)
-        return converted
+        return Converter(content, schema=schema).load(encoding=encoding).convert_to_cioos_schema().to(output_format.value)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -87,7 +84,7 @@ def convert_from_url(
     output_format: SUPPORTED_FORMATS,
     url: str = Query(..., description="URL to fetch metadata from"),
     source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
-    schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
+    schema: InputSchemas = InputSchemas.CIOOS,
     encoding: str = "utf-8",
 ):
     """Convert metadata fetched from a URL to a different format."""
@@ -99,10 +96,6 @@ def convert_from_url(
     try:
         response = requests.get(url)
         response.raise_for_status()
-        record_metadata = load(
-            response.text, format=source_format.value, encoding=encoding
-        )
-        converted = converter(record_metadata, output_format.value, schema=schema.value)
-        return converted
+        return Converter(response.text, schema=schema).load(encoding=encoding).convert_to_cioos_schema().to(output_format.value)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
