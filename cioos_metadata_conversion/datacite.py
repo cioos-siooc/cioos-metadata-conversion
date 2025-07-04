@@ -131,8 +131,8 @@ def _get_publisher(record) -> dict:
                 publisher["publisherIdentifierScheme"] = "ROR"
                 publisher["schemeUri"] = "https://ror.org/"
             return publisher
-
     logger.warning("No publisher found in the record.")
+    return {}
 
 
 def _get_funding_references(record) -> dict:
