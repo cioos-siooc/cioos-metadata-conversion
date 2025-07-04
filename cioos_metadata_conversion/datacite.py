@@ -244,6 +244,7 @@ def _get_related_items(record) -> dict:
     """
     return {"relatedItems": []}
 
+
 def _get_unique_dicts(dict_list: list) -> list:
     unique_dicts = {frozenset(d.items()) for d in dict_list}
     return [dict(items) for items in unique_dicts]
@@ -287,17 +288,23 @@ def generate_record(record) -> dict:
             datetime.strptime(
                 record["metadata"]["dates"].get("publication"), "%Y-%m-%d"
             ).year
-        if record["metadata"]["dates"].get("publication") else datetime.now().year),
-        "subjects": _get_unique_dicts  ([
-            {
-                "subject": keyword,
-                "lang": lang,
-                **_get_subject_scheme(group),
-            }
-            for group, group_keywords in record["identification"]["keywords"].items()
-            for lang, keywords in group_keywords.items()
-            for keyword in keywords
-        ]),
+            if record["metadata"]["dates"].get("publication")
+            else datetime.now().year
+        ),
+        "subjects": _get_unique_dicts(
+            [
+                {
+                    "subject": keyword,
+                    "lang": lang,
+                    **_get_subject_scheme(group),
+                }
+                for group, group_keywords in record["identification"][
+                    "keywords"
+                ].items()
+                for lang, keywords in group_keywords.items()
+                for keyword in keywords
+            ]
+        ),
         "dates": _get_dates(record),
         "language": record["metadata"]["language"],
         "types": {
@@ -308,7 +315,7 @@ def generate_record(record) -> dict:
         **_get_related_identifiers(record),
         # "sizes": [],
         # "formats": [],
-        "version": record["identification"].get("edition",""),
+        "version": record["identification"].get("edition", ""),
         "rightsList": [
             {
                 "rights": record["metadata"]["use_constraints"]["licence"]["title"][
@@ -338,9 +345,9 @@ def generate_record(record) -> dict:
                 "lang": lang,
                 "descriptionType": "Other",
             }
-            for lang, description in record["metadata"]["use_constraints"].get(
-                "limitations"
-            ,{}).items()
+            for lang, description in record["metadata"]["use_constraints"]
+            .get("limitations", {})
+            .items()
             if lang != "translations"
         ],
         "geoLocations": [

@@ -42,17 +42,20 @@ def test_xml_output(record, tmp_path):
     assert isinstance(xml_output, str)  # Ensure it's a string
     assert test_file.exists()  # Ensure the path exists
 
-@pytest.mark.parametrize("firebase_record",(Path(__file__).parent / "records" / "firebase" ).glob("*.json"))
+
+@pytest.mark.parametrize(
+    "firebase_record", (Path(__file__).parent / "records" / "firebase").glob("*.json")
+)
 def test_firebase_record_to_xml(firebase_record):
     """
     Test the conversion of a Firebase record to XML.
     """
-    with open(firebase_record, 'r') as f:
+    with open(firebase_record, "r") as f:
         record = json.load(f)
     record = record_json_to_yaml(record)
 
     # Convert the record to XML
-    test_file = firebase_record.with_suffix('.xml')
+    test_file = firebase_record.with_suffix(".xml")
     xml_output = datacite.to_xml(record, test_file)
 
     assert xml_output
@@ -60,17 +63,19 @@ def test_firebase_record_to_xml(firebase_record):
     assert test_file.exists()  # Ensure the path exists
 
 
-@pytest.mark.parametrize("firebase_record",(Path(__file__).parent / "records" / "firebase" ).glob("*.json"))
+@pytest.mark.parametrize(
+    "firebase_record", (Path(__file__).parent / "records" / "firebase").glob("*.json")
+)
 def test_firebase_record_schema(firebase_record):
     """
     Test the conversion of a Firebase record to XML.
     """
-    with open(firebase_record, 'r') as f:
+    with open(firebase_record, "r") as f:
         record = json.load(f)
     record = record_json_to_yaml(record)
 
     # Convert the record to XML
-    test_file = firebase_record.with_suffix('.xml')
+    test_file = firebase_record.with_suffix(".xml")
     datacite_record = datacite.generate_record(record)
 
     assert datacite_record

@@ -37,6 +37,7 @@ app = FastAPI(
 SUPPORTED_FORMATS = Enum("OutputFormats", {key: key for key in OUTPUT_FORMATS.keys()})
 SOURCE_FORMATS = Enum("InputFormats", {key: key for key in ["yaml", "json"]})
 
+
 def get_media_type(output_format: str) -> str:
     """Get the media type for the given output format."""
     if "json" in output_format:
@@ -49,6 +50,7 @@ def get_media_type(output_format: str) -> str:
         return "application/xml"
     else:
         raise ValueError(f"Unsupported output format: {output_format}")
+
 
 def convert_and_respond(
     content: str,
@@ -71,6 +73,7 @@ def convert_and_respond(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/convert/text")
 @logger.catch(reraise=True)
 def convert_from_text(
@@ -82,9 +85,7 @@ def convert_from_text(
     """Convert text input containing metadata to a different format."""
     raw_body = request.body()
     try:
-        return convert_and_respond(
-            raw_body, output_format, schema, encoding
-        )
+        return convert_and_respond(raw_body, output_format, schema, encoding)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -104,9 +105,7 @@ def convert_from_file(
     content = file.file.read().decode(encoding)
 
     try:
-        return convert_and_respond(
-            content, output_format, schema, encoding
-        )
+        return convert_and_respond(content, output_format, schema, encoding)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -128,8 +127,6 @@ def convert_from_url(
     try:
         response = requests.get(url)
         response.raise_for_status()
-        return convert_and_respond(
-            response.text, output_format, schema, encoding
-        )
+        return convert_and_respond(response.text, output_format, schema, encoding)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
