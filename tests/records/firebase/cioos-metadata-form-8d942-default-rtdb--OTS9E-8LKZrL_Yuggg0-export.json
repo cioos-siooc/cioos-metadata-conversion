@@ -1,0 +1,227 @@
+{
+  "abstract": {
+    "en": "Zyxwvutsrqponmi kjihgfedcba hihrwefj\n\n- [**A 600-year marine record**](https://doi.org/10.1002/jqs.3531)",
+    "fr": "Abcdefghijk lmnopqrstuvwxyz kaskkf\n\n- [**A 600-year marine record**](https://doi.org/10.1002/jqs.3531)"
+  },
+  "associated_resources": [
+    {
+      "association_type": "IsReferencedBy",
+      "association_type_iso": "crossReference",
+      "authority": "DOI",
+      "code": "https://doi.org/10.1002/jqs.3531",
+      "title": {
+        "en": "A 600-year marine record associated with the dynamics of the eastern Penny Ice Cap (Baffin Island, Nunavut, Canada)",
+        "fr": "A 600-year marine record associated with the dynamics of the eastern Penny Ice Cap (Baffin Island, Nunavut, Canada)",
+        "translations": {
+          "en": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      }
+    },
+    {
+      "association_type": "IsCitedBy",
+      "association_type_iso": "crossReference",
+      "authority": "URL",
+      "code": "https://obis.org/dataset/06704bbe-f905-4b5e-b797-a216cb791eb8",
+      "title": {
+        "en": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d’importance de la rive nord de l’estuaire maritime du Saint-Laurent",
+        "fr": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d’importance de la rive nord de l’estuaire maritime du Saint-Laurent",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      }
+    }
+  ],
+  "category": "",
+  "comment": "",
+  "contacts": [
+    {
+      "givenNames": "",
+      "inCitation": false,
+      "indEmail": "",
+      "indOrcid": "",
+      "indPosition": "",
+      "lastName": "",
+      "orgAdress": "",
+      "orgCity": "Rimouski",
+      "orgCountry": "Canada",
+      "orgEmail": "",
+      "orgName": "St. Lawrence Global Observatory",
+      "orgRor": "",
+      "orgURL": "https://ogsl.ca/en/home-slgo/",
+      "role": [
+        "owner"
+      ]
+    },
+    {
+      "givenNames": "María-Emilia",
+      "inCitation": true,
+      "indEmail": "rodriguezcme@ogsl.com",
+      "indOrcid": "https://orcid.org/0000-0003-0067-3670",
+      "indPosition": "Intégratrice de données",
+      "lastName": "Rodríguez-Cuicas",
+      "orgAdress": "",
+      "orgCity": "Rimouski",
+      "orgCountry": "Canada",
+      "orgEmail": "",
+      "orgName": "St. Lawrence Global Observatory",
+      "orgRor": "https://ror.org/03wfagk22",
+      "orgURL": "https://ogsl.ca/en/home-slgo/",
+      "role": [
+        "pointOfContact",
+        "custodian"
+      ]
+    },
+    {
+      "givenNames": "Omnain",
+      "inCitation": true,
+      "indEmail": "",
+      "indOrcid": "",
+      "indPosition": "",
+      "lastName": "Kutos",
+      "orgAdress": "",
+      "orgCity": "Rimouski",
+      "orgCountry": "Canada",
+      "orgEmail": "",
+      "orgName": "St. Lawrence Global Observatory",
+      "orgRor": "",
+      "orgURL": "https://ogsl.ca/en/home-slgo/",
+      "role": [
+        "collaborator",
+        "contributor",
+        "publisher"
+      ]
+    }
+  ],
+  "created": "2025-06-25T17:24:48.469Z",
+  "datasetIdentifier": "https://doi.org/10.26071/mxtr-gp72",
+  "dateEnd": "2025-03-01T17:00:00.000Z",
+  "dateStart": "2025-01-01T17:00:00.000Z",
+  "distribution": [
+    {
+      "description": {
+        "en": "Data Dictionary",
+        "fr": "Dictionnaire de données",
+        "translations": {
+          "en": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      },
+      "name": {
+        "en": "Data Dictionary",
+        "fr": "Dictionnaire de données",
+        "translations": {
+          "en": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      },
+      "url": "google.com"
+    }
+  ],
+  "doiCreationStatus": "draft",
+  "edition": "",
+  "eov": [
+    "invertebrateAbundanceAndDistribution"
+  ],
+  "filename": "",
+  "identifier": "9d1a8fe4-2675-4e34-8b65-16459736535a",
+  "keywords": {
+    "en": [
+      "abundance and biomass",
+      "sea currents",
+      "coastal erosion",
+      "commercial fisheries"
+    ],
+    "fr": [
+      "abondance et biomasse",
+      "courant marin",
+      "érosion des côtes",
+      "pêches commerciales"
+    ]
+  },
+  "language": "fr",
+  "lastEditedBy": {
+    "displayName": "Maria-Émilia Rodriguez-Cuicas",
+    "email": "rodriguezcme@ogsl.ca"
+  },
+  "license": "CC-BY-4.0",
+  "limitations": "",
+  "map": {
+    "description": {
+      "en": "Port-Cartier",
+      "fr": "Port-Cartier",
+      "translations": {
+        "en": {
+          "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+          "verified": false
+        }
+      }
+    },
+    "descriptionIdentifier": "b13a0dfe-d8aa-40f7-8895-efc19503cb3a",
+    "east": "-66.77",
+    "north": "50.04",
+    "polygon": "50.03,-66.84 50.01,-66.93 49.97,-66.97 49.91,-66.96 50.04,-66.77 50.03,-66.84",
+    "south": "49.91",
+    "west": "-66.97"
+  },
+  "metadataScope": "Dataset",
+  "noPlatform": true,
+  "organization": "",
+  "progress": "completed",
+  "projects": [
+    "Coastal Environmental Baseline Program"
+  ],
+  "recordID": "-OTS9E-8LKZrL_Yuggg0",
+  "region": "stlaurent",
+  "resourceType": [
+    "biological"
+  ],
+  "status": "",
+  "taxa": [
+    {
+      "canonicalName": "Animalia",
+      "genus": "Animalia",
+      "genusKey": 11365960,
+      "higherClassificationMap": [
+        null,
+        "Animalia"
+      ],
+      "key": 11365960,
+      "kingdom": "Animalia",
+      "kingdomKey": 1,
+      "nameKey": 96916021,
+      "nubKey": 11365960,
+      "parent": "Animalia",
+      "parentKey": 1,
+      "rank": "GENUS",
+      "scientificName": "Animalia Hagen, 1867",
+      "status": "DOUBTFUL",
+      "synonym": false
+    }
+  ],
+  "timeFirstPublished": "2025-06-25T17:24:48.469Z",
+  "title": {
+    "en": "DCBA",
+    "fr": "ABCD",
+    "translations": {
+      "en": {
+        "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+        "verified": false
+      }
+    }
+  },
+  "userID": "Ea7wMTBNmvWBD2n1oSc8X0KQi9z1",
+  "verticalExtentDirection": "heightPositive",
+  "verticalExtentEPSG": "",
+  "verticalExtentMax": "5",
+  "verticalExtentMin": "0"
+}
