@@ -34,6 +34,7 @@ CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "Other": "Other",
     "processor": "Other",
     "collaborator": "RelatedPerson",
+    "contributor": "Other",
 }
 
 
