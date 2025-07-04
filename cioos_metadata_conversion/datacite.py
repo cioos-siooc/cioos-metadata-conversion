@@ -246,6 +246,34 @@ def _get_related_items(record) -> dict:
     return {"relatedItems": []}
 
 
+def _get_geo_polygon(record) -> list:
+    """
+    Get the polygon from the Cioos record.
+    """
+    return {
+                "geoLocationPolygon": [
+                    {
+                        "polygonPoint": {
+                            "pointLatitude": float(loc.split(",")[1]),
+                            "pointLongitude": float(loc.split(",")[0]),
+                        }
+                    }
+                    for loc in record["spatial"]["polygon"].split(" ")
+                ]
+            }
+def _get_geo_bounding_box(record) -> dict:
+    if "bounding_box" not in record["spatial"]:
+        return {}
+    return {
+        "geoLocationBoundingBox": {
+            "westBoundLongitude": float(record["spatial"]["bounding_box"]["west"]),
+            "eastBoundLongitude": float(record["spatial"]["bounding_box"]["east"]),
+            "southBoundLatitude": float(record["spatial"]["bounding_box"]["south"]),
+            "northBoundLatitude": float(record["spatial"]["bounding_box"]["north"]),
+        }
+    }
+
+
 def _get_unique_dicts(dict_list: list) -> list:
     unique_dicts = {frozenset(d.items()) for d in dict_list}
     return [dict(items) for items in unique_dicts]
@@ -352,17 +380,12 @@ def generate_record(record) -> dict:
             if lang != "translations"
         ],
         "geoLocations": [
-            {
-                "geoLocationPolygon": [
-                    {
-                        "polygonPoint": {
-                            "pointLatitude": float(loc.split(",")[1]),
-                            "pointLongitude": float(loc.split(",")[0]),
-                        }
-                    }
-                    for loc in record["spatial"]["polygon"].split(" ")
-                ]
-            }
+            item
+            for item in [
+                _get_geo_polygon(record),
+                _get_geo_bounding_box(record),
+            ]
+            if item
         ],
         **_get_funding_references(record),
         **_get_related_items(record),
