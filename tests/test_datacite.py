@@ -75,7 +75,6 @@ def test_firebase_record_schema(firebase_record):
     record = record_json_to_yaml(record)
 
     # Convert the record to XML
-    test_file = firebase_record.with_suffix(".xml")
     datacite_record = datacite.generate_record(record)
 
     assert datacite_record
