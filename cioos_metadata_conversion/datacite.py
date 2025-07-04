@@ -287,7 +287,7 @@ def generate_record(record) -> dict:
             datetime.strptime(
                 record["metadata"]["dates"].get("publication"), "%Y-%m-%d"
             ).year
-        ) if record["metadata"]["dates"].get("publication") else datetime.now().year,
+        if record["metadata"]["dates"].get("publication") else datetime.now().year),
         "subjects": _get_unique_dicts  ([
             {
                 "subject": keyword,
