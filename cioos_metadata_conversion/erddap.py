@@ -395,6 +395,9 @@ def update(
             database_url,
         )
         # Convert firebase records to CIOOS schema
+        logger.info("Retrieved {} records", len(records))
+        if not records:
+            return
         records = [
             record_json_to_yaml(record) if isinstance(record, dict) else record
             for record in records
