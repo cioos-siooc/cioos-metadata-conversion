@@ -9,7 +9,7 @@ from lxml import etree
 
 from cioos_metadata_conversion.cioos import (
     get_records_from_firebase,
-    record_json_to_yaml,
+    cioos_firebase_to_cioos_schema,
 )
 from cioos_metadata_conversion.utils import drop_empty_values
 
