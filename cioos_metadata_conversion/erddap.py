@@ -399,7 +399,7 @@ def update(
         if not records:
             return
         records = [
-            record_json_to_yaml(record) if isinstance(record, dict) else record
+            cioos_firebase_to_cioos_schema(record) if isinstance(record, dict) else record
             for record in records
         ]
 
