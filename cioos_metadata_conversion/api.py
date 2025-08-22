@@ -24,7 +24,9 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-version = tomllib.loads((Path(__file__).parent / "../pyproject.toml").read_text())["project"]["version"]
+version = tomllib.loads((Path(__file__).parent / "../pyproject.toml").read_text())[
+    "project"
+]["version"]
 
 app = FastAPI(
     title="CIOOS Metadata Conversion API",

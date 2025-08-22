@@ -256,12 +256,14 @@ def _update_xml(xml_file, dataset_id, updates, encoding="utf-8") -> str:
 
 
 def _get_dataset_id_from_record(record, erddap_url):
-    for ressource in record["distribution"]:
-        if erddap_url in ressource["url"]:
-            return ressource["url"].split("/")[-1].replace(
-                ".html", ""
-            ), global_attributes(record, output=None)
-    return None, None
+    return [
+        (
+            ressource["url"].split("/")[-1].replace(".html", ""),
+            global_attributes(record, output=None),
+        )
+        for ressource in record["distribution"]
+        if erddap_url in ressource["url"]
+    ]
 
 
 class ERDDAP:
@@ -333,7 +335,12 @@ def update_dataset_xml(
     if not erddap_files:
         assert ValueError(f"No files found in {datasets_xml}")
 
-    datasets = [_get_dataset_id_from_record(record, erddap_url) for record in records]
+    datasets = [
+        dataset
+        for record in records
+        for dataset in _get_dataset_id_from_record(record, erddap_url)
+        if dataset
+    ]
     dataset_ids = [dataset_id for dataset_id, _ in datasets]
     updated = []
     for file in erddap_files:
@@ -391,7 +398,7 @@ def update(
             region,
             firebase_auth_key,
             None,
-            submission_status,
+            submission_status.split(","),
             database_url,
         )
         # Convert firebase records to CIOOS schema
@@ -399,7 +406,9 @@ def update(
         if not records:
             return
         records = [
-            cioos_firebase_to_cioos_schema(record) if isinstance(record, dict) else record
+            cioos_firebase_to_cioos_schema(record)
+            if isinstance(record, dict)
+            else record
             for record in records
         ]
 

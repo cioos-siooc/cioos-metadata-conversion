@@ -4,9 +4,11 @@ from firebase_to_xml import (
 from firebase_to_xml import (
     record_json_to_yaml,
 )
+from loguru import logger
 
 
-def cioos_firebase_to_cioos_schema(record):
+@logger.catch(default={})
+def cioos_firebase_to_cioos_schema(record) -> dict:
     """
     Convert a Firebase record to CIOOS schema.
 
@@ -19,9 +21,10 @@ def cioos_firebase_to_cioos_schema(record):
     return record_json_to_yaml.record_json_to_yaml(record)
 
 
+@logger.catch(default=[])
 def get_records_from_firebase(
     region, firebase_auth_key, record_url, record_status, database_url
-):
+) -> list:
     """
     Fetch records from Firebase and convert them to CIOOS schema.
 
