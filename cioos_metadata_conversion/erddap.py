@@ -398,7 +398,7 @@ def update(
             region,
             firebase_auth_key,
             None,
-            submission_status.split(","),
+            record_status.split(","),
             database_url,
         )
         # Convert firebase records to CIOOS schema
