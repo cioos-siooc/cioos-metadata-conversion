@@ -369,7 +369,7 @@ def update_dataset_xml(
 @click.option("--erddap-url", "-u", required=True, help="ERDDAP base URL.")
 @click.option("--output-dir", "-o", help="Output directory.")
 @click.option(
-    "--submission-status", "-s", default="published", help="Submission status."
+    "--record-status", "-s", default="published", help="Record submission status."
 )
 @click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
 @click.option("--region", "-r", help="Region to fetch records for.")
@@ -379,7 +379,7 @@ def update(
     records,
     erddap_url,
     output_dir,
-    submission_status,
+    record_status,
     firebase_auth_key,
     region,
     database_url,
@@ -390,7 +390,7 @@ def update(
         logger.info(
             "Fetching records from Firebase for region: {}, status: {}, database URL: {}",
             region,
-            submission_status,
+            record_status,
             database_url,
         )
 
