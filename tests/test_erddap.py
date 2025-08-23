@@ -46,7 +46,7 @@ def test_erddap_global_attributes_xml(record):
     glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_cioos_metadata_files_to_erddap(file):
-    data = load(file, "yaml")
+    data = load(file, "CIOOS")
     result = erddap.global_attributes(data, output="xml", language="en")
 
     assert result
@@ -57,7 +57,7 @@ def test_cioos_metadata_files_to_erddap(file):
     glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_cioos_metadata_files_to_erddap_fr(file):
-    data = load(file, "yaml")
+    data = load(file, "CIOOS")
     result_fr = erddap.global_attributes(data, output="xml", language="fr")
 
     assert result_fr
