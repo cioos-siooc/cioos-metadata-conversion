@@ -1,0 +1,132 @@
+{
+    "title": {
+        "en": "Someone Test 2",
+        "fr": "Test 2 de Someone",
+        "translations": {
+            "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+            }
+        }
+    },
+    "abstract": {
+        "en": "Someone Test 2",
+        "fr": "Someone Test 2"
+    },
+    "keywords": {
+        "en": [
+            "benthic macrofauna"
+        ],
+        "fr": [
+            "macrofaune benthique"
+        ]
+    },
+    "eov": [
+        "fishAbundanceAndDistribution"
+    ],
+    "progress": "onGoing",
+    "distribution": [
+        {
+            "description": {
+                "en": "",
+                "fr": ""
+            },
+            "name": {
+                "en": "SLGO",
+                "fr": "SLGO",
+                "translations": {
+                    "fr": {
+                        "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                        "verified": false
+                    }
+                }
+            },
+            "url": "https://ogsl.ca/fr/accueil/"
+        }
+    ],
+    "dateStart": null,
+    "dateEnd": null,
+    "map": {
+        "description": {
+            "en": "pretty lac",
+            "fr": "beau lac",
+            "translations": {
+                "fr": {
+                    "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                    "verified": false
+                }
+            }
+        },
+        "east": -67.3223,
+        "north": 48.4176,
+        "polygon": "",
+        "south": 48.415,
+        "west": -67.328
+    },
+    "verticalExtentMin": "",
+    "verticalExtentMax": "",
+    "datePublished": null,
+    "dateRevised": null,
+    "edition": "",
+    "recordID": "-assdas",
+    "instruments": [],
+    "platforms": [],
+    "language": "fr",
+    "license": "CC-BY-4.0",
+    "contacts": [
+        {
+            "role": [
+                "custodian",
+                "owner"
+            ],
+            "orgName": "St. Lawrence Global Observatory",
+            "orgEmail": "email@email.com",
+            "orgURL": "https://ogsl.ca/en/home-slgo/",
+            "orgAdress": "",
+            "orgCity": "Rimouski",
+            "orgCountry": "Canada",
+            "orgRor": "https://ror.org/03wfagk22",
+            "indPosition": "",
+            "indEmail": "",
+            "indOrcid": "",
+            "givenNames": "",
+            "lastName": "",
+            "inCitation": true
+        }
+    ],
+    "status": "published",
+    "comment": "",
+    "limitations": "",
+    "lastEditedBy": {
+        "displayName": "Someone Unknown",
+        "email": "email@email.com"
+    },
+    "category": "",
+    "verticalExtentDirection": "",
+    "datasetIdentifier": "",
+    "doiCreationStatus": "",
+    "noPlatform": true,
+    "filename": "",
+    "organization": "",
+    "timeFirstPublished": "2025-08-14T13:20:50.589Z",
+    "history": [],
+    "associated_resources": [],
+    "identifier": "2ce6d167-109d-40c3-bf33-cee7a663e18b",
+    "created": "2025-08-14T13:19:13.365Z",
+    "metadataScope": "Dataset",
+    "noTaxa": true,
+    "noVerticalExtent": true,
+    "projects": [
+        "RQM"
+    ],
+    "region": "stlaurent",
+    "resourceType": [
+        "biological"
+    ],
+    "userID": "asdasdas",
+    "userinfo": {
+        "displayName": "Someone Unknown",
+        "email": "email@email.com",
+        "userID": "asdasdas"
+    }
+}
