@@ -33,8 +33,6 @@ def eml_xml(record, citation=None, schema: str = "firebase") -> str:
         citation = generate_citation(
             record, language=record.get("language", "en"), format="text"
         )
-    if "hisory" not in record:
-        record["history"] = []
 
     template = template_env.get_template("emlTemplate.j2")
     return template.render(
