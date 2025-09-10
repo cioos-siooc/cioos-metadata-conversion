@@ -3,3 +3,4 @@
 tests/records/hakai-metadata-entry-form-files
 tests/results
 .env
+tests/firebase-records/generated_eml.xml
