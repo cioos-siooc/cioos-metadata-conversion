@@ -31,13 +31,16 @@ def eml_xml(record, citation=None, schema: str = "firebase") -> str:
         raise ValueError("Only 'firebase' schema is supported for EML conversion.")
     if not citation:
         citation = generate_citation(
-            record, language=record.get("language", "en"), format="html"
+            record, language=record.get("language", "en"), format="text"
         )
+    if "hisory" not in record:
+        record["history"] = []
 
     template = template_env.get_template("emlTemplate.j2")
     return template.render(
         record=record,
-        role_mapping=ROLE_MAPPING,
+        roleMapping=ROLE_MAPPING,
+        roleMappingKeys=ROLE_MAPPING.keys(),
         citation=citation,
         licenses=LICENSES,
         arrayOverlap=arrayOverlap,

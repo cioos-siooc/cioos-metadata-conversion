@@ -1,0 +1,235 @@
+
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:dc="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd" packageId="72de3af4-1572-4f2d-8006-2bfa2007065c/v1.25" system="http://gbif.org" scope="system" xml:lang="eng">
+
+    <dataset>
+        <!-- <alternateIdentifier>72de3af4-1572-4f2d-8006-2bfa2007065c</alternateIdentifier> -->
+
+        <!-- <alternateIdentifier>http://ipt.iobis.org/obiscanada/resource?r=hakai_jsp</alternateIdentifier> -->
+
+        <title xml:lang="eng">some english title (Copy) another test some more</title>
+
+        
+        
+        
+        <creator>
+        <individualName>
+                <givenName>Jessy</givenName>
+                <surName>Barrette</surName>
+            </individualName>
+            <organizationName>St. Lawrence Global Observatory</organizationName>
+            <positionName>data and software specialist</positionName>
+            <address>
+                <deliveryPoint></deliveryPoint>
+                <!-- NOTE this might not work as it's currently still referenced as contact.orgAdress -->
+                <city>Rimouski</city>
+                <!-- <administrativeArea>British Columbia</administrativeArea> -->
+                <!-- <postalCode>V0P 1H0</postalCode> -->
+                <country>Canada</country>
+            </address>
+            <!-- <phone>6047035347</phone> -->
+            <electronicMailAddress>barrettej@ogsl.ca</electronicMailAddress>
+            <onlineUrl>https://ogsl.ca/en/home-slgo/</onlineUrl>
+            <!-- <role> is used by associatedParty, but its a single item not a list -->
+            <!-- <role></role> -->
+            <userId directory="https://orcid.org/"  >https://orcid.org/0000-0002-0422-2589</userId>
+            <!-- NOTE that we can have multiple roles per contact, just get the first -->
+        </creator >
+        
+        
+        
+        
+        
+        <metadataProvider>
+        <individualName>
+                <givenName>Jessy</givenName>
+                <surName>Barrette</surName>
+            </individualName>
+            <organizationName>St. Lawrence Global Observatory</organizationName>
+            <positionName>data and software specialist</positionName>
+            <address>
+                <deliveryPoint></deliveryPoint>
+                <!-- NOTE this might not work as it's currently still referenced as contact.orgAdress -->
+                <city>Rimouski</city>
+                <!-- <administrativeArea>British Columbia</administrativeArea> -->
+                <!-- <postalCode>V0P 1H0</postalCode> -->
+                <country>Canada</country>
+            </address>
+            <!-- <phone>6047035347</phone> -->
+            <electronicMailAddress>barrettej@ogsl.ca</electronicMailAddress>
+            <onlineUrl>https://ogsl.ca/en/home-slgo/</onlineUrl>
+            <!-- <role> is used by associatedParty, but its a single item not a list -->
+            <!-- <role></role> -->
+            <userId directory="https://orcid.org/"  >https://orcid.org/0000-0002-0422-2589</userId>
+            <!-- NOTE that we can have multiple roles per contact, just get the first -->
+        </metadataProvider >
+        
+        
+        
+        
+        
+        <associatedParty>
+        <individualName>
+                <givenName>Jessy</givenName>
+                <surName>Barrette</surName>
+            </individualName>
+            <organizationName>St. Lawrence Global Observatory</organizationName>
+            <positionName>data and software specialist</positionName>
+            <address>
+                <deliveryPoint></deliveryPoint>
+                <!-- NOTE this might not work as it's currently still referenced as contact.orgAdress -->
+                <city>Rimouski</city>
+                <!-- <administrativeArea>British Columbia</administrativeArea> -->
+                <!-- <postalCode>V0P 1H0</postalCode> -->
+                <country>Canada</country>
+            </address>
+            <!-- <phone>6047035347</phone> -->
+            <electronicMailAddress>barrettej@ogsl.ca</electronicMailAddress>
+            <onlineUrl>https://ogsl.ca/en/home-slgo/</onlineUrl>
+            <!-- <role> is used by associatedParty, but its a single item not a list -->
+            <!-- <role></role> -->
+            <userId directory="https://orcid.org/"  >https://orcid.org/0000-0002-0422-2589</userId>
+            <!-- NOTE that we can have multiple roles per contact, just get the first -->
+        </associatedParty >
+        
+        
+        
+
+        <pubDate>
+            <!-- TODO why is this 2017 in one and 2021 in the other? -->
+            2024-09-01T16:00:00.000Z
+        </pubDate>
+        <!-- TODO 2 char vs 3 char? -->
+        <language>en</language>
+        <abstract>
+            <para>Some abstract</para>
+        </abstract>
+        <keywordSet>
+            
+            <keyword>endangered species</keyword>
+            
+            <!-- TODO GCMD and another? -->
+            <keywordThesaurus>GCMD</keywordThesaurus>
+        </keywordSet>
+        
+        <intellectualRights>
+            <para>
+                This work is licensed under
+                <ulink url="">
+                    <citetitle></citetitle>
+                </ulink>
+                .
+            </para>
+        </intellectualRights>
+        
+        <distribution scope="document">
+            <online>
+                <url function="information"></url>
+            </online>
+        </distribution>
+
+        <coverage>
+    <geographicCoverage>
+        <geographicDescription xml:lang="eng">A description of the environment</geographicDescription>
+        <boundingCoordinates>
+            <westBoundingCoordinate>-119.7</westBoundingCoordinate>
+            <eastBoundingCoordinate>-36.88</eastBoundingCoordinate>
+            <northBoundingCoordinate>53.11</northBoundingCoordinate>
+            <southBoundingCoordinate>30.89</southBoundingCoordinate>
+        </boundingCoordinates>
+    </geographicCoverage>
+    <temporalCoverage>
+        <rangeOfDates>
+            <beginDate>
+                <calendarDate>2024-12-04T17:00:00.000Z</calendarDate>
+            </beginDate>
+            <endDate>
+                <calendarDate>2024-12-06T17:00:00.000Z</calendarDate>
+            </endDate>
+        </rangeOfDates>
+    </temporalCoverage>
+    
+</coverage>
+
+        <maintenance>
+        <description>
+            <para/>
+        </description>
+        <maintenanceUpdateFrequency>asNeeded</maintenanceUpdateFrequency>
+        </maintenance>
+
+
+        
+        
+        <contact>
+            <individualName>
+                <givenName>Jessy</givenName>
+                <surName>Barrette</surName>
+            </individualName>
+            <organizationName>St. Lawrence Global Observatory</organizationName>
+            <positionName>data and software specialist</positionName>
+            <address>
+                <deliveryPoint></deliveryPoint>
+                <city>Rimouski</city>
+                <!-- <administrativeArea></administrativeArea> -->
+                <!-- <postalCode></postalCode> -->
+                <country>Canada</country>
+            </address>
+            <!-- <phone></phone> -->
+            <electronicMailAddress>barrettej@ogsl.ca</electronicMailAddress>
+            <onlineURL>https://ogsl.ca/en/home-slgo/</onlineURL>
+            <!-- <role> is used by associatedParty, buts its a single item not a list -->
+            <!-- <role></role> -->
+
+            <userId directory="https://orcid.org">https://orcid.org/0000-0002-0422-2589</userId>
+        </contact>
+        
+        
+
+        
+        
+        <publisher>
+            
+            <individualName>
+                <givenName>Jessy</givenName>
+                <surName>Barrette</surName>
+            </individualName>
+            
+            <organizationName>St. Lawrence Global Observatory</organizationName>
+            <positionName>data and software specialist</positionName>
+            <address>
+                <deliveryPoint></deliveryPoint>
+                <city>Rimouski</city>
+                <!-- <administrativeArea></administrativeArea> -->
+                <!-- <postalCode></postalCode> -->
+                <country>Canada</country>
+            </address>
+            <!-- <phone></phone> -->
+            <electronicMailAddress>barrettej@ogsl.ca</electronicMailAddress>
+            <onlineURL>https://ogsl.ca/en/home-slgo/</onlineURL>
+            <!-- <role> is used by associatedParty, buts its a single item not a list -->
+            <!-- <role></role> -->
+
+            <userId directory="https://orcid.org">https://orcid.org/0000-0002-0422-2589</userId>
+        </publisher>
+        
+        
+
+        
+        <methods>
+        
+        </methods>
+        
+
+    </dataset>
+    <additionalMetadata>
+        <metadata>
+            <gbif>
+                <dateStamp>2024-09-01T16:00:00.000Z</dateStamp>
+                <hierarchyLevel>dataset</hierarchyLevel>
+                <citation identifier="">Barrette, J. (2024). some english title (Copy) another test some more (v1.1.0). St. Lawrence Global Observatory.
+</citation>
+                <edition>1.1.0</edition>
+            </gbif>
+        </metadata>
+    </additionalMetadata>
+</eml:eml>

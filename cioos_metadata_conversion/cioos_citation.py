@@ -124,15 +124,12 @@ def _generate_with_citeproc(record: dict, language: str, output_format: str) -> 
     return rendered
 
 
-def generate_citation(record: dict, language: str, format: str = "html") -> str:
+def generate_citation(record: dict, language: str = "en-US", format: str = "html") -> str:
     """Generate a citation using citeproc-py (APA only).
 
     Returns empty string if generation fails.
     """
-    try:
-        return _generate_with_citeproc(record, language, format)
-    except Exception:
-        return ""
+    return _generate_with_citeproc(record, language, format)
 
 
 __all__ = ["generate_citation"]

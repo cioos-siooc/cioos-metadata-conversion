@@ -14,4 +14,4 @@ def record():
 
 @pytest.fixture
 def firebase_record():
-    return load("tests/firebase-records/test_record.json", "json")
+    return load("tests/firebase-records/some_english_title__copy__anot_041d7.json", "json")
