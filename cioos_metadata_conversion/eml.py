@@ -14,7 +14,7 @@ ROLE_MAPPING = {
 LICENSES = json.load(open("cioos_metadata_conversion/references/licenses.json"))
 
 
-def arrayOverlap(arr1, arr2):
+def _arrayOverlap(arr1, arr2):
     return any(item in arr1 for item in arr2)
 
 
@@ -39,9 +39,9 @@ def eml_xml(record, citation=None, schema: str = "firebase") -> str:
     template = template_env.get_template("emlTemplate.j2")
     return template.render(
         record=record,
+        licenses=LICENSES,
         roleMapping=ROLE_MAPPING,
         roleMappingKeys=ROLE_MAPPING.keys(),
         citation=citation,
-        licenses=LICENSES,
-        arrayOverlap=arrayOverlap,
+        arrayOverlap=_arrayOverlap,
     )
