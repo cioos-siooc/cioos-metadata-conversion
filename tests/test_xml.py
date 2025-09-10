@@ -17,7 +17,7 @@ def test_xml(record):
     glob("tests/records/**/*.yaml", recursive=True),
 )
 def test_cioos_records_xml(file):
-    record = load(file, "yaml")
+    record = load(file, "CIOOS")
     result = xml(record)
 
     assert result

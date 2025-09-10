@@ -3,3 +3,4 @@
 tests/records/hakai-metadata-entry-form-files
 tests/results
 .env
+tests/records/firebase/cioos-metadata-form-8d942-default-rtdb--OTS9E-8LKZrL_Yuggg0-export.xml

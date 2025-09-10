@@ -1,20 +1,19 @@
 import os
 from enum import Enum
-import tomllib
 from pathlib import Path
 
 import requests
 import sentry_sdk
+import tomllib
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+from fastapi.responses import Response
 from loguru import logger
 
-
-from cioos_metadata_conversion.__main__ import (
-    converter,
-    input_formats,
-    load,
-    output_formats,
+from cioos_metadata_conversion.converter import (
+    Converter,
+    InputSchemas,
+    OUTPUT_FORMATS,
 )
 
 load_dotenv()
@@ -35,9 +34,44 @@ app = FastAPI(
 )
 
 # Example supported formats
-SUPPORTED_FORMATS = Enum("OutputFormats", {key: key for key in output_formats.keys()})
-SOURCE_FORMATS = Enum("InputFormats", {key: key for key in input_formats})
-SCHEMA_OPTIONS = Enum("SchemaOptions", {"CIOOS": "CIOOS", "firebase": "firebase"})
+SUPPORTED_FORMATS = Enum("OutputFormats", {key: key for key in OUTPUT_FORMATS.keys()})
+SOURCE_FORMATS = Enum("InputFormats", {key: key for key in ["yaml", "json"]})
+
+
+def get_media_type(output_format: str) -> str:
+    """Get the media type for the given output format."""
+    if "json" in output_format:
+        return "application/json"
+    elif "yaml" in output_format or "yml" in output_format:
+        return "application/x-yaml"
+    elif "cff" in output_format:
+        return "text/x-cff"
+    elif "xml" in output_format or "erddap" in output_format:
+        return "application/xml"
+    else:
+        raise ValueError(f"Unsupported output format: {output_format}")
+
+
+def convert_and_respond(
+    content: str,
+    output_format: SUPPORTED_FORMATS,
+    schema: InputSchemas,
+    encoding: str = "utf-8",
+):
+    """Convert content to the specified format and return a Response."""
+    try:
+        converted_content = (
+            Converter(content, schema=schema)
+            .load(encoding=encoding)
+            .convert_to_cioos_schema()
+            .to(output_format.value)
+        )
+        media_type = get_media_type(output_format.value)
+        if media_type == "application/json":
+            return content
+        return Response(converted_content, media_type=media_type)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/convert/text")
@@ -45,16 +79,13 @@ SCHEMA_OPTIONS = Enum("SchemaOptions", {"CIOOS": "CIOOS", "firebase": "firebase"
 def convert_from_text(
     output_format: SUPPORTED_FORMATS,
     request: Request,
-    source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
-    schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
+    schema: InputSchemas = InputSchemas.CIOOS,
     encoding: str = "utf-8",
 ):
     """Convert text input containing metadata to a different format."""
     raw_body = request.body()
     try:
-        record_metadata = load(raw_body, format=source_format.value, encoding=encoding)
-        converted = converter(record_metadata, output_format.value, schema=schema.value)
-        return converted
+        return convert_and_respond(raw_body, output_format, schema, encoding)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -64,20 +95,17 @@ def convert_from_text(
 def convert_from_file(
     output_format: SUPPORTED_FORMATS,
     file: UploadFile = File(..., description="File containing metadata"),
-    source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
-    schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
+    schema: InputSchemas = InputSchemas.CIOOS,
     encoding: str = "utf-8",
 ):
     """Convert a file containing metadata to a different format."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="File must have a filename")
 
+    content = file.file.read().decode(encoding)
+
     try:
-        record_metadata = load(
-            file.file.read().decode(encoding=encoding), format=source_format.value
-        )
-        converted = converter(record_metadata, output_format.value, schema=schema.value)
-        return converted
+        return convert_and_respond(content, output_format, schema, encoding)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -87,8 +115,7 @@ def convert_from_file(
 def convert_from_url(
     output_format: SUPPORTED_FORMATS,
     url: str = Query(..., description="URL to fetch metadata from"),
-    source_format: SOURCE_FORMATS = SOURCE_FORMATS.yaml,
-    schema: SCHEMA_OPTIONS = SCHEMA_OPTIONS.CIOOS,
+    schema: InputSchemas = InputSchemas.CIOOS,
     encoding: str = "utf-8",
 ):
     """Convert metadata fetched from a URL to a different format."""
@@ -100,10 +127,6 @@ def convert_from_url(
     try:
         response = requests.get(url)
         response.raise_for_status()
-        record_metadata = load(
-            response.text, format=source_format.value, encoding=encoding
-        )
-        converted = converter(record_metadata, output_format.value, schema=schema.value)
-        return converted
+        return convert_and_respond(response.text, output_format, schema, encoding)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
