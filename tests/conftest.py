@@ -10,3 +10,8 @@ Path("tests/results").mkdir(exist_ok=True)
 @pytest.fixture
 def record():
     return load("tests/records/test_record1.yaml", "yaml")
+
+
+@pytest.fixture
+def firebase_record():
+    return load("tests/firebase-records/some_english_title__copy__anot_041d7.json", "json")

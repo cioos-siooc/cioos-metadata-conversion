@@ -35,7 +35,7 @@ def load(input, format, encoding="utf-8") -> dict:
         data = input
 
     if format == "json":
-        return json.loads(data, encoding=encoding)
+        return json.loads(data)
     elif format == "yaml":
         return yaml.safe_load(data)
     else:
