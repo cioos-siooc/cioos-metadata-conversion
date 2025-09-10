@@ -12,7 +12,7 @@ def test_dataset_cite(record):
     """
     Test the dataset citation generation.
     """
-    datacite_record = datacite.generate_record(record)
+    datacite_record = datacite.generate_datacite_record(record)
     assert datacite_record
 
     # validate schema
@@ -27,7 +27,7 @@ def test_json_output(record, tmp_path):
     json_output = datacite.to_json(record, test_file)
 
     assert json_output
-    assert isinstance(json_output, dict)  # Ensure it's a string
+    assert isinstance(json_output, str)  # Ensure it's a string
     assert test_file.exists()  # Ensure the path exists
 
 
@@ -75,7 +75,7 @@ def test_firebase_record_schema(firebase_record):
     record = record_json_to_yaml(record)
 
     # Convert the record to XML
-    datacite_record = datacite.generate_record(record)
+    datacite_record = datacite.generate_datacite_record(record)
 
     assert datacite_record
     schema45.validator.validate(datacite_record)

@@ -279,7 +279,7 @@ def _get_unique_dicts(dict_list: list) -> list:
     return [dict(items) for items in unique_dicts]
 
 
-def generate_record(record) -> dict:
+def generate_datacite_record(record) -> dict:
     """
     Generate a DataCite record from a Cioos record.
     """
@@ -393,23 +393,24 @@ def generate_record(record) -> dict:
     }
 
 
-def to_json(record, output=None) -> dict:
+def to_json(record, output=None) -> str:
     """
     Convert the DataCite record to JSON.
     """
-    datacite_record = generate_record(record)
+    datacite_record = generate_datacite_record(record)
+    datacite_json_record = json.dumps(datacite_record, indent=4)
     if output:
         logger.debug(f"Output file: {output}")
         with open(output, "w") as f:
-            json.dump(datacite_record, f, indent=4)
-    return datacite_record
+            f.write(datacite_json_record)
+    return datacite_json_record
 
 
 def to_xml(record, output=None) -> str:
     """
     Convert the DataCite record to XML.
     """
-    datacite_record = generate_record(record)
+    datacite_record = generate_datacite_record(record)
     xml = schema45.tostring(datacite_record)
 
     if output:
