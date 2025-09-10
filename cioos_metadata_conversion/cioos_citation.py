@@ -20,7 +20,7 @@ def _valid(c: dict) -> bool:
 
 
 def _record_to_csl_json(record: dict, language: str) -> list[dict]:
-	contacts = record.get("contacts") or record.get("contact") or []
+	contacts = record["contacts"]
 	title_map = record.get("title", {}) or {}
 	title = title_map.get(language) or next(iter(title_map.values()), "")
 	identifier = record.get("datasetIdentifier") or record.get("identification", {}).get("identifier", "")

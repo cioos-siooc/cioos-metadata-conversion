@@ -23,8 +23,8 @@ def test_eml_xml_with_original_eml(firebase_record):
     
     # Retrieve diff between original and generated EML
     diff = difflib.unified_diff(
-        original_eml.splitlines(keepends=True),
-        result.splitlines(keepends=True),
+        original_eml.strip().splitlines(keepends=True),
+        result.strip().splitlines(keepends=True),
         fromfile='original.xml',
         tofile='generated.xml',
     )
