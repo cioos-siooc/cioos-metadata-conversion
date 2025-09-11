@@ -16,6 +16,7 @@ OUTPUT_FORMATS = {
     "cff": citation_cff.citation_cff,
     "xml": xml.xml,
     "iso19115_xml": xml.xml,
+    "iso19115-3_xml": xml.xml,
     "datacite_json": datacite.to_json,
     "datacite_xml": datacite.to_xml,
 }
@@ -131,6 +132,8 @@ class Record:
             raise ValueError(
                 f"Unsupported output format: {output_format}. Supported formats are: {list(OUTPUT_FORMATS.keys())}"
             )
+        if output_format in ("xml", "iso19115_xml"):
+            logger.warning(f"{output_format} format is deprecated, use 'iso19115-3_xml' instead.")
 
         converter_func = OUTPUT_FORMATS[output_format]
         return converter_func(self.metadata)
