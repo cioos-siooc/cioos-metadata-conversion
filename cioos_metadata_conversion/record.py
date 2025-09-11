@@ -62,7 +62,9 @@ class Record:
         """
         Load the source data.
         """
-        if isinstance(self.source, str) and (
+        if isinstance(self.source, dict):
+            self.metadata = self.source
+        elif isinstance(self.source, str) and (
             self.source.startswith("http://") or self.source.startswith("https://")
         ):
             # Load from URL
@@ -71,8 +73,6 @@ class Record:
             self.load_from_file(self.source, encoding=encoding)
         elif isinstance(self.source, str):
             self.load_from_text(self.source)
-        elif isinstance(self.source, dict):
-            self.metadata = self.source
         else:
             logger.error("Unsupported source type. Must be a file path or URL.")
 
