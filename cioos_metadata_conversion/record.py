@@ -16,6 +16,7 @@ OUTPUT_FORMATS = {
     "cff": citation_cff.citation_cff,
     "xml": xml.xml,
     "iso19115_xml": xml.xml,
+    "iso19115-3_xml": xml.xml,
     "datacite_json": datacite.to_json,
     "datacite_xml": datacite.to_xml,
 }
@@ -30,17 +31,24 @@ class InputSchemas(Enum):
     firebase = "firebase"
 
 
-class Converter:
+class Record:
     """
     Base class for converters.
     """
 
     def __init__(
-        self, source, metadata=None, schema: InputSchemas = InputSchemas.CIOOS
+        self, source, metadata=None, schema: InputSchemas | str = InputSchemas.CIOOS
     ):
         self.source = source
         self.schema = schema
         self.metadata = metadata
+
+        if isinstance(schema, str):
+            if schema not in InputSchemas.__members__:
+                raise ValueError(
+                    f"Unsupported schema: {schema}. Supported schemas are: {list(InputSchemas.__members__.keys())}"
+                )
+            self.schema = InputSchemas[schema]
 
     def source_is_path(self):
         """
@@ -54,7 +62,9 @@ class Converter:
         """
         Load the source data.
         """
-        if isinstance(self.source, str) and (
+        if isinstance(self.source, dict):
+            self.metadata = self.source
+        elif isinstance(self.source, str) and (
             self.source.startswith("http://") or self.source.startswith("https://")
         ):
             # Load from URL
@@ -63,8 +73,6 @@ class Converter:
             self.load_from_file(self.source, encoding=encoding)
         elif isinstance(self.source, str):
             self.load_from_text(self.source)
-        elif isinstance(self.source, dict):
-            self.metadata = self.source
         else:
             logger.error("Unsupported source type. Must be a file path or URL.")
 
@@ -116,13 +124,17 @@ class Converter:
             )
         return self
 
-    def to(self, output_format):
+    def convert_to(self, output_format):
         """
         Convert the source data to the desired format.
         """
         if output_format not in OUTPUT_FORMATS:
             raise ValueError(
                 f"Unsupported output format: {output_format}. Supported formats are: {list(OUTPUT_FORMATS.keys())}"
+            )
+        if output_format in ("xml", "iso19115_xml"):
+            logger.warning(
+                f"{output_format} format is deprecated, use 'iso19115-3_xml' instead."
             )
 
         converter_func = OUTPUT_FORMATS[output_format]

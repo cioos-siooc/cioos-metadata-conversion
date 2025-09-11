@@ -99,8 +99,8 @@ def _get_doi(record):
 def _get_ressources(record, language):
     ressources = []
     for distribution in record["distribution"]:
-        if not distribution["url"].startswith("http"):
-            logger.warning(f"Invalid URL: {distribution['url']}")
+        if not distribution.get("url", "").startswith("http"):
+            logger.warning(f"Invalid ressource URL: {distribution.get('url')}")
             continue
         ressources.append(
             {
@@ -194,10 +194,8 @@ def citation_cff(
                 ]
             )
         ),
-        "license": record["metadata"]["use_constraints"].get("licence", {}).get("code"),
-        "license-url": record["metadata"]["use_constraints"]
-        .get("licence", {})
-        .get("url"),
+        "license": record["metadata"].get("use_constraints", {}).get("licence", {}).get("code"),
+        "license-url": record["metadata"].get("use_constraints", {}).get("licence", {}).get("url"),
         "type": record_type,
         "url": resource_url,
         "version": record["identification"].get("edition"),

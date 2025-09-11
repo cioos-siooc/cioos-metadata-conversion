@@ -23,21 +23,10 @@ dependencies = [
 [project.scripts]
 cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"
 
-[project.optional-dependencies]
-api = [
-    "fastapi>=0.115.13",
-    "python-dotenv>=1.1.0",
-    "python-multipart>=0.0.20",
-    "sentry-sdk[loguru]>=2.30.0",
-    "uvicorn>=0.34.3",
-]
-
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.2.2,<9",
-    "isort>=5.13.2,<6",
     "ruff>=0.5.0,<0.6",
-    "black>=24.4.2,<25",
     "pytest-xdist>=3.6.1,<4",
 ]
 

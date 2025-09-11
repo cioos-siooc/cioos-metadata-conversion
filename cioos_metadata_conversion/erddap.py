@@ -135,13 +135,13 @@ def global_attributes(
         logger.warning("Multiple publishers found, using the first one.")
 
     comment = []
-    if record["metadata"]["use_constraints"].get("limitations", {}).get(language):
+    if record["metadata"].get("use_constraints", {}).get("limitations", {}).get(language):
         comment += [
             "##Limitations:\n"
             + record["metadata"]["use_constraints"]["limitations"][language]
         ]
     translation_comment = (
-        record["metadata"]["use_constraints"]
+        record["metadata"].get("use_constraints", {})
         .get("limitations", {})
         .get("translations", {})
         .get(language)
@@ -151,7 +151,7 @@ def global_attributes(
     elif isinstance(translation_comment, str):
         comment += [
             "##Translation:\n"
-            + record["metadata"]["use_constraints"]["limitations"]["translations"].get(
+            + record["metadata"].get("use_constraints", {}).get("limitations", {}).get("translations", {}).get(
                 language
             )
         ]
@@ -176,6 +176,7 @@ def global_attributes(
                 KEYWORDS_PREFIX_MAPPING.get(group, {}).get("prefix", "") + keyword
                 for group, keywords in record["identification"]["keywords"].items()
                 for keyword in keywords.get(language, [])
+                if keyword
             ]
         ),
         "keywords_vocabulary": ",".join(
@@ -195,7 +196,7 @@ def global_attributes(
         "date_created": record["metadata"]["dates"].get("publication"),
         "product_version": record["identification"].get("edition"),
         "history": generate_history(record, language),
-        "license": record["metadata"]["use_constraints"].get("licence", {}).get("url"),
+        "license": record["metadata"].get("use_constraints", {}).get("licence", {}).get("url"),
         **(_get_contact(creator[0], "creator") if creator else {}),
         **(_get_contact(publisher[0], "publisher") if publisher else {}),
         **_get_contributors(record["contact"]),

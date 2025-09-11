@@ -11,7 +11,8 @@ widely recognized standards.
   which provides citation metadata for software.
 - `ACDD-1.3`: ACDD-1.3 standard attributes.
 - ERDDAP<sup>TM</sup>: XML metadata attributes following the CF1.6 and ACDD 1.3 standards.
-- `ISO19115-3` schema: CIOOS standard ISO19115-3 schema. 
+- `ISO19115-3` schema: CIOOS standard ISO19115-3 schema.
+- `Datacite-xml` and `Datacite-json` schema: Datacite compatible Schema.
 
 ## Features
 
@@ -49,16 +50,6 @@ To use this tool, follow these steps:
    ```bash
    python cioos_metadata_conversion --help
    ```
-
-## API Service
-
-The tool can be used via an API service. The API service requires to install the optional api packages:
-
-```
-uv sync --extra api
-```
-
-You can either run the api locally with the command: `uv run uvicorn cioos_metadata_conversion.api:app --reload`, in debugging mode in (VSCode)[.launch.json] or with docker compose.
 
 ## How to Contribute
 

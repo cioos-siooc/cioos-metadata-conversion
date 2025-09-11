@@ -7,7 +7,7 @@ from firebase_to_xml import (
 from loguru import logger
 
 
-@logger.catch(default={})
+@logger.catch(default={}, reraise=True)
 def cioos_firebase_to_cioos_schema(record) -> dict:
     """
     Convert a Firebase record to CIOOS schema.
@@ -21,7 +21,7 @@ def cioos_firebase_to_cioos_schema(record) -> dict:
     return record_json_to_yaml.record_json_to_yaml(record)
 
 
-@logger.catch(default=[])
+@logger.catch(default=[], reraise=True)
 def get_records_from_firebase(
     region, firebase_auth_key, record_url, record_status, database_url
 ) -> list:
