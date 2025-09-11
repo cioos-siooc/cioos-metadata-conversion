@@ -132,8 +132,8 @@ def _get_publisher(record) -> dict:
                 publisher["publisherIdentifierScheme"] = "ROR"
                 publisher["schemeUri"] = "https://ror.org/"
             return publisher
-    logger.warning("No publisher found in the record.")
-    return {}
+    logger.warning("No publisher found in the record. We will use 'CIOOS' as publisher.")
+    return {"name": "CIOOS", "lang": "en"}
 
 
 def _get_funding_references(record) -> dict:
@@ -213,9 +213,9 @@ def _get_dates(record) -> list:
     return (
         [
             _get_date(name, date)
-            for name, date in record["identification"]["dates"].items()
+            for name, date in record["identification"].get("dates", {}).items()
         ]
-        + [_get_date(name, date) for name, date in record["metadata"]["dates"].items()]
+        + [_get_date(name, date) for name, date in record["metadata"].get("dates", {}).items()]
         + [
             {
                 "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
@@ -250,6 +250,8 @@ def _get_geo_polygon(record) -> list:
     """
     Get the polygon from the Cioos record.
     """
+    if "polygon" not in record["spatial"] or not record["spatial"]["polygon"]:
+        return {}
     return {
                 "geoLocationPolygon": [
                     {

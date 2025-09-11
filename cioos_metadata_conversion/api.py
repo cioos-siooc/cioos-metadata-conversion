@@ -10,8 +10,8 @@ from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 from loguru import logger
 
-from cioos_metadata_conversion.converter import (
-    Converter,
+from cioos_metadata_conversion.record import (
+    Record,
     InputSchemas,
     OUTPUT_FORMATS,
 )
@@ -61,10 +61,10 @@ def convert_and_respond(
     """Convert content to the specified format and return a Response."""
     try:
         converted_content = (
-            Converter(content, schema=schema)
+            Record(content, schema=schema)
             .load(encoding=encoding)
             .convert_to_cioos_schema()
-            .to(output_format.value)
+            .convert_to(output_format.value)
         )
         media_type = get_media_type(output_format.value)
         if media_type == "application/json":

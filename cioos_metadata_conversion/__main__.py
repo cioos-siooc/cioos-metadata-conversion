@@ -5,13 +5,13 @@ import click
 from loguru import logger
 
 from cioos_metadata_conversion import erddap
-from cioos_metadata_conversion.converter import OUTPUT_FORMATS, Converter, InputSchemas
+from cioos_metadata_conversion.record import OUTPUT_FORMATS, Record, InputSchemas
 
 
 def load(file: str, schema: str = "CIOOS"):
     """Load a metadata record from a file or URL."""
     record = (
-        Converter(source=file, schema=InputSchemas[schema])
+        Record(source=file, schema=InputSchemas[schema])
         .load()
         .convert_to_cioos_schema()
     )
@@ -114,7 +114,7 @@ def convert(
     for file in files:
         logger.debug("Processing file {}", file)
         record = (
-            Converter(
+            Record(
                 source=file,
                 schema=InputSchemas[input_schema],
             )
@@ -127,7 +127,7 @@ def convert(
             continue
 
         logger.debug(f"Converting to {output_format}")
-        converted_record = record.to(output_format)
+        converted_record = record.convert_to(output_format)
 
         # Generate output file path
         if output_dir and not output_file and record.source_is_path():

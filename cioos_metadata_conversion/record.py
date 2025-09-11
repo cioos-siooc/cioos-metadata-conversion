@@ -30,17 +30,24 @@ class InputSchemas(Enum):
     firebase = "firebase"
 
 
-class Converter:
+class Record:
     """
     Base class for converters.
     """
 
     def __init__(
-        self, source, metadata=None, schema: InputSchemas = InputSchemas.CIOOS
+        self, source, metadata=None, schema: InputSchemas | str = InputSchemas.CIOOS
     ):
         self.source = source
         self.schema = schema
         self.metadata = metadata
+
+        if isinstance(schema, str):
+            if schema not in InputSchemas.__members__:
+                raise ValueError(
+                    f"Unsupported schema: {schema}. Supported schemas are: {list(InputSchemas.__members__.keys())}"
+                )
+            self.schema = InputSchemas[schema]
 
     def source_is_path(self):
         """
@@ -116,7 +123,7 @@ class Converter:
             )
         return self
 
-    def to(self, output_format):
+    def convert_to(self, output_format):
         """
         Convert the source data to the desired format.
         """

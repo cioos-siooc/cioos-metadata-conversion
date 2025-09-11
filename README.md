@@ -11,7 +11,8 @@ widely recognized standards.
   which provides citation metadata for software.
 - `ACDD-1.3`: ACDD-1.3 standard attributes.
 - ERDDAP<sup>TM</sup>: XML metadata attributes following the CF1.6 and ACDD 1.3 standards.
-- `ISO19115-3` schema: CIOOS standard ISO19115-3 schema. 
+- `ISO19115-3` schema: CIOOS standard ISO19115-3 schema.
+- `Datacite-xml` and `Datacite-json` schema: Datacite compatible Schema.
 
 ## Features
 

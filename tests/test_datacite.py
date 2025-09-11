@@ -79,3 +79,43 @@ def test_firebase_record_schema(firebase_record):
 
     assert datacite_record
     schema45.validator.validate(datacite_record)
+
+
+@pytest.mark.parametrize(
+    "firebase_record", (Path(__file__).parent / "records" / "firebase").glob("*.json")
+)
+def test_firebase_record_to_json(firebase_record, tmp_path):
+    """
+    Test the conversion of a Firebase record to JSON.
+    """
+    with open(firebase_record, "r") as f:
+        record = json.load(f)
+    record = record_json_to_yaml(record)
+
+    # Convert the record to XML
+    test_file = tmp_path / "test.json"
+    json_output = datacite.to_json(record, test_file)
+
+    assert json_output
+    assert isinstance(json_output, str)  # Ensure it's a string
+    assert test_file.exists()  # Ensure the path exists
+
+
+@pytest.mark.parametrize(
+    "firebase_record", (Path(__file__).parent / "records" / "firebase").glob("*.json")
+)
+def test_firebase_record_to_xml(firebase_record, tmp_path):
+    """
+    Test the conversion of a Firebase record to JSON.
+    """
+    with open(firebase_record, "r") as f:
+        record = json.load(f)
+    record = record_json_to_yaml(record)
+
+    # Convert the record to XML
+    test_file = tmp_path / "test.xml"
+    xml_output = datacite.to_xml(record, test_file)
+
+    assert xml_output
+    assert isinstance(xml_output, str)  # Ensure it's a string
+    assert test_file.exists()  # Ensure the path exists
