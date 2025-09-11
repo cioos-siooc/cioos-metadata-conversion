@@ -133,7 +133,9 @@ class Record:
                 f"Unsupported output format: {output_format}. Supported formats are: {list(OUTPUT_FORMATS.keys())}"
             )
         if output_format in ("xml", "iso19115_xml"):
-            logger.warning(f"{output_format} format is deprecated, use 'iso19115-3_xml' instead.")
+            logger.warning(
+                f"{output_format} format is deprecated, use 'iso19115-3_xml' instead."
+            )
 
         converter_func = OUTPUT_FORMATS[output_format]
         return converter_func(self.metadata)

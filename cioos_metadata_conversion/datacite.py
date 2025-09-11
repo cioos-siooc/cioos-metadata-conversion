@@ -35,6 +35,8 @@ CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "processor": "Other",
     "collaborator": "RelatedPerson",
     "contributor": "Other",
+    "originator": "Other",
+    "principalInvestigator": "ProjectLeader",
 }
 
 
@@ -48,7 +50,8 @@ def _get_personal_info(contact) -> dict:
         }
 
     return {
-        "name": contact["individual"]["name"],
+        "name": contact["individual"].get("name")
+        or f"{contact['individual'].get('givenNames', '')} {contact['individual'].get('lastName', '')}".strip(),
         "nameType": "Personal",
         "givenName": contact["individual"].get("givenNames", ""),
         "familyName": contact["individual"].get("lastName", ""),
@@ -68,9 +71,11 @@ def _get_contact_info(contact) -> dict:
     """
     Get the contact information from the Cioos record.
     """
-    affiliation = {"name": contact["organization"]["name"]}
-    if "ror" in contact["organization"]:
-        affiliation["affiliationIdentifier"] = contact["organization"]["ror"]
+    affiliation = {"name": contact.get("organization", {}).get("name")}
+    if "ror" in contact.get("organization", {}):
+        affiliation["affiliationIdentifier"] = contact.get("organization", {}).get(
+            "ror"
+        )
         affiliation["affiliationIdentifierScheme"] = "ROR"
         affiliation["schemeUri"] = "https://ror.org/"
     return {
@@ -132,7 +137,9 @@ def _get_publisher(record) -> dict:
                 publisher["publisherIdentifierScheme"] = "ROR"
                 publisher["schemeUri"] = "https://ror.org/"
             return publisher
-    logger.warning("No publisher found in the record. We will use 'CIOOS' as publisher.")
+    logger.warning(
+        "No publisher found in the record. We will use 'CIOOS' as publisher."
+    )
     return {"name": "CIOOS", "lang": "en"}
 
 
@@ -142,7 +149,7 @@ def _get_funding_references(record) -> dict:
     """
 
     def _get_funder_ror(contact) -> dict:
-        if not contact["organization"].get("ror"):
+        if not contact.get("organization", {}).get("ror"):
             return {}
         return {
             "funderIdentifier": contact["organization"]["ror"],
@@ -152,7 +159,7 @@ def _get_funding_references(record) -> dict:
     return {
         "fundingReferences": [
             {
-                "funderName": contact["organization"]["name"],
+                "funderName": contact.get("organization", {}).get("name"),
                 **_get_funder_ror(contact),
             }
             for contact in record["contact"]
@@ -215,7 +222,10 @@ def _get_dates(record) -> list:
             _get_date(name, date)
             for name, date in record["identification"].get("dates", {}).items()
         ]
-        + [_get_date(name, date) for name, date in record["metadata"].get("dates", {}).items()]
+        + [
+            _get_date(name, date)
+            for name, date in record["metadata"].get("dates", {}).items()
+        ]
         + [
             {
                 "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
@@ -245,6 +255,25 @@ def _get_related_items(record) -> dict:
     """
     return {"relatedItems": []}
 
+def _get_right_lists(record) -> dict:
+    """
+    Get the right lists from the Cioos record.
+    """
+    if "use_constraints" not in record["metadata"]:
+        logger.warning("No use_constraints found in the record.")
+        return {}
+    return {
+        "rights": record["metadata"]["use_constraints"]["licence"]["title"][
+            "en"
+        ],
+        "rightsUri": record["metadata"]["use_constraints"]["licence"]["url"],
+        "schemeUri": "https://spdx.org/licenses/",  # TODO confirm
+        "rightsIdentifier": record["metadata"]["use_constraints"]["licence"][
+            "code"
+        ],
+        "rightsIdentifierScheme": "SPDX",  # TODO confirm
+        "lang": "en",
+    }
 
 def _get_geo_polygon(record) -> list:
     """
@@ -253,16 +282,18 @@ def _get_geo_polygon(record) -> list:
     if "polygon" not in record["spatial"] or not record["spatial"]["polygon"]:
         return {}
     return {
-                "geoLocationPolygon": [
-                    {
-                        "polygonPoint": {
-                            "pointLatitude": float(loc.split(",")[1]),
-                            "pointLongitude": float(loc.split(",")[0]),
-                        }
-                    }
-                    for loc in record["spatial"]["polygon"].split(" ")
-                ]
+        "geoLocationPolygon": [
+            {
+                "polygonPoint": {
+                    "pointLatitude": float(loc.split(",")[1]),
+                    "pointLongitude": float(loc.split(",")[0]),
+                }
             }
+            for loc in record["spatial"]["polygon"].split(" ")
+        ]
+    }
+
+
 def _get_geo_bounding_box(record) -> dict:
     if "bounding_box" not in record["spatial"]:
         return {}
@@ -334,6 +365,7 @@ def generate_datacite_record(record) -> dict:
                 ].items()
                 for lang, keywords in group_keywords.items()
                 for keyword in keywords
+                if keyword
             ]
         ),
         "dates": _get_dates(record),
@@ -347,20 +379,7 @@ def generate_datacite_record(record) -> dict:
         # "sizes": [],
         # "formats": [],
         "version": record["identification"].get("edition", ""),
-        "rightsList": [
-            {
-                "rights": record["metadata"]["use_constraints"]["licence"]["title"][
-                    "en"
-                ],
-                "rightsUri": record["metadata"]["use_constraints"]["licence"]["url"],
-                "schemeUri": "https://spdx.org/licenses/",  # TODO confirm
-                "rightsIdentifier": record["metadata"]["use_constraints"]["licence"][
-                    "code"
-                ],
-                "rightsIdentifierScheme": "SPDX",  # TODO confirm
-                "lang": "en",
-            }
-        ],
+        "rightsList": [_get_right_lists(record)],
         "descriptions": [
             {
                 "description": abstract,
@@ -376,9 +395,7 @@ def generate_datacite_record(record) -> dict:
                 "lang": lang,
                 "descriptionType": "Other",
             }
-            for lang, description in record["metadata"]["use_constraints"]
-            .get("limitations", {})
-            .items()
+            for lang, description in record["metadata"].get("use_constraints", {}).get("limitations", {}).items()
             if lang != "translations"
         ],
         "geoLocations": [
