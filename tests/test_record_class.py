@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 LOCAL_RECORDS_PATH = os.getenv("LOCAL_RECORDS_PATH", "tests/records")
 
+
 def test_record_loading_from_file(record_file_yaml, tmp_path):
     """
     Test loading from file.
@@ -58,9 +59,7 @@ def test_chain_methods(record_file_yaml, output_format):
 @pytest.mark.parametrize("output_format", OUTPUT_FORMATS.keys())
 @pytest.mark.parametrize(
     "record",
-    Path(LOCAL_RECORDS_PATH).glob(
-        "**/*.json"
-    ),
+    Path(LOCAL_RECORDS_PATH).glob("**/*.json"),
 )
 def test_real_world_records(record, output_format):
     """

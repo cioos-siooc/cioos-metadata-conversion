@@ -194,8 +194,14 @@ def citation_cff(
                 ]
             )
         ),
-        "license": record["metadata"].get("use_constraints", {}).get("licence", {}).get("code"),
-        "license-url": record["metadata"].get("use_constraints", {}).get("licence", {}).get("url"),
+        "license": record["metadata"]
+        .get("use_constraints", {})
+        .get("licence", {})
+        .get("code"),
+        "license-url": record["metadata"]
+        .get("use_constraints", {})
+        .get("licence", {})
+        .get("url"),
         "type": record_type,
         "url": resource_url,
         "version": record["identification"].get("edition"),

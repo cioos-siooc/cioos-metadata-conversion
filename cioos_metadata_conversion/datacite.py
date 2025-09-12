@@ -255,6 +255,7 @@ def _get_related_items(record) -> dict:
     """
     return {"relatedItems": []}
 
+
 def _get_right_lists(record) -> dict:
     """
     Get the right lists from the Cioos record.
@@ -263,17 +264,14 @@ def _get_right_lists(record) -> dict:
         logger.warning("No use_constraints found in the record.")
         return {}
     return {
-        "rights": record["metadata"]["use_constraints"]["licence"]["title"][
-            "en"
-        ],
+        "rights": record["metadata"]["use_constraints"]["licence"]["title"]["en"],
         "rightsUri": record["metadata"]["use_constraints"]["licence"]["url"],
         "schemeUri": "https://spdx.org/licenses/",  # TODO confirm
-        "rightsIdentifier": record["metadata"]["use_constraints"]["licence"][
-            "code"
-        ],
+        "rightsIdentifier": record["metadata"]["use_constraints"]["licence"]["code"],
         "rightsIdentifierScheme": "SPDX",  # TODO confirm
         "lang": "en",
     }
+
 
 def _get_geo_polygon(record) -> list:
     """
@@ -395,7 +393,10 @@ def generate_datacite_record(record) -> dict:
                 "lang": lang,
                 "descriptionType": "Other",
             }
-            for lang, description in record["metadata"].get("use_constraints", {}).get("limitations", {}).items()
+            for lang, description in record["metadata"]
+            .get("use_constraints", {})
+            .get("limitations", {})
+            .items()
             if lang != "translations"
         ],
         "geoLocations": [
