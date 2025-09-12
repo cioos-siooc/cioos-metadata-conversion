@@ -5,7 +5,7 @@ from datacite import schema45
 import pytest
 
 from cioos_metadata_conversion import datacite
-from firebase_to_xml.record_json_to_yaml import record_json_to_yaml
+from cioos_metadata_conversion.firebase_to_cioos import record_json_to_yaml
 
 
 def test_dataset_cite(record):
