@@ -110,30 +110,7 @@ def generate_history(record, language="en"):
     else:
         logger.warning("Invalid history format.")
 
-
-def global_attributes(
-    record, output="xml", language="en", metadata_link=None, **kwargs
-) -> str:
-    """Generate an ERDDAP dataset.xml global attributes from a metadata record
-    which follows the ACDD 1.3 conventions.
-
-    Args:
-        record (dict): A metadata record.
-        output (str, optional): The output format. Defaults to "xml".
-        language (str, optional): The language to use. Defaults to "en".
-        **kwargs: Additional attributes to add to the global attributes.
-    """
-    creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
-    publisher = [
-        contact for contact in record["contact"] if "publisher" in contact["roles"]
-    ]
-
-    if len(creator) > 1:
-        logger.warning("Multiple creators found, using the first one.")
-
-    if len(publisher) > 1:
-        logger.warning("Multiple publishers found, using the first one.")
-
+def _generate_comment(record, language="en"):
     comment = []
     if (
         record["metadata"]
@@ -167,15 +144,53 @@ def global_attributes(
         comment += ["##Translation:\n" + translation_comment["message"]]
     else:
         logger.warning("Invalid translation comment format: {}", translation_comment)
+    
+    return comment
+
+def global_attributes(
+    record, output="xml", language="en", metadata_link=None, multi_lingual=True, **kwargs
+) -> str:
+    """Generate an ERDDAP dataset.xml global attributes from a metadata record
+    which follows the ACDD 1.3 conventions.
+
+    Args:
+        record (dict): A metadata record.
+        output (str, optional): The output format. Defaults to "xml".
+        language (str, optional): The language to use. Defaults to "en".
+        **kwargs: Additional attributes to add to the global attributes.
+    """
+    creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
+    publisher = [
+        contact for contact in record["contact"] if "publisher" in contact["roles"]
+    ]
+
+    if len(creator) > 1:
+        logger.warning("Multiple creators found, using the first one.")
+
+    if len(publisher) > 1:
+        logger.warning("Multiple publishers found, using the first one.")
 
     global_attributes = {
         "institution": (
             creator[0].get("organization", {}).get("name") if creator else ""
         ),
         "title": record["identification"]["title"][language],
-        "summary": record["identification"]["abstract"][language],
         "project": ",".join(record["identification"].get("project", [])),
-        "comment": "\n\n".join(comment),
+        "summary": record["identification"]["abstract"][language],
+        "comment": "\n\n".join(_generate_comment(record, language)),
+        "history": generate_history(record, language),
+        **(
+            {
+            "title_en": record["identification"]["title"].get("en"),
+            "title_fr": record["identification"]["title"].get("fr"),
+            "summary_en": record["identification"]["abstract"].get("en"),
+            "summary_fr": record["identification"]["abstract"].get("fr"),
+            "comment_en": "\n\n".join(_generate_comment(record, "en")),
+            "comment_fr": "\n\n".join(_generate_comment(record, "fr")),
+            "history_en": generate_history(record, "en"),
+            "history_fr": generate_history(record, "fr"),
+            } if multi_lingual else {}
+        ),
         "progress": record["identification"][
             "progress_code"
         ],  # not a standard ACDD attribute
@@ -203,7 +218,6 @@ def global_attributes(
         "date_modified": record["metadata"]["dates"].get("revision"),
         "date_created": record["metadata"]["dates"].get("publication"),
         "product_version": record["identification"].get("edition"),
-        "history": generate_history(record, language),
         "license": record["metadata"]
         .get("use_constraints", {})
         .get("licence", {})
