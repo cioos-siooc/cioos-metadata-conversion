@@ -1,9 +1,10 @@
-from firebase_to_xml import (
-    get_records_from_firebase as firebase_records,
-)
-from firebase_to_xml import (
+from cioos_metadata_conversion.firebase_to_cioos import (
     record_json_to_yaml,
 )
+from google.auth.transport.requests import AuthorizedSession
+from google.oauth2 import service_account
+from loguru import logger
+
 from loguru import logger
 
 
@@ -38,6 +39,38 @@ def get_records_from_firebase(
     Returns:
         list: A list of records in CIOOS Schema format.
     """
-    return firebase_records.get_records_from_firebase(
-        region, firebase_auth_key, record_url, record_status, database_url
+
+    # Define the required scopes
+    scopes = [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/firebase.database",
+    ]
+
+    # Authenticate a credential with the service account
+    credentials = service_account.Credentials.from_service_account_file(
+        firebase_auth_key, scopes=scopes
     )
+    authed_session = AuthorizedSession(credentials)
+
+    # Generate the URL to query
+    if record_url:
+        logger.info(f"Processing record {record_url}")
+        url = f"{database_url}{record_url}.json"
+    else:
+        logger.info(f"Processing records for {region}")
+        url = f"{database_url}{region}/users.json"
+
+    response = authed_session.get(url)
+    response.raise_for_status()
+
+    if record_url:
+        # Return single url
+        return [response.json()]
+
+    # Return all records for this region and status
+    return [
+        record
+        for user in response.json().values()
+        for record in user.get("records", {}).values()
+        if record.get("status") in record_status
+    ]
