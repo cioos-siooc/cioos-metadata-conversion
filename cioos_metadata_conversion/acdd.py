@@ -96,37 +96,16 @@ def generate_history(record, language="en"):
         logger.warning("Invalid history format.")
 
 
-def acdd(
-    record, output="xml", language="en", metadata_link=None, **kwargs
-) -> str:
-    """Generate an ACDD global attributes from a metadata record
-    which follows the ACDD 1.3 conventions.
-
-    Args:
-        record (dict): A metadata record.
-        language (str, optional): The language to use. Defaults to "en".
-        metadata_link (str, optional): A link to the metadata record. Defaults to None.
-        **kwargs: Additional attributes to add to the global attributes.
-    """
-    creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
-    publisher = [
-        contact for contact in record["contact"] if "publisher" in contact["roles"]
-    ]
-
-    if len(creator) > 1:
-        logger.warning("Multiple creators found, using the first one.")
-
-    if len(publisher) > 1:
-        logger.warning("Multiple publishers found, using the first one.")
-
-    comment = []
+def generate_comment(record, language="en"):
+    """Generate a comment string from a metadata record."""
+    comments = []
     if (
         record["metadata"]
         .get("use_constraints", {})
         .get("limitations", {})
         .get(language)
     ):
-        comment += [
+        comments += [
             "##Limitations:\n"
             + record["metadata"]["use_constraints"]["limitations"][language]
         ]
@@ -140,7 +119,7 @@ def acdd(
     if not translation_comment:
         pass
     elif isinstance(translation_comment, str):
-        comment += [
+        comments += [
             "##Translation:\n"
             + record["metadata"]
             .get("use_constraints", {})
@@ -149,9 +128,62 @@ def acdd(
             .get(language)
         ]
     elif isinstance(translation_comment, dict) and "message" in translation_comment:
-        comment += ["##Translation:\n" + translation_comment["message"]]
+        comments += ["##Translation:\n" + translation_comment["message"]]
     else:
         logger.warning("Invalid translation comment format: {}", translation_comment)
+    return "\n\n".join(comments) if comments else None
+
+
+def _generate_multilingual_fields(field: dict, language: str, method: str):
+    if method == "suffix":
+        return {
+            f"{field}_{language}": value
+            for lang, value in field.items()
+            if value and lang in ["en", "fr"]
+        }
+    elif method == "nested":
+        return {
+            field: "; ".join(
+                [f"({lang}) {value}" for lang, value in field.items() if value]
+            )
+        }
+    else:
+        logger.warning(f"Unsupported multilingual method: {method}, skipping.")
+        return {}
+
+
+def acdd(
+    record,
+    output="xml",
+    language="en",
+    metadata_link=None,
+    multilingual=True,
+    multilingual_method=None,
+    **kwargs,
+) -> str:
+    """Generate an ACDD global attributes from a metadata record
+    which follows the ACDD 1.3 conventions.
+
+    Args:
+        record (dict): A metadata record.
+        language (str, optional): The language to use. Defaults to "en".
+        metadata_link (str, optional): A link to the metadata record. Defaults to None.
+        multilingual (bool, optional): Whether to include multilingual fields. Defaults to True.
+        multilingual_method (str, optional): The method to use for multilingual fields. Defaults to None
+            - "suffix": fieldname_en, fieldname_fr
+            - "nested": fieldname: "(en) {value}; (fr) {value}"
+        **kwargs: Additional attributes to add to the global attributes.
+    """
+    creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
+    publisher = [
+        contact for contact in record["contact"] if "publisher" in contact["roles"]
+    ]
+
+    if len(creator) > 1:
+        logger.warning("Multiple creators found, using the first one.")
+
+    if len(publisher) > 1:
+        logger.warning("Multiple publishers found, using the first one.")
 
     global_attributes = {
         "institution": (
@@ -159,8 +191,19 @@ def acdd(
         ),
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
+        "comment": "\n\n".join(generate_comment(record, language)),
+        **(_generate_multilingual_fields(
+            record["identification"]["title"], language, multilingual_method
+        ) if multilingual and multilingual_method else {}),
+        **(_generate_multilingual_fields(
+            record["identification"]["abstract"], language, multilingual_method
+        ) if multilingual and multilingual_method else {}),
+        **(_generate_multilingual_fields(
+            {"fr": generate_comment(record,"fr"), "en": generate_comment(record,"en")},
+            language,
+            multilingual_method,
+        ) if multilingual and multilingual_method else {}),
         "project": ",".join(record["identification"].get("project", [])),
-        "comment": "\n\n".join(comment),
         "progress": record["identification"][
             "progress_code"
         ],  # not a standard ACDD attribute
@@ -216,5 +259,3 @@ def acdd(
         return global_attributes
     else:
         return global_attributes
-
-        

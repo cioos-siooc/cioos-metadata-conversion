@@ -14,6 +14,7 @@ from cioos_metadata_conversion.cioos import (
 from cioos_metadata_conversion.acdd import acdd
 from cioos_metadata_conversion.utils import drop_empty_values
 
+
 def _generate_dataset_xml(global_attributes: dict):
     output = ["<addAttributes>"]
     for key, value in global_attributes.items():
@@ -21,8 +22,15 @@ def _generate_dataset_xml(global_attributes: dict):
     output += ["</addAttributes>"]
     return "\n".join(output)
 
+
 def global_attributes(
-    record, output="xml", language="en", metadata_link=None, multi_lingual=True, **kwargs
+    record,
+    output="xml",
+    language="en",
+    metadata_link=None,
+    multilingual=True,
+    multilingual_method=None,
+    **kwargs,
 ) -> str:
     """Generate an ERDDAP dataset.xml global attributes from a metadata record
     which follows the ACDD 1.3 conventions.
@@ -31,9 +39,22 @@ def global_attributes(
         record (dict): A metadata record.
         output (str, optional): The output format. Defaults to "xml".
         language (str, optional): The language to use. Defaults to "en".
+        multilingual (bool, optional): Whether to include multilingual fields. Defaults to True.
+        multilingual_method (str, optional): The method to use for multilingual fields. Defaults to None
+            - "suffix": fieldname_en, fieldname_fr
+            - "nested": fieldname: "(en) {value}; (fr) {value}"
+            - "xml": fieldname: <addAttribute xml:lang="en">{value}</addAttribute>
         **kwargs: Additional attributes to add to the global attributes.
     """
-    output = acdd(record, output=output if output != "xml" else None, language=language, metadata_link=metadata_link, **kwargs)
+    output = acdd(
+        record,
+        output=output if output != "xml" else None,
+        language=language,
+        metadata_link=metadata_link,
+        multilingual=multilingual,
+        multilingual_method=multilingual_method,
+        **kwargs,
+    )
     if not output:
         return global_attributes
     if output == "xml":
