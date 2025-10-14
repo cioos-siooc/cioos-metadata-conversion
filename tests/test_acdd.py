@@ -69,3 +69,18 @@ def test_acdd_multilingual_suffix(record):
     assert "title_fr" in acdd_json  # Ensure French title field exists
     assert "summary_en" in acdd_json  # Ensure English summary field exists
     assert "summary_fr" in acdd_json  # Ensure French summary field exists
+
+def test_acdd_multilingual_nested(record):
+    """
+    Test the ACDD multilingual output generation with nested method.
+    """
+    output = acdd(record, multilingual="nested")
+
+    # Validate JSON format
+    assert isinstance(output, dict)  # Ensure it's a dict
+    assert "title" in output  # Ensure title field exists
+    assert "(en)" in output["title"]  # Ensure English title part exists
+    assert "(fr)" in output["title"]  # Ensure French title part exists
+    assert "summary" in output  # Ensure summary field exists
+    assert "(en)" in output["summary"]  # Ensure English summary part exists
+    assert "(fr)" in output["summary"]  # Ensure French summary part exists
