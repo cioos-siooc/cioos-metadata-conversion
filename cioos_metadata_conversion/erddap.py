@@ -25,11 +25,10 @@ def _generate_dataset_xml(global_attributes: dict):
 
 def global_attributes(
     record,
-    output="xml",
-    language="en",
-    metadata_link=None,
-    multilingual=True,
-    multilingual_method=None,
+    output: str = "xml",
+    language: str = "en",
+    metadata_link: str = None,
+    multilingual: str = None,
     **kwargs,
 ) -> str:
     """Generate an ERDDAP dataset.xml global attributes from a metadata record
@@ -39,8 +38,7 @@ def global_attributes(
         record (dict): A metadata record.
         output (str, optional): The output format. Defaults to "xml".
         language (str, optional): The language to use. Defaults to "en".
-        multilingual (bool, optional): Whether to include multilingual fields. Defaults to True.
-        multilingual_method (str, optional): The method to use for multilingual fields. Defaults to None
+        multilingual (str, optional): The method to use for multilingual fields. Defaults to None
             - "suffix": fieldname_en, fieldname_fr
             - "nested": fieldname: "(en) {value}; (fr) {value}"
             - "xml": fieldname: <addAttribute xml:lang="en">{value}</addAttribute>
@@ -52,7 +50,6 @@ def global_attributes(
         language=language,
         metadata_link=metadata_link,
         multilingual=multilingual,
-        multilingual_method=multilingual_method,
         **kwargs,
     )
     if not output:

@@ -51,3 +51,21 @@ def test_acdd_yaml_output(record):
     assert "title" in acdd_yaml  # Ensure required field exists
     assert "summary" in acdd_yaml  # Ensure required field exists
     assert "keywords" in acdd_yaml  # Ensure required field exists
+
+
+def test_acdd_multilingual_suffix(record):
+    """
+    Test the ACDD multilingual output generation with suffix method.
+    """
+    acdd_output = acdd(record, output="json", multilingual="suffix")
+
+    assert acdd_output
+    assert isinstance(acdd_output, str)  # Ensure it's a string
+
+    # Validate JSON format
+    acdd_json = json.loads(acdd_output)
+    assert isinstance(acdd_json, dict)  # Ensure it's a dict
+    assert "title_en" in acdd_json  # Ensure English title field exists
+    assert "title_fr" in acdd_json  # Ensure French title field exists
+    assert "summary_en" in acdd_json  # Ensure English summary field exists
+    assert "summary_fr" in acdd_json  # Ensure French summary field exists

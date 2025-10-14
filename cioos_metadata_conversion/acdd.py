@@ -134,18 +134,25 @@ def generate_comment(record, language="en"):
     return "\n\n".join(comments) if comments else None
 
 
-def _generate_multilingual_fields(field: dict, language: str, method: str):
+def _generate_multilingual_fields(fields: dict, method: str) -> dict:
+    languages = ["en", "fr"]
     if method == "suffix":
         return {
-            f"{field}_{language}": value
-            for lang, value in field.items()
-            if value and lang in ["en", "fr"]
+            f"{field}_{lang}": values.get(lang)
+            for field, values in fields.items()
+            for lang in languages
+            if values.get(lang)
         }
     elif method == "nested":
         return {
             field: "; ".join(
-                [f"({lang}) {value}" for lang, value in field.items() if value]
+                [
+                    f"({lang}) {values.get(lang)}"
+                    for lang in languages
+                    if values.get(lang)
+                ]
             )
+            for field, values in fields.items()
         }
     else:
         logger.warning(f"Unsupported multilingual method: {method}, skipping.")
@@ -154,11 +161,10 @@ def _generate_multilingual_fields(field: dict, language: str, method: str):
 
 def acdd(
     record,
-    output="xml",
-    language="en",
-    metadata_link=None,
-    multilingual=True,
-    multilingual_method=None,
+    output: str = "xml",
+    language: str = "en",
+    metadata_link: str = None,
+    multilingual: str = None,
     **kwargs,
 ) -> str:
     """Generate an ACDD global attributes from a metadata record
@@ -168,8 +174,7 @@ def acdd(
         record (dict): A metadata record.
         language (str, optional): The language to use. Defaults to "en".
         metadata_link (str, optional): A link to the metadata record. Defaults to None.
-        multilingual (bool, optional): Whether to include multilingual fields. Defaults to True.
-        multilingual_method (str, optional): The method to use for multilingual fields. Defaults to None
+        multilingual (str, optional): The method to use for multilingual fields. Defaults to None
             - "suffix": fieldname_en, fieldname_fr
             - "nested": fieldname: "(en) {value}; (fr) {value}"
         **kwargs: Additional attributes to add to the global attributes.
@@ -192,17 +197,6 @@ def acdd(
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
         "comment": "\n\n".join(generate_comment(record, language)),
-        **(_generate_multilingual_fields(
-            record["identification"]["title"], language, multilingual_method
-        ) if multilingual and multilingual_method else {}),
-        **(_generate_multilingual_fields(
-            record["identification"]["abstract"], language, multilingual_method
-        ) if multilingual and multilingual_method else {}),
-        **(_generate_multilingual_fields(
-            {"fr": generate_comment(record,"fr"), "en": generate_comment(record,"en")},
-            language,
-            multilingual_method,
-        ) if multilingual and multilingual_method else {}),
         "project": ",".join(record["identification"].get("project", [])),
         "progress": record["identification"][
             "progress_code"
@@ -247,6 +241,19 @@ def acdd(
         **_get_platform(record),
         **kwargs,
     }
+    if multilingual:
+        multiligual_fields = {
+            "title": record["identification"]["title"],
+            "summary": record["identification"]["abstract"],
+            "comments": {
+                "fr": generate_comment(record, "fr"),
+                "en": generate_comment(record, "en"),
+            },
+        }
+        global_attributes.update(
+            _generate_multilingual_fields(multiligual_fields, multilingual)
+        )
+
     # Remove empty values
     global_attributes = drop_empty_values(global_attributes)
 
