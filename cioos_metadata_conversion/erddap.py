@@ -11,141 +11,15 @@ from cioos_metadata_conversion.cioos import (
     get_records_from_firebase,
     cioos_firebase_to_cioos_schema,
 )
+from cioos_metadata_conversion.acdd import acdd
 from cioos_metadata_conversion.utils import drop_empty_values
 
-KEYWORDS_PREFIX_MAPPING = {
-    "default": {
-        "prefix": "",
-        "label": None,
-    },
-    "eov": {
-        "prefix": "CIOOS:",
-        "label": "CIOOS Essential Ocean Variables Vocabulary",
-    },
-    "taxa": {
-        "prefix": "GBIF:",
-        "label": "GBIF Taxonomy Vocabulary",
-    },
-}
-
-
-def generate_dataset_xml(global_attributes: dict):
+def _generate_dataset_xml(global_attributes: dict):
     output = ["<addAttributes>"]
     for key, value in global_attributes.items():
         output += [f"    <att name='{key}'>{value}</att>"]
     output += ["</addAttributes>"]
     return "\n".join(output)
-
-
-def _get_contact(contact: dict, role: str) -> dict:
-    """Generate a CFF contact from a metadata contact."""
-    if "individual" in contact:
-        attrs = {
-            f"{role}_name": contact["individual"].get("name"),
-            f"{role}_email": contact["individual"].get("email"),
-            f"{role}_orcid": contact["individual"].get("orcid"),
-            f"{role}_type": "person",
-        }
-    else:
-        attrs = {
-            f"{role}_name": contact["organization"]["name"],
-            f"{role}_email": contact["organization"].get("email"),
-            f"{role}_type": "institution",
-        }
-
-    if not contact.get("organization"):
-        logger.warning(f"No organization found for {role} contact.")
-        return attrs
-
-    return {
-        **attrs,
-        f"{role}_institution": contact["organization"].get("name"),
-        f"{role}_address": contact["organization"].get("address"),
-        f"{role}_city": contact["organization"].get("city"),
-        f"{role}_country": contact["organization"].get("country"),
-        f"{role}_url": contact["organization"].get("url"),
-        f"{role}_ror": contact["organization"].get("ror"),
-    }
-
-
-def _get_contributors(contacts: list, separator=";") -> dict:
-    """Generate a list of CFF contributors from a list of metadata contacts."""
-    return {
-        "contributor_name": separator.join(
-            [
-                (
-                    contact["individual"]["name"]
-                    if ("individual" in contact and contact["individual"].get("name"))
-                    else contact["organization"]["name"]
-                )
-                for contact in contacts
-            ]
-        ),
-        "contributor_role": separator.join(
-            [",".join(contact["roles"]) for contact in contacts]
-        ),
-    }
-
-
-@logger.catch(default={})
-def _get_platform(record):
-    if not record.get("platform"):
-        return {}
-    platform = record["platform"]
-    return {
-        "platform": platform[0]["type"],
-        "platform_vocabulary": "http://vocab.nerc.ac.uk/collection/L06/current/",
-    }
-
-
-def generate_history(record, language="en"):
-    """Generate a history string from a metadata record."""
-    history = record["metadata"].get("history")
-    if not history:
-        return None
-    if isinstance(history, dict):
-        return record["metadata"]["history"][language]
-    elif isinstance(history, list):
-        return "Metadata record history:\n" + yaml.dump(history)
-    else:
-        logger.warning("Invalid history format.")
-
-def _generate_comment(record, language="en"):
-    comment = []
-    if (
-        record["metadata"]
-        .get("use_constraints", {})
-        .get("limitations", {})
-        .get(language)
-    ):
-        comment += [
-            "##Limitations:\n"
-            + record["metadata"]["use_constraints"]["limitations"][language]
-        ]
-    translation_comment = (
-        record["metadata"]
-        .get("use_constraints", {})
-        .get("limitations", {})
-        .get("translations", {})
-        .get(language)
-    )
-    if not translation_comment:
-        pass
-    elif isinstance(translation_comment, str):
-        comment += [
-            "##Translation:\n"
-            + record["metadata"]
-            .get("use_constraints", {})
-            .get("limitations", {})
-            .get("translations", {})
-            .get(language)
-        ]
-    elif isinstance(translation_comment, dict) and "message" in translation_comment:
-        comment += ["##Translation:\n" + translation_comment["message"]]
-    else:
-        logger.warning("Invalid translation comment format: {}", translation_comment)
-    
-    return comment
 
 def global_attributes(
     record, output="xml", language="en", metadata_link=None, multi_lingual=True, **kwargs
@@ -159,87 +33,11 @@ def global_attributes(
         language (str, optional): The language to use. Defaults to "en".
         **kwargs: Additional attributes to add to the global attributes.
     """
-    creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
-    publisher = [
-        contact for contact in record["contact"] if "publisher" in contact["roles"]
-    ]
-
-    if len(creator) > 1:
-        logger.warning("Multiple creators found, using the first one.")
-
-    if len(publisher) > 1:
-        logger.warning("Multiple publishers found, using the first one.")
-
-    global_attributes = {
-        "institution": (
-            creator[0].get("organization", {}).get("name") if creator else ""
-        ),
-        "title": record["identification"]["title"][language],
-        "project": ",".join(record["identification"].get("project", [])),
-        "summary": record["identification"]["abstract"][language],
-        "comment": "\n\n".join(_generate_comment(record, language)),
-        "history": generate_history(record, language),
-        **(
-            {
-            "title_en": record["identification"]["title"].get("en"),
-            "title_fr": record["identification"]["title"].get("fr"),
-            "summary_en": record["identification"]["abstract"].get("en"),
-            "summary_fr": record["identification"]["abstract"].get("fr"),
-            "comment_en": "\n\n".join(_generate_comment(record, "en")),
-            "comment_fr": "\n\n".join(_generate_comment(record, "fr")),
-            "history_en": generate_history(record, "en"),
-            "history_fr": generate_history(record, "fr"),
-            } if multi_lingual else {}
-        ),
-        "progress": record["identification"][
-            "progress_code"
-        ],  # not a standard ACDD attribute
-        "keywords": ",".join(
-            [
-                KEYWORDS_PREFIX_MAPPING.get(group, {}).get("prefix", "") + keyword
-                for group, keywords in record["identification"]["keywords"].items()
-                for keyword in keywords.get(language, [])
-                if keyword
-            ]
-        ),
-        "keywords_vocabulary": ",".join(
-            [
-                KEYWORDS_PREFIX_MAPPING[group]["prefix"]
-                + " "
-                + KEYWORDS_PREFIX_MAPPING[group]["label"]
-                for group, keywords in record["identification"]["keywords"].items()
-                if keywords.get(language)
-                and group in KEYWORDS_PREFIX_MAPPING
-                and KEYWORDS_PREFIX_MAPPING[group]["label"]
-            ]
-        ),
-        "id": record["metadata"]["identifier"],
-        "naming_authority": record["metadata"]["naming_authority"],
-        "date_modified": record["metadata"]["dates"].get("revision"),
-        "date_created": record["metadata"]["dates"].get("publication"),
-        "product_version": record["identification"].get("edition"),
-        "license": record["metadata"]
-        .get("use_constraints", {})
-        .get("licence", {})
-        .get("url"),
-        **(_get_contact(creator[0], "creator") if creator else {}),
-        **(_get_contact(publisher[0], "publisher") if publisher else {}),
-        **_get_contributors(record["contact"]),
-        "doi": record["identification"].get("identifier"),
-        "metadata_link": record["identification"].get("identifier") or metadata_link,
-        "metadata_form": record["metadata"]
-        .get("maintenance_note", "")
-        .replace("Generated from ", ""),
-        **_get_platform(record),
-        **kwargs,
-    }
-    # Remove empty values
-    global_attributes = drop_empty_values(global_attributes)
-
+    output = acdd(record, output=output if output != "xml" else None, language=language, metadata_link=metadata_link, **kwargs)
     if not output:
         return global_attributes
     if output == "xml":
-        return generate_dataset_xml(global_attributes)
+        return _generate_dataset_xml(global_attributes)
 
 
 @logger.catch(reraise=True)
