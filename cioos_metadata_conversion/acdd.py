@@ -161,7 +161,7 @@ def _generate_multilingual_fields(fields: dict, method: str) -> dict:
 
 def acdd(
     record,
-    output: str = "xml",
+    output: str = None,
     language: str = "en",
     metadata_link: str = None,
     multilingual: str = None,
@@ -266,3 +266,12 @@ def acdd(
         return global_attributes
     else:
         return global_attributes
+
+
+def acdd_json(record, **kwargs) -> str:
+    """Generate an ACDD global attributes JSON string from a metadata record."""
+    return acdd(record, output="json", **kwargs)
+
+def acdd_yaml(record, **kwargs) -> str:
+    """Generate an ACDD global attributes YAML string from a metadata record."""
+    return acdd(record, output="yaml", **kwargs)
