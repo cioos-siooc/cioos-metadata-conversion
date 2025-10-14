@@ -370,6 +370,7 @@ def generate_datacite_record(record) -> dict:
                 for group, group_keywords in record["identification"][
                     "keywords"
                 ].items()
+                if not group in ("taxa")
                 for lang, keywords in group_keywords.items()
                 for keyword in keywords
                 if keyword
