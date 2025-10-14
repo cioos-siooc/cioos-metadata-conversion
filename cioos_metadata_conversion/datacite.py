@@ -329,12 +329,21 @@ def generate_datacite_record(record) -> dict:
         "doi",
         record["identification"].get("identifier", "").replace("https://doi.org/", ""),
     )
+    primary_language = record["metadata"].get("language", "en")
 
     return {
         "titles": [
             {
+                "title": record["identification"]["title"][primary_language],
+                "lang": primary_language,
+                "titleType": "Title",
+            }
+        ]
+        + [
+            {
                 "title": title,
                 "lang": lang,
+                "titleType": "translatedTitle",
             }
             for lang, title in record["identification"]["title"].items()
             if lang != "translations"
