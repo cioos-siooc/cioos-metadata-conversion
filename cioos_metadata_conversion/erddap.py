@@ -11,7 +11,7 @@ from cioos_metadata_conversion.cioos import (
     get_records_from_firebase,
     cioos_firebase_to_cioos_schema,
 )
-from cioos_metadata_conversion.acdd import acdd
+from cioos_metadata_conversion import acdd
 from cioos_metadata_conversion.utils import drop_empty_values
 
 
@@ -50,7 +50,7 @@ def global_attributes(
             - "xml": fieldname: <addAttribute xml:lang="en">{value}</addAttribute>
         **kwargs: Additional attributes to add to the global attributes.
     """
-    output = acdd(
+    global_attributes = acdd.acdd(
         record,
         output=output if output != "xml" else None,
         language=language,
@@ -59,7 +59,7 @@ def global_attributes(
         **kwargs,
     )
 
-    if not output:
+    if not output or output != "xml":
         return global_attributes
     
     multilingual_fields = {}
