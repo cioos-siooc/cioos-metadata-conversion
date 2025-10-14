@@ -196,7 +196,7 @@ def acdd(
         ),
         "title": record["identification"]["title"][language],
         "summary": record["identification"]["abstract"][language],
-        "comment": "\n\n".join(generate_comment(record, language)),
+        "comment": generate_comment(record, language),
         "project": ",".join(record["identification"].get("project", [])),
         "progress": record["identification"][
             "progress_code"
