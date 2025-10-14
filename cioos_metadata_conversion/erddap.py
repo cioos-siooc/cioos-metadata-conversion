@@ -15,10 +15,16 @@ from cioos_metadata_conversion.acdd import acdd
 from cioos_metadata_conversion.utils import drop_empty_values
 
 
-def _generate_dataset_xml(global_attributes: dict):
+def _generate_dataset_xml(global_attributes: dict, multilingual_fields: dict = None) -> str:
     output = ["<addAttributes>"]
     for key, value in global_attributes.items():
         output += [f"    <att name='{key}'>{value}</att>"]
+        if multilingual_fields and key in multilingual_fields:
+            for lang, lang_value in multilingual_fields[key].items():
+                if lang_value:
+                    output += [
+                        f"    <att name='{key}' xml:lang='{lang}'>{lang_value}</att>"
+                    ]
     output += ["</addAttributes>"]
     return "\n".join(output)
 
@@ -49,13 +55,31 @@ def global_attributes(
         output=output if output != "xml" else None,
         language=language,
         metadata_link=metadata_link,
-        multilingual=multilingual,
+        multilingual=multilingual if multilingual in ["suffix", "nested"] else None,
         **kwargs,
     )
+
     if not output:
         return global_attributes
+    
+    multilingual_fields = {}
+    if multilingual == "xml":
+        multilingual_fields = {
+            "title": {
+                "en": record["identification"]["title"].get("en"),
+                "fr": record["identification"]["title"].get("fr"),
+            },
+            "summary": {
+                "en": record["identification"]["abstract"].get("en"),
+                "fr": record["identification"]["abstract"].get("fr"),
+            },
+            "comment": {
+                "en": "\n\n".join(acdd.generate_comment(record, "en")),
+                "fr": "\n\n".join(acdd.generate_comment(record, "fr")),
+            },
+        }
     if output == "xml":
-        return _generate_dataset_xml(global_attributes)
+        return _generate_dataset_xml(global_attributes, multilingual_fields)
 
 
 @logger.catch(reraise=True)
