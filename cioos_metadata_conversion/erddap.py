@@ -15,7 +15,9 @@ from cioos_metadata_conversion import acdd
 from cioos_metadata_conversion.utils import drop_empty_values
 
 
-def _generate_dataset_xml(global_attributes: dict, multilingual_fields: dict = None) -> str:
+def _generate_dataset_xml(
+    global_attributes: dict, multilingual_fields: dict = None
+) -> str:
     output = ["<addAttributes>"]
     for key, value in global_attributes.items():
         output += [f"    <att name='{key}'>{value}</att>"]
@@ -61,7 +63,7 @@ def global_attributes(
 
     if not output or output != "xml":
         return global_attributes
-    
+
     multilingual_fields = {}
     if multilingual == "xml":
         multilingual_fields = {

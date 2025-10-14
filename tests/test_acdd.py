@@ -70,6 +70,7 @@ def test_acdd_multilingual_suffix(record):
     assert "summary_en" in acdd_json  # Ensure English summary field exists
     assert "summary_fr" in acdd_json  # Ensure French summary field exists
 
+
 def test_acdd_multilingual_nested(record):
     """
     Test the ACDD multilingual output generation with nested method.
