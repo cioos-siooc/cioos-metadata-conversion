@@ -377,8 +377,8 @@ def generate_datacite_record(record) -> dict:
         "dates": _get_dates(record),
         "language": record["metadata"]["language"],
         "types": {
-            "resourceTypeGeneral": "Dataset",  # TODO revise with latest version of cioos
-            "resourceType": record["metadataScope"],  # TODO revise with latest version of cioos
+            "resourceTypeGeneral": record.get("metadataScope","Dataset"),
+            "resourceType": "", # TODO not sure what would be best to put here
         },
         **_get_alternate_identifiers(record),
         **_get_related_identifiers(record),
