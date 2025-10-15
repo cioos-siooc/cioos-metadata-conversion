@@ -128,6 +128,11 @@ def test_datacite_record_conversion():
     assert datacite_record["types"].get("resourceTypeGeneral") == "Dataset"
 
     # Review dates
+    collected_date = [
+        date
+        for date in datacite_record["dates"]
+        if date.get("dateType") == "Collected"
+    ]
     assert datacite_record.get("dates")
     assert any(
         [date for date in datacite_record["dates"] if date.get("dateType") == "Created"]
@@ -136,12 +141,11 @@ def test_datacite_record_conversion():
         [date for date in datacite_record["dates"] if date.get("dateType") == "Updated"]
     ), "Missing 'Updated' date"
     assert any(
-        [
-            date
-            for date in datacite_record["dates"]
-            if date.get("dateType") == "Collected"
-        ]
+        collected_date
     ), "Missing 'Collected' date"
+    assert len(collected_date) == 1, "Multiple 'Collected' dates found"
+    assert collected_date[0].get("date"), "'Collected' date is empty"
+    assert "/" in collected_date[0]["date"]
 
     # Review Geospatial items
     assert datacite_record.get("geoLocations")

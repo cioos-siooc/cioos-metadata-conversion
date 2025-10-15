@@ -222,7 +222,14 @@ def _get_related_identifiers(record) -> dict:
     """
     Get the related identifiers from the Cioos record.
     """
-    return {"relatedIdentifiers": []}
+    return {"relatedIdentifiers": [
+        {
+            "relatedIdentifier": item['code'],
+            "relatedIdentifierType": item["authority"],
+            "relationType": item['association_type'],
+        }
+        for item in record['identification'].get('associated_resources', [])
+    ]}
 
 
 def _get_related_items(record) -> dict:
