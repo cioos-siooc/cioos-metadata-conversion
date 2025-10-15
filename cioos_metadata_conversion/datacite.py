@@ -306,6 +306,13 @@ def _get_geo_bounding_box(record) -> dict:
         }
     }
 
+def _get_geo_location_place(record) -> dict:
+    if "place" not in record["spatial"] or not record["spatial"]["description"]:
+        return {}
+    return {
+        "geoLocationPlace": [record["spatial"]["description"]]
+    }
+
 
 def _get_unique_dicts(dict_list: list) -> list:
     unique_dicts = {frozenset(d.items()) for d in dict_list}
@@ -441,6 +448,7 @@ def generate_datacite_record(record) -> dict:
             for item in [
                 _get_geo_polygon(record),
                 _get_geo_bounding_box(record),
+                _get_geo_location_place(record),
             ]
             if item
         ],
