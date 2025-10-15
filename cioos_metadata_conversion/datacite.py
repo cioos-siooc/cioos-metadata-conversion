@@ -221,22 +221,20 @@ def _get_dates(record) -> list:
             "dateType": DATES_MAPPING[name],
         }
 
-    return (
-        [
-            _get_date(name, date)
-            for name, date in record["identification"].get("dates", {}).items()
-        ]
-        + [
-            _get_date(name, date)
-            for name, date in record["metadata"].get("dates", {}).items()
-        ]
-        + [
-            {
-                "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
-                "dateType": "Collected",
-            }
-        ]
-    )
+    return [
+        {
+            "date": record["identification"]["dates"].get("created", ""),
+            "dateType": "Created",
+        },
+        {
+            "date": record["metadata"]["dates"].get("revision", ""),
+            "dateType": "Updated",
+        },
+        {
+            "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
+            "dateType": "Collected",
+        },
+    ]
 
 
 def _get_alternate_identifiers(record) -> dict:
