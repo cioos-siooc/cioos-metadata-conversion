@@ -99,3 +99,28 @@ def test_firebase_record_to_json(firebase_record, tmp_path):
     assert json_output
     assert isinstance(json_output, str)  # Ensure it's a string
     assert test_file.exists()  # Ensure the path exists
+
+
+def test_datacite_record_conversion():
+    """
+    Test the full conversion process from Firebase to CIOOS to DataCite.
+    """
+    firebase_record_path = Path(__file__).parent / "records" / "firebase" / "test-dataset-record.json"
+    with open(firebase_record_path, "r") as f:
+        firebase_record = json.load(f)
+
+    # Convert Firebase to CIOOS
+    cioos_record = record_json_to_yaml(firebase_record)
+
+    # Generate DataCite record
+    datacite_record = datacite.generate_datacite_record(cioos_record)
+
+    assert datacite_record
+    assert isinstance(datacite_record, dict)
+
+    assert datacite_record.get("titles")
+    assert datacite_record.get("creators")
+    assert datacite_record.get("publisher")
+    assert datacite_record.get("publicationYear")
+    assert datacite_record.get("types")
+    assert datacite_record['types'].get('resourceTypeGeneral') == 'Dataset'
