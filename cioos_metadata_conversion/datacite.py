@@ -327,7 +327,7 @@ def _get_keyword_subjects(record) -> list:
     )
 
 
-def generate_datacite_record(record) -> dict:
+def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/dataset/cioos-ca_", doi_prefix=None) -> dict:
     """
     Generate a DataCite record from a Cioos record.
     """
@@ -346,8 +346,17 @@ def generate_datacite_record(record) -> dict:
         "doi",
         record["identification"].get("identifier", "").replace("https://doi.org/", ""),
     )
+    doi = record["identification"].get("identifier", "")
+    if doi_prefix and not doi:
+        doi_attributes = {"prefix": doi_prefix}
+    elif doi and doi_prefix and doi.startswith(doi_prefix):
+        doi_attributes = {"doi": doi}
+    else:
+        doi_attributes = {}
 
     return {
+        "url": catalogue_url + record["metadata"].get("identifier", "")   ,
+        **doi_attributes,
         "titles": [
             {
                 "title": title,
