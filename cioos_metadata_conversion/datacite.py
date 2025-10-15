@@ -115,16 +115,18 @@ def _get_contributors(record) -> list:
             return "Other"
         return CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS[role]
 
-    return [
-        {
-            **_get_contact_info(contact),
-            "contributorType": _get_contributor_type(role),
-            "lang": "en",
-        }
-        for contact in record["contact"]
-        for role in contact["roles"]
-        if role not in {"owner", "publisher", "funder"}
-    ]
+    return _get_unique_dicts(
+        [
+            {
+                **_get_contact_info(contact),
+                "contributorType": _get_contributor_type(role),
+                "lang": "en",
+            }
+            for contact in record["contact"]
+            for role in contact["roles"]
+            if role not in {"publisher"}
+        ]
+    )
 
 
 def _get_publisher(record) -> dict:
@@ -306,12 +308,11 @@ def _get_geo_bounding_box(record) -> dict:
         }
     }
 
+
 def _get_geo_location_place(record) -> dict:
     if "place" not in record["spatial"] or not record["spatial"]["description"]:
         return {}
-    return {
-        "geoLocationPlace": [record["spatial"]["description"]]
-    }
+    return {"geoLocationPlace": [record["spatial"]["description"]]}
 
 
 def _get_unique_dicts(dict_list: list) -> list:
