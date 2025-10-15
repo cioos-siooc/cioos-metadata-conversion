@@ -334,16 +334,9 @@ def generate_datacite_record(record) -> dict:
     return {
         "titles": [
             {
-                "title": record["identification"]["title"][primary_language],
-                "lang": primary_language,
-                "titleType": "Title",
-            }
-        ]
-        + [
-            {
                 "title": title,
                 "lang": lang,
-                "titleType": "translatedTitle",
+                "titleType": "TranslatedTitle",
             }
             for lang, title in record["identification"]["title"].items()
             if lang != "translations"
