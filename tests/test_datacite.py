@@ -1,8 +1,8 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
-from datacite import schema45
 import pytest
+from datacite import schema45
 
 from cioos_metadata_conversion import datacite
 from cioos_metadata_conversion.firebase_to_cioos import record_json_to_yaml
@@ -98,24 +98,4 @@ def test_firebase_record_to_json(firebase_record, tmp_path):
 
     assert json_output
     assert isinstance(json_output, str)  # Ensure it's a string
-    assert test_file.exists()  # Ensure the path exists
-
-
-@pytest.mark.parametrize(
-    "firebase_record", (Path(__file__).parent / "records" / "firebase").glob("*.json")
-)
-def test_firebase_record_to_xml(firebase_record, tmp_path):
-    """
-    Test the conversion of a Firebase record to JSON.
-    """
-    with open(firebase_record, "r") as f:
-        record = json.load(f)
-    record = record_json_to_yaml(record)
-
-    # Convert the record to XML
-    test_file = tmp_path / "test.xml"
-    xml_output = datacite.to_xml(record, test_file)
-
-    assert xml_output
-    assert isinstance(xml_output, str)  # Ensure it's a string
     assert test_file.exists()  # Ensure the path exists

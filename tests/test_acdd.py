@@ -1,6 +1,8 @@
-from cioos_metadata_conversion.acdd import acdd
 import json
+
 import yaml
+
+from cioos_metadata_conversion.acdd import acdd
 
 
 def test_acdd_output(record):
@@ -69,6 +71,7 @@ def test_acdd_multilingual_suffix(record):
     assert "title_fr" in acdd_json  # Ensure French title field exists
     assert "summary_en" in acdd_json  # Ensure English summary field exists
     assert "summary_fr" in acdd_json  # Ensure French summary field exists
+
 
 def test_acdd_multilingual_nested(record):
     """
