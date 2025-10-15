@@ -147,3 +147,8 @@ def test_datacite_record_conversion():
     assert datacite_record.get("geoLocations")
     assert datacite_record["geoLocations"][0].get("geoLocationPolygon"), "Missing 'geoLocationPolygon'"
     assert datacite_record["geoLocations"][0].get("geoLocationPlace"), "Missing 'geoLocationPlace'"
+
+    # Validate funder
+    assert datacite_record.get("fundingReferences")
+    assert len(datacite_record["fundingReferences"]) == 1
+    assert datacite_record["fundingReferences"][0].get("funderName")
