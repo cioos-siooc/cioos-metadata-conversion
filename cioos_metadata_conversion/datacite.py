@@ -390,13 +390,13 @@ def generate_datacite_record(record) -> dict:
             if record["metadata"]["dates"].get("publication")
             else datetime.now().year
         ),
-        "subjects": [{
+        "subjects": _get_unique_dicts([{
             "subject": "Earth and related environmental sciences",
             "lang": "en",
             "subjectScheme": "FOS", # Confirm if this is the best scheme to use
         }] +
         _get_eov_subjects(record) +
-        _get_keyword_subjects(record),
+        _get_keyword_subjects(record)),
         "dates": _get_dates(record),
         "language": record["metadata"]["language"],
         "types": {
