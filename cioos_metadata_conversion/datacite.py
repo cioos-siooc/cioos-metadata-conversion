@@ -417,13 +417,11 @@ def generate_datacite_record(record) -> dict:
             if lang != "translations"
         ],
         "geoLocations": [
-            item
-            for item in [
-                _get_geo_polygon(record),
-                _get_geo_bounding_box(record),
-                _get_geo_location_place(record),
-            ]
-            if item
+            {
+                **_get_geo_polygon(record),
+                **_get_geo_bounding_box(record),
+                **_get_geo_location_place(record),
+            }
         ],
         **_get_funding_references(record),
         **_get_related_items(record),
