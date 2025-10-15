@@ -115,18 +115,16 @@ def _get_contributors(record) -> list:
             return "Other"
         return CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS[role]
 
-    return _get_unique_dicts(
-        [
-            {
-                **_get_contact_info(contact),
-                "contributorType": _get_contributor_type(role),
-                "lang": "en",
-            }
-            for contact in record["contact"]
-            for role in contact["roles"]
-            if role not in {"publisher"}
-        ]
-    )
+    return [
+        {
+            **_get_contact_info(contact),
+            "contributorType": _get_contributor_type(role),
+            "lang": "en",
+        }
+        for contact in record["contact"]
+        for role in contact["roles"]
+        if role != "publisher"
+    ]
 
 
 def _get_publisher(record) -> dict:
