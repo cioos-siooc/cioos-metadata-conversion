@@ -381,9 +381,10 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
         "subjects": _get_unique_dicts(
             [
                 {
-                    "subject": "Earth and related environmental sciences",
+                    "subject": "FOS: Earth and related environmental sciences",
                     "lang": "en",
-                    "subjectScheme": "FOS",  # Confirm if this is the best scheme to use
+                    "subjectScheme": "Fields of Science and Technology (FOS)",
+                    "schemeUri": "https://www.oecd.org/science/inno/38235147.pdf",
                 }
             ]
             + _get_eov_subjects(record)
