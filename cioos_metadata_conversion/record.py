@@ -91,10 +91,10 @@ class Record:
         Load the source data from a file.
         """
         if file_path.endswith(".json"):
-            with open(file_path, "r", encoding=encoding) as f:
+            with open(file_path, encoding=encoding) as f:
                 self.metadata = json.load(f)
         elif file_path.endswith(".yaml") or file_path.endswith(".yml"):
-            with open(file_path, "r", encoding=encoding) as f:
+            with open(file_path, encoding=encoding) as f:
                 self.metadata = yaml.safe_load(f)
         else:
             raise ValueError("Unsupported file format. Must be .json or .yaml/.yml.")

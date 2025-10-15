@@ -50,7 +50,7 @@ def test_firebase_record_to_xml(firebase_record):
     """
     Test the conversion of a Firebase record to XML.
     """
-    with open(firebase_record, "r") as f:
+    with open(firebase_record) as f:
         record = json.load(f)
     record = record_json_to_yaml(record)
 
@@ -70,7 +70,7 @@ def test_firebase_record_schema(firebase_record):
     """
     Test the conversion of a Firebase record to XML.
     """
-    with open(firebase_record, "r") as f:
+    with open(firebase_record) as f:
         record = json.load(f)
     record = record_json_to_yaml(record)
 
@@ -88,7 +88,7 @@ def test_firebase_record_to_json(firebase_record, tmp_path):
     """
     Test the conversion of a Firebase record to JSON.
     """
-    with open(firebase_record, "r") as f:
+    with open(firebase_record) as f:
         record = json.load(f)
     record = record_json_to_yaml(record)
 

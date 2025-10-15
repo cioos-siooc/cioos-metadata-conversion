@@ -25,7 +25,7 @@
       <att name="summary">summary</att>
       <att name="title">title</att>
     </addAttributes>
-    <!-- Some commented text that should remain.  --> 
+    <!-- Some commented text that should remain.  -->
     <dataVariable>
       <sourceName>measurementTime</sourceName>
       <destinationName>time</destinationName>
@@ -36,8 +36,8 @@
         <att name="cell_methods">time: point (interval: 5.0 minutes comment: time correspond to the end of the interval)</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>=48.836633</sourceName>
       <destinationName>latitude</destinationName>
@@ -49,8 +49,8 @@
         <att name="units">degrees_north</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>=-125.1362667</sourceName>
       <destinationName>longitude</destinationName>
@@ -62,8 +62,8 @@
         <att name="units">degrees_east</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>=20</sourceName>
       <destinationName>depth</destinationName>
@@ -75,7 +75,7 @@
         <att name="units">m</att>
       </addAttributes>
     </dataVariable>
-  
+
     <dataVariable>
       <sourceName>="Nova Harvest Fisheries Burke-o-Lator"</sourceName>
       <destinationName>station</destinationName>
@@ -85,8 +85,8 @@
         <att name="cf_role">timeseries_id</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_Med</sourceName>
       <destinationName>pCO2_uatm_Med</destinationName>
@@ -101,8 +101,8 @@
         <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_Avg</sourceName>
       <destinationName>pCO2_uatm_Avg</destinationName>
@@ -117,8 +117,8 @@
         <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_Min</sourceName>
       <destinationName>pCO2_uatm_Min</destinationName>
@@ -133,8 +133,8 @@
         <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_Max</sourceName>
       <destinationName>pCO2_uatm_Max</destinationName>
@@ -149,8 +149,8 @@
         <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_Std</sourceName>
       <destinationName>pCO2_uatm_Std</destinationName>
@@ -165,8 +165,8 @@
         <att name="ancillary_variables">pCO2_uatm_UQL pCO2_uatm_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_UQL</sourceName>
       <destinationName>pCO2_uatm_UQL</destinationName>
@@ -180,8 +180,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:pCO2_uatm_QC</sourceName>
       <destinationName>pCO2_uatm_flags</destinationName>
@@ -191,8 +191,8 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_Med</sourceName>
       <destinationName>calcTCO2_Med</destinationName>
@@ -206,8 +206,8 @@
         <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_Avg</sourceName>
       <destinationName>calcTCO2_Avg</destinationName>
@@ -221,8 +221,8 @@
         <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_Min</sourceName>
       <destinationName>calcTCO2_Min</destinationName>
@@ -236,8 +236,8 @@
         <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_Max</sourceName>
       <destinationName>calcTCO2_Max</destinationName>
@@ -251,8 +251,8 @@
         <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_Std</sourceName>
       <destinationName>calcTCO2_Std</destinationName>
@@ -266,8 +266,8 @@
         <att name="ancillary_variables">calcTCO2_UQL calcTCO2_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_UQL</sourceName>
       <destinationName>calcTCO2_UQL</destinationName>
@@ -281,8 +281,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcTCO2_QC</sourceName>
       <destinationName>calcTCO2_flags</destinationName>
@@ -292,8 +292,8 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_Med</sourceName>
       <destinationName>TSG_T_Med</destinationName>
@@ -308,8 +308,8 @@
         <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_Avg</sourceName>
       <destinationName>TSG_T_Avg</destinationName>
@@ -324,8 +324,8 @@
         <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_Min</sourceName>
       <destinationName>TSG_T_Min</destinationName>
@@ -340,8 +340,8 @@
         <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_Max</sourceName>
       <destinationName>TSG_T_Max</destinationName>
@@ -356,8 +356,8 @@
         <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_Std</sourceName>
       <destinationName>TSG_T_Std</destinationName>
@@ -372,8 +372,8 @@
         <att name="ancillary_variables">TSG_T_UQL TSG_T_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_UQL</sourceName>
       <destinationName>TSG_T_UQL</destinationName>
@@ -387,8 +387,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_T_QC</sourceName>
       <destinationName>TSG_T_flags</destinationName>
@@ -398,8 +398,8 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_Med</sourceName>
       <destinationName>TSG_S_Med</destinationName>
@@ -413,8 +413,8 @@
         <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_Avg</sourceName>
       <destinationName>TSG_S_Avg</destinationName>
@@ -428,8 +428,8 @@
         <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_Min</sourceName>
       <destinationName>TSG_S_Min</destinationName>
@@ -443,8 +443,8 @@
         <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_Max</sourceName>
       <destinationName>TSG_S_Max</destinationName>
@@ -458,8 +458,8 @@
         <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_Std</sourceName>
       <destinationName>TSG_S_Std</destinationName>
@@ -473,8 +473,8 @@
         <att name="ancillary_variables">TSG_S_UQL TSG_S_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_UQL</sourceName>
       <destinationName>TSG_S_UQL</destinationName>
@@ -488,8 +488,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:TSG_S_QC</sourceName>
       <destinationName>TSG_S_flags</destinationName>
@@ -499,8 +499,8 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_Med</sourceName>
       <destinationName>AlkS_Med</destinationName>
@@ -514,8 +514,8 @@
         <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_Avg</sourceName>
       <destinationName>AlkS_Avg</destinationName>
@@ -529,8 +529,8 @@
         <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_Min</sourceName>
       <destinationName>AlkS_Min</destinationName>
@@ -544,8 +544,8 @@
         <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_Max</sourceName>
       <destinationName>AlkS_Max</destinationName>
@@ -559,8 +559,8 @@
         <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_Std</sourceName>
       <destinationName>AlkS_Std</destinationName>
@@ -574,8 +574,8 @@
         <att name="ancillary_variables">AlkS_UQL AlkS_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_UQL</sourceName>
       <destinationName>AlkS_UQL</destinationName>
@@ -589,8 +589,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:AlkS_QC</sourceName>
       <destinationName>AlkS_flags</destinationName>
@@ -600,8 +600,8 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_Med</sourceName>
       <destinationName>calcOmega_Med</destinationName>
@@ -614,8 +614,8 @@
         <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_Avg</sourceName>
       <destinationName>calcOmega_Avg</destinationName>
@@ -628,8 +628,8 @@
         <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_Min</sourceName>
       <destinationName>calcOmega_Min</destinationName>
@@ -642,8 +642,8 @@
         <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_Max</sourceName>
       <destinationName>calcOmega_Max</destinationName>
@@ -656,8 +656,8 @@
         <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_Std</sourceName>
       <destinationName>calcOmega_Std</destinationName>
@@ -670,8 +670,8 @@
         <att name="ancillary_variables">calcOmega_UQL calcOmega_flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_UQL</sourceName>
       <destinationName>calcOmega_UQL</destinationName>
@@ -685,8 +685,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcOmega_QC</sourceName>
       <destinationName>calcOmega_flags</destinationName>
@@ -696,8 +696,8 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_Med</sourceName>
       <destinationName>calcpH_Med</destinationName>
@@ -712,8 +712,8 @@
         <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_Avg</sourceName>
       <destinationName>calcpH_Avg</destinationName>
@@ -728,8 +728,8 @@
         <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_Min</sourceName>
       <destinationName>calcpH_Min</destinationName>
@@ -744,8 +744,8 @@
         <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_Max</sourceName>
       <destinationName>calcpH_Max</destinationName>
@@ -760,8 +760,8 @@
         <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_Std</sourceName>
       <destinationName>calcpH_Std</destinationName>
@@ -776,8 +776,8 @@
         <att name="ancillary_variables">pCO2_uacalcpH_UQL tm_UQL calcpH_UQL</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_UQL</sourceName>
       <destinationName>calcpH_UQL</destinationName>
@@ -791,8 +791,8 @@
         <att name="missing_value" type="byte">2</att>
       </addAttributes>
     </dataVariable>
-  
-  
+
+
     <dataVariable>
       <sourceName>BamfieldBoL:calcpH_QC</sourceName>
       <destinationName>calcpH_flags</destinationName>
@@ -802,6 +802,6 @@
         <att name="units">Quality flags</att>
       </addAttributes>
     </dataVariable>
-  
+
   </dataset>
 </erddapDatasets>

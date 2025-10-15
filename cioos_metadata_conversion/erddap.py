@@ -1,6 +1,5 @@
 from glob import glob
 from pathlib import Path
-from typing import Union
 
 import click
 import yaml
@@ -183,7 +182,7 @@ class ERDDAP:
 
 def update_dataset_xml(
     datasets_xml: str,
-    records: Union[str, list],
+    records: str | list,
     erddap_url: str,
     output_dir: str = None,
 ):
@@ -200,7 +199,7 @@ def update_dataset_xml(
     # Find dataset xml
     erddap_files = glob(datasets_xml, recursive=True)
     if not erddap_files:
-        assert ValueError(f"No files found in {datasets_xml}")
+        raise ValueError(f"No files found in {datasets_xml}")
 
     datasets = [
         dataset
