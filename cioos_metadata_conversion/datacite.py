@@ -8,6 +8,8 @@ from datetime import datetime
 from datacite import schema45
 from loguru import logger
 
+from cioos_metadata_conversion.utils import camel_to_title
+
 # TODO map cioos roles to datacite contributor roles
 CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "pointOfContact": "ContactPerson",
@@ -309,6 +311,42 @@ def _get_unique_dicts(dict_list: list) -> list:
     unique_dicts = {frozenset(d.items()) for d in dict_list}
     return [dict(items) for items in unique_dicts]
 
+def _get_eov_subjects(record) -> list:
+    """
+    Get the EOV subjects from the CIOOS record and return a non camelcase list of unique dicts.
+    """
+    if not record.get("metadata", {}).get("eov"):
+        return []
+    return _get_unique_dicts(
+        [
+            {
+                "subject": camel_to_title(eov),
+                "lang": "en",
+                **_get_subject_scheme("eov"),
+            }
+            for eov in record["metadata"]["eov"]
+            if eov
+        ]
+    )
+
+def _get_keyword_subjects(record) -> list:
+    """
+    Get the keyword subjects from the CIOOS record.
+    """
+    if not record.get("metadata", {}).get("keywords"):
+        return []
+    return _get_unique_dicts(
+        [
+            {
+                "subject": keyword,
+                "lang": "en",
+                **_get_subject_scheme("default"),
+            }
+            for keyword in record["metadata"]["keywords"]
+            if keyword
+        ]
+    )
+
 
 def generate_datacite_record(record) -> dict:
     """
@@ -357,22 +395,8 @@ def generate_datacite_record(record) -> dict:
             "lang": "en",
             "subjectScheme": "FOS", # Confirm if this is the best scheme to use
         }] +
-        _get_unique_dicts(
-            [
-                {
-                    "subject": keyword,
-                    "lang": lang,
-                    **_get_subject_scheme(group),
-                }
-                for group, group_keywords in record["identification"][
-                    "keywords"
-                ].items()
-                if not group in ("taxa")
-                for lang, keywords in group_keywords.items()
-                for keyword in keywords
-                if keyword
-            ]
-        ),
+        _get_eov_subjects(record) +
+        _get_keyword_subjects(record),
         "dates": _get_dates(record),
         "language": record["metadata"]["language"],
         "types": {
