@@ -105,7 +105,9 @@ def test_datacite_record_conversion():
     """
     Test the full conversion process from Firebase to CIOOS to DataCite.
     """
-    firebase_record_path = Path(__file__).parent / "records" / "firebase" / "test-dataset-record.json"
+    firebase_record_path = (
+        Path(__file__).parent / "records" / "firebase" / "test-dataset-record.json"
+    )
     with open(firebase_record_path, "r") as f:
         firebase_record = json.load(f)
 
@@ -123,4 +125,4 @@ def test_datacite_record_conversion():
     assert datacite_record.get("publisher")
     assert datacite_record.get("publicationYear")
     assert datacite_record.get("types")
-    assert datacite_record['types'].get('resourceTypeGeneral') == 'Dataset'
+    assert datacite_record["types"].get("resourceTypeGeneral") == "Dataset"
