@@ -4,7 +4,6 @@ import pytest
 
 from cioos_metadata_conversion.record import Record
 
-
 Path("tests/results").mkdir(exist_ok=True)
 
 

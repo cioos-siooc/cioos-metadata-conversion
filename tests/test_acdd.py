@@ -1,6 +1,8 @@
-from cioos_metadata_conversion.acdd import acdd
 import json
+
 import yaml
+
+from cioos_metadata_conversion.acdd import acdd
 
 
 def test_acdd_output(record):

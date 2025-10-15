@@ -1,8 +1,8 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
-from datacite import schema45
 import pytest
+from datacite import schema45
 
 from cioos_metadata_conversion import datacite
 from cioos_metadata_conversion.firebase_to_cioos import record_json_to_yaml
