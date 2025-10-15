@@ -54,7 +54,7 @@ def test_cioos_metadata_files_to_erddap_xml(file):
 
 def test_erddap_global_attributes_xml_multilingual_suffix(record):
     result = erddap.global_attributes(record, language="en", multilingual="suffix")
-
+  
     assert result
     assert isinstance(result, dict)
     assert "title" in result
