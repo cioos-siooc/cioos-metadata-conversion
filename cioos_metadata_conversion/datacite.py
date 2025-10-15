@@ -355,7 +355,7 @@ def generate_datacite_record(record) -> dict:
         "subjects": [{
             "subject": "Earth and related environmental sciences",
             "lang": "en",
-            "subjectScheme": "FOS",
+            "subjectScheme": "FOS", # Confirm if this is the best scheme to use
         }] +
         _get_unique_dicts(
             [
