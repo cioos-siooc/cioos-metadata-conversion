@@ -1,5 +1,4 @@
 from glob import glob
-from unittest import result
 
 import pytest
 

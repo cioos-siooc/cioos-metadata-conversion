@@ -1,5 +1,7 @@
 import pytest
+
 from cioos_metadata_conversion.utils import camel_to_title
+
 
 @pytest.mark.parametrize(
     "inp, expected",

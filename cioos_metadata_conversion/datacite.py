@@ -311,6 +311,7 @@ def _get_unique_dicts(dict_list: list) -> list:
     unique_dicts = {frozenset(d.items()) for d in dict_list}
     return [dict(items) for items in unique_dicts]
 
+
 def _get_eov_subjects(record) -> list:
     """
     Get the EOV subjects from the CIOOS record and return a non camelcase list of unique dicts.
@@ -328,6 +329,7 @@ def _get_eov_subjects(record) -> list:
             if eov
         ]
     )
+
 
 def _get_keyword_subjects(record) -> list:
     """
@@ -390,18 +392,22 @@ def generate_datacite_record(record) -> dict:
             if record["metadata"]["dates"].get("publication")
             else datetime.now().year
         ),
-        "subjects": _get_unique_dicts([{
-            "subject": "Earth and related environmental sciences",
-            "lang": "en",
-            "subjectScheme": "FOS", # Confirm if this is the best scheme to use
-        }] +
-        _get_eov_subjects(record) +
-        _get_keyword_subjects(record)),
+        "subjects": _get_unique_dicts(
+            [
+                {
+                    "subject": "Earth and related environmental sciences",
+                    "lang": "en",
+                    "subjectScheme": "FOS",  # Confirm if this is the best scheme to use
+                }
+            ]
+            + _get_eov_subjects(record)
+            + _get_keyword_subjects(record)
+        ),
         "dates": _get_dates(record),
         "language": record["metadata"]["language"],
         "types": {
-            "resourceTypeGeneral": record.get("metadataScope","Dataset"),
-            "resourceType": "", # TODO not sure what would be best to put here
+            "resourceTypeGeneral": record.get("metadataScope", "Dataset"),
+            "resourceType": "",  # TODO not sure what would be best to put here
         },
         **_get_alternate_identifiers(record),
         **_get_related_identifiers(record),
