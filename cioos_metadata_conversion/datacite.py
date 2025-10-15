@@ -191,13 +191,6 @@ def _get_subject_scheme(group) -> dict:
         return {}
 
 
-DATES_MAPPING = {
-    "creation": "Created",
-    "publication": "Issued",
-    "revision": "Updated",
-}
-
-
 def _get_dates(record) -> list:
     """
     Get the dates from the Cioos record.
