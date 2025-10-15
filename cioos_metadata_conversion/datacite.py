@@ -282,7 +282,7 @@ def _get_geo_bounding_box(record) -> dict:
 
 
 def _get_geo_location_place(record) -> dict:
-    if "place" not in record["spatial"] or not record["spatial"]["description"]:
+    if not record["spatial"].get("description"):
         return {}
     return {"geoLocationPlace": [record["spatial"]["description"]]}
 
@@ -387,7 +387,7 @@ def generate_datacite_record(record) -> dict:
         "language": record["metadata"]["language"],
         "types": {
             "resourceTypeGeneral": record.get("metadataScope", "Dataset"),
-            "resourceType": "",  # TODO not sure what would be best to put here
+            "resourceType": "",
         },
         **_get_alternate_identifiers(record),
         **_get_related_identifiers(record),
