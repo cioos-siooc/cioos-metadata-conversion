@@ -284,7 +284,7 @@ def _get_geo_bounding_box(record) -> dict:
 def _get_geo_location_place(record) -> dict:
     if not record["spatial"].get("description"):
         return {}
-    return {"geoLocationPlace": [record["spatial"]["description"]]}
+    return {"geoLocationPlace": record["spatial"]["description"].get("en", "") }
 
 
 def _get_unique_dicts(dict_list: list) -> list:
