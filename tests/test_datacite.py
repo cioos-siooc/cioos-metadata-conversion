@@ -126,3 +126,18 @@ def test_datacite_record_conversion():
     assert datacite_record.get("publicationYear")
     assert datacite_record.get("types")
     assert datacite_record["types"].get("resourceTypeGeneral") == "Dataset"
+
+    assert datacite_record.get("dates")
+    assert any(
+        [date for date in datacite_record["dates"] if date.get("dateType") == "Created"]
+    ), "Missing 'Created' date"
+    assert any(
+        [date for date in datacite_record["dates"] if date.get("dateType") == "Updated"]
+    ), "Missing 'Updated' date"
+    assert any(
+        [
+            date
+            for date in datacite_record["dates"]
+            if date.get("dateType") == "Collected"
+        ]
+    ), "Missing 'Collected' date"
