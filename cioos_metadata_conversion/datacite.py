@@ -202,23 +202,6 @@ def _get_dates(record) -> list:
     """
     Get the dates from the Cioos record.
     """
-
-    def _get_date(name, date):
-        """
-        Get the date from the Cioos record.
-        """
-        if name not in DATES_MAPPING:
-            logger.error(f"Unknown date type: {name}")
-            return {
-                "date": date,
-                "dateInformation": name,
-                "type": "Other",
-            }
-        return {
-            "date": date,
-            "dateType": DATES_MAPPING[name],
-        }
-
     return [
         {
             "date": record["identification"]["dates"].get("created", ""),
