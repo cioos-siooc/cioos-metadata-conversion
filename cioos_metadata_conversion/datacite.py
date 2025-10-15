@@ -95,7 +95,7 @@ def _get_creators(record) -> list:
     return [
         _get_contact_info(contact)
         for contact in record["contact"]
-        if "owner" in contact["roles"]
+        if contact["inCitation"]
     ]
 
 
