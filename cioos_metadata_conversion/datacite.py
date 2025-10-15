@@ -339,7 +339,7 @@ def generate_datacite_record(record) -> dict:
                 "titleType": "TranslatedTitle",
             }
             for lang, title in record["identification"]["title"].items()
-            if lang != "translations"
+            if lang != "translations" and title
         ],
         **optional_fields,
         "creators": _get_creators(record),
