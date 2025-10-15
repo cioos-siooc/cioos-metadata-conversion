@@ -392,7 +392,7 @@ def generate_datacite_record(record) -> dict:
                 "descriptionType": "Abstract",
             }
             for lang, abstract in record["identification"]["abstract"].items()
-            if lang != "translations"
+            if lang != "translations" and abstract
         ]
         + [
             {
