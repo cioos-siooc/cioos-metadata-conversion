@@ -1,6 +1,6 @@
 <!-- Some more comments at the beginning of the file -->
 <dataset type="EDDTableFromDatabase" datasetID="TestDataset1">
-  <!-- Some comments at the beginning --> 
+  <!-- Some comments at the beginning -->
   <sourceUrl>hakai_erddap_sourceUrl</sourceUrl>
   <driverName>org.postgresql.Driver</driverName>
   <schemaName>erddap</schemaName>

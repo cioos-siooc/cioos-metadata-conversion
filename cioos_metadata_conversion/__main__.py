@@ -27,7 +27,6 @@ def cli():
     """CIOOS Metadata Conversion CLI.
     Convert metadata records to different metadata formats or standards.
     """
-    pass
 
 
 cli.add_command(erddap.update, name="erddap-update")
