@@ -48,6 +48,7 @@ def global_attributes(
             - "suffix": fieldname_en, fieldname_fr
             - "nested": fieldname: "(en) {value}; (fr) {value}"
             - "xml": fieldname: <addAttribute xml:lang="en">{value}</addAttribute>
+            - "dict": fieldname: {"multilingual_fields": {"fieldname": {"en": value, "fr": value}}}
         **kwargs: Additional attributes to add to the global attributes.
     """
     global_attributes = acdd.acdd(
@@ -63,7 +64,7 @@ def global_attributes(
         return global_attributes
     
     multilingual_fields = {}
-    if multilingual == "xml":
+    if multilingual in ("xml", "dict"):
         multilingual_fields = {
             "title": {
                 "en": record["identification"]["title"].get("en"),
@@ -80,6 +81,8 @@ def global_attributes(
         }
     if output == "xml":
         return _generate_dataset_xml(global_attributes, multilingual_fields)
+    else:
+        return global_attributes.update({"multilingual_fields": multilingual_fields})
 
 
 @logger.catch(reraise=True)
@@ -121,17 +124,6 @@ def _update_xml(xml_file, dataset_id, updates, encoding="utf-8") -> str:
     return etree.tostring(tree, pretty_print=True).decode(encoding)
 
 
-def _get_dataset_id_from_record(record, erddap_url):
-    return [
-        (
-            ressource["url"].split("/")[-1].replace(".html", ""),
-            global_attributes(record, output=None),
-        )
-        for ressource in record["distribution"]
-        if erddap_url in ressource["url"]
-    ]
-
-
 class ERDDAP:
     def __init__(self, path) -> None:
         self.path = path
@@ -153,7 +145,11 @@ class ERDDAP:
         return bool(self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']"))
 
     def update(self, dataset_id: str, global_attributes: dict):
-        # Retrive dataset
+
+        # Remove multilingual fields from global attributes
+        multilingual_fields = global_attributes.pop("multilingual_fields", None)
+
+        # Retrieve dataset
         matching_dataset = self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
         if not matching_dataset:
             return
@@ -177,7 +173,45 @@ class ERDDAP:
                 new_attribute.attrib["name"] = name
                 dataset.find(".//addAttributes").append(new_attribute)
 
+        # Add multilingual fields if any
+        if multilingual_fields:
+            for name, lang_values in multilingual_fields.items():
+                for lang, lang_value in lang_values.items():
+                    if not lang_value:
+                        continue
+                    matching_attribute = dataset.xpath(
+                        f".//addAttributes/att[@name='{name}' and @xml:lang='{lang}']"
+                    )
+                    if matching_attribute:
+                        logger.debug(f"Updating attribute {name} ({lang}) with value {lang_value}")
+                        matching_attribute[0].text = lang_value
+                    else:
+                        # Create a new attribute
+                        logger.debug(f"Adding new attribute {name} ({lang}) with value {lang_value}")
+                        new_attribute = etree.Element("att")
+                        new_attribute.text = lang_value
+                        new_attribute.attrib["name"] = name
+                        new_attribute.attrib["xml:lang"] = lang
+                        dataset.find(".//addAttributes").append(new_attribute)
         return
+
+
+def _get_dataset_id_from_record(record, erddap_url, multilingual: bool = True):
+    """Get the dataset ID from a metadata record.
+    
+    Ignore links to subsets of datasets.
+
+    """
+    dataset_ids = [
+        ressource["url"].split("/")[-1].replace(".html", "")
+        for ressource in record["distribution"]
+        if erddap_url in ressource["url"] and not "?" in ressource["url"]
+    ]
+
+    if not dataset_ids:
+        return []
+    attrs  = global_attributes(record, output=None, multilingual="dict" if multilingual else None)
+    return [(dataset_id, attrs) for dataset_id, attrs in dataset_ids]
 
 
 def update_dataset_xml(
@@ -185,6 +219,7 @@ def update_dataset_xml(
     records: Union[str, list],
     erddap_url: str,
     output_dir: str = None,
+    multilingual: bool = True,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
 
@@ -204,7 +239,7 @@ def update_dataset_xml(
     datasets = [
         dataset
         for record in records
-        for dataset in _get_dataset_id_from_record(record, erddap_url)
+        for dataset in _get_dataset_id_from_record(record, erddap_url, multilingual=multilingual)
         if dataset
     ]
     dataset_ids = [dataset_id for dataset_id, _ in datasets]
@@ -240,6 +275,7 @@ def update_dataset_xml(
 @click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
 @click.option("--region", "-r", help="Region to fetch records for.")
 @click.option("--database-url", "-b", help="Firebase database URL.")
+@click.option("--multilingual", "-m", is_flag=True, help="Enable multilingual support.")
 def update(
     datasets_xml,
     records,
@@ -249,6 +285,7 @@ def update(
     firebase_auth_key,
     region,
     database_url,
+    multilingual,
 ):
     """Update ERDDAP dataset xml with metadata records."""
 
@@ -278,4 +315,4 @@ def update(
             for record in records
         ]
 
-    update_dataset_xml(datasets_xml, records, erddap_url, output_dir)
+    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual)

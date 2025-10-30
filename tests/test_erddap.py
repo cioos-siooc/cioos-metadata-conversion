@@ -137,3 +137,18 @@ def test_erddap_dataset_d_xml_update(record, tmp_path):
     )
     files = tmp_path.glob("dataset.d/*.xml")
     assert files
+
+def test_erddap_dataset_d_xml_update_multilangual(record, tmp_path):
+    erddap.update_dataset_xml(
+        "tests/erddap_xmls/dataset.d/*.xml",
+        [record],
+        erddap_url="https://catalogue.cioos.org/erddap",
+        output_dir=tmp_path,
+        multilingual=True,
+    )
+    files = tmp_path.glob("dataset.d/*.xml")
+    assert files
+    for file in files:
+        with open(file, "r") as f:
+            content = f.read()
+            assert "xml:lang" in content
