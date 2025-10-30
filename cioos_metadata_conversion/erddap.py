@@ -77,8 +77,8 @@ def global_attributes(
                 "fr": record["identification"]["abstract"].get("fr"),
             },
             "comment": {
-                "en": "\n\n".join(acdd.generate_comment(record, "en")),
-                "fr": "\n\n".join(acdd.generate_comment(record, "fr")),
+                "en": acdd.generate_comment(record, "en"),
+                "fr": acdd.generate_comment(record, "fr"),
             },
         }
     if output == "xml":
@@ -119,16 +119,6 @@ def update_dataset_id(tree, dataset_id: str, global_attributes: dict):
     return tree
 
 
-# Function to update XML
-@logger.catch(reraise=True)
-def _update_xml(xml_file, dataset_id, updates, encoding="utf-8") -> str:
-    # Parse the XML with comments
-    tree = etree.parse(xml_file)
-    tree = update_dataset_id(tree, dataset_id, updates)
-    # Write back to the same file (or use a different file name to save a new version.
-    return etree.tostring(tree, pretty_print=True).decode(encoding)
-
-
 class ERDDAP:
     def __init__(self, path) -> None:
         self.path = path
@@ -151,8 +141,17 @@ class ERDDAP:
 
     def update(self, dataset_id: str, global_attributes: dict):
 
+        def _get_attribute(name: str, value: str, lang: str = None):
+            new_attribute = etree.Element("att")
+            new_attribute.text = value
+            new_attribute.attrib["name"] = name
+            if lang:
+                # Use the XML namespace for the xml:lang attribute to avoid lxml errors
+                new_attribute.set("{http://www.w3.org/XML/1998/namespace}lang", lang)
+            return new_attribute
+        
         # Remove multilingual fields from global attributes
-        multilingual_fields = global_attributes.pop("multilingual_fields", None)
+        multilingual_fields = global_attributes.pop("multilingual_fields", {})
 
         # Retrieve dataset
         matching_dataset = self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
@@ -163,7 +162,8 @@ class ERDDAP:
         if len(matching_dataset) > 1:
             raise ValueError(f"Duplicate dataset ID {dataset_id} found in XML.")
         dataset = matching_dataset[0]
-
+        
+        added_multilingual_fields = set()
         for name, value in global_attributes.items():
             # Check if the attribute already exists
             matching_attribute = dataset.xpath(f".//addAttributes/att[@name='{name}']")
@@ -173,32 +173,25 @@ class ERDDAP:
             else:
                 # Create a new attribute
                 logger.debug(f"Adding new attribute {name} with value {value}")
-                new_attribute = etree.Element("att")
-                new_attribute.text = value
-                new_attribute.attrib["name"] = name
-                dataset.find(".//addAttributes").append(new_attribute)
+                dataset.find(".//addAttributes").append(_get_attribute(name, value))
 
-        # Add multilingual fields if any
-        if multilingual_fields:
+            if name in multilingual_fields:
+                added_multilingual_fields.add(name)
+                for lang in multilingual_fields[name]:
+                    if not multilingual_fields[name][lang]:
+                        continue
+                    dataset.find(".//addAttributes").append(_get_attribute(name, multilingual_fields[name][lang], lang))
+
+
+        # Add multilingual fields that were not added yet
+        missing_multilingual_fields = set(multilingual_fields.keys()) - added_multilingual_fields
+        if missing_multilingual_fields:
             logger.debug(f"Processing multilingual fields for dataset {dataset_id}")
-            for name, lang_values in multilingual_fields.items():
-                for lang, lang_value in lang_values.items():
+            for name in missing_multilingual_fields:
+                for lang, lang_value in multilingual_fields[name].items():
                     if not lang_value:
                         continue
-                    matching_attribute = dataset.xpath(
-                        f".//addAttributes/att[@name='{name}' and @xml:lang='{lang}']"
-                    )
-                    if matching_attribute:
-                        logger.debug(f"Updating attribute {name} ({lang}) with value {lang_value}")
-                        matching_attribute[0].text = lang_value
-                    else:
-                        # Create a new attribute
-                        logger.debug(f"Adding new attribute {name} ({lang}) with value {lang_value}")
-                        new_attribute = etree.Element("att")
-                        new_attribute.text = lang_value
-                        new_attribute.attrib["name"] = name
-                        new_attribute.attrib["xml:lang"] = lang
-                        dataset.find(".//addAttributes").append(new_attribute)
+                    dataset.find(".//addAttributes").append(_get_attribute(name, lang_value, lang))
         return
 
 
@@ -225,7 +218,7 @@ def update_dataset_xml(
     records: Union[str, list],
     erddap_url: str,
     output_dir: str = None,
-    multilingual: bool = True,
+    multilingual: bool = False,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
 
@@ -284,7 +277,7 @@ def update_dataset_xml(
 @click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
 @click.option("--region", "-r", help="Region to fetch records for.")
 @click.option("--database-url", "-b", help="Firebase database URL.")
-@click.option("--not-multilingual", "-m", is_flag=True, help="Disable multilingual support.")
+@click.option("--multilingual", "-m", is_flag=True, help="Enable multilingual support.", default=False)
 def update(
     datasets_xml,
     records,
@@ -294,7 +287,7 @@ def update(
     firebase_auth_key,
     region,
     database_url,
-    not_multilingual,
+    multilingual,
 ):
     """Update ERDDAP dataset xml with metadata records."""
 
@@ -324,5 +317,5 @@ def update(
             for record in records
         ]
     logger.info("Updating ERDDAP dataset xml: {}", datasets_xml)
-    logger.info("Disable multilingual support: {}", not_multilingual)
-    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, not not_multilingual)
+    logger.info("Enable multilingual support: {}", multilingual)
+    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual)
