@@ -59,8 +59,9 @@ def global_attributes(
         multilingual=multilingual if multilingual in ["suffix", "nested"] else None,
         **kwargs,
     )
+    global_attributes = drop_empty_values(global_attributes)
 
-    if not output or output != "xml":
+    if not output or output not in ("xml", "dict"):
         logger.debug("Returning global attributes as dict")
         return global_attributes
     
@@ -85,7 +86,8 @@ def global_attributes(
         return _generate_dataset_xml(global_attributes, multilingual_fields)
     else:
         logger.debug("Returning global attributes as dict with multilingual fields")
-        return drop_empty_values(global_attributes.update({"multilingual_fields": multilingual_fields}))
+        global_attributes.update({"multilingual_fields": multilingual_fields})
+        return global_attributes
 
 
 @logger.catch(reraise=True)
@@ -214,7 +216,7 @@ def _get_dataset_id_from_record(record, erddap_url, multilingual: bool = True):
 
     if not dataset_ids:
         return []
-    attrs  = global_attributes(record, output=None, multilingual="dict" if multilingual else None)
+    attrs  = global_attributes(record, output="dict", multilingual="dict" if multilingual else None)
     return [(dataset_id, attrs) for dataset_id in dataset_ids]
 
 
@@ -239,7 +241,7 @@ def update_dataset_xml(
         logger.info(f"Found {len(records)} records to process.")
 
     # Find dataset xml
-    erddap_files = glob(datasets_xml, recursive=True)
+    erddap_files = glob(datasets_xml)
     if not erddap_files:
         assert ValueError(f"No files found in {datasets_xml}")
 
