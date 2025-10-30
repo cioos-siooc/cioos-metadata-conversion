@@ -82,7 +82,7 @@ def global_attributes(
     if output == "xml":
         return _generate_dataset_xml(global_attributes, multilingual_fields)
     else:
-        return global_attributes.update({"multilingual_fields": multilingual_fields})
+        return drop_empty_values(global_attributes.update({"multilingual_fields": multilingual_fields}))
 
 
 @logger.catch(reraise=True)
