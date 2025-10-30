@@ -130,7 +130,7 @@ def test_erddap_dataset_xml_update_string(tmp_path):
 
 def test_erddap_dataset_d_xml_update(record, tmp_path):
     erddap.update_dataset_xml(
-        "tests/erddap_xmls/dataset.d/*.xml",
+        "tests/erddap_xmls/datasets.d/*.xml",
         [record],
         erddap_url="https://catalogue.cioos.org/erddap",
         output_dir=tmp_path,
@@ -140,7 +140,7 @@ def test_erddap_dataset_d_xml_update(record, tmp_path):
 
 def test_erddap_dataset_d_xml_update_multilangual(record, tmp_path):
     erddap.update_dataset_xml(
-        "tests/erddap_xmls/dataset.d/*.xml",
+        "tests/erddap_xmls/datasets.d/*.xml",
         [record],
         erddap_url="https://catalogue.cioos.org/erddap",
         output_dir=tmp_path,
