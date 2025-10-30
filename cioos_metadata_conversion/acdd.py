@@ -96,7 +96,7 @@ def generate_history(record, language="en"):
         logger.warning("Invalid history format.")
 
 
-def generate_comment(record, language="en"):
+def generate_comment(record, language="en") -> str:
     """Generate a comment string from a metadata record."""
     comments = []
     if (
