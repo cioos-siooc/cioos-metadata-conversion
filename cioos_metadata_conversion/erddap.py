@@ -278,7 +278,7 @@ def update_dataset_xml(
 @click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
 @click.option("--region", "-r", help="Region to fetch records for.")
 @click.option("--database-url", "-b", help="Firebase database URL.")
-@click.option("--multilingual", "-m", is_flag=True, help="Enable multilingual support.", default=True)
+@click.option("--not-multilingual", "-m", is_flag=True, help="Disable multilingual support.", default=True)
 def update(
     datasets_xml,
     records,
@@ -288,7 +288,7 @@ def update(
     firebase_auth_key,
     region,
     database_url,
-    multilingual,
+    not_multilingual,
 ):
     """Update ERDDAP dataset xml with metadata records."""
 
@@ -318,5 +318,5 @@ def update(
             for record in records
         ]
     logger.info("Updating ERDDAP dataset xml: {}", datasets_xml)
-    logger.info("Apply multilingual support: {}", multilingual)
-    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual)
+    logger.info("Disable multilingual support: {}", not_multilingual)
+    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, not not_multilingual)
