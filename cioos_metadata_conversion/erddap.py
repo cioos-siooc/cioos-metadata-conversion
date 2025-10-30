@@ -232,6 +232,7 @@ def update_dataset_xml(
         ]
         if not records:
             raise ValueError(f"No records found in {records}")
+        logger.info(f"Found {len(records)} records to process.")
 
     # Find dataset xml
     erddap_files = glob(datasets_xml, recursive=True)
