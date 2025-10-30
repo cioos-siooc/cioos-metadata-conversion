@@ -175,6 +175,7 @@ class ERDDAP:
 
         # Add multilingual fields if any
         if multilingual_fields:
+            logger.debug(f"Processing multilingual fields for dataset {dataset_id}")
             for name, lang_values in multilingual_fields.items():
                 for lang, lang_value in lang_values.items():
                     if not lang_value:
