@@ -61,6 +61,7 @@ def global_attributes(
     )
 
     if not output or output != "xml":
+        logger.debug("Returning global attributes as dict")
         return global_attributes
     
     multilingual_fields = {}
@@ -80,8 +81,10 @@ def global_attributes(
             },
         }
     if output == "xml":
+        logger.debug("Generating dataset XML")
         return _generate_dataset_xml(global_attributes, multilingual_fields)
     else:
+        logger.debug("Returning global attributes as dict with multilingual fields")
         return drop_empty_values(global_attributes.update({"multilingual_fields": multilingual_fields}))
 
 
