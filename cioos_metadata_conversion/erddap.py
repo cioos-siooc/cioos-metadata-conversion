@@ -230,6 +230,8 @@ def update_dataset_xml(
             yaml.safe_load(Path(record_file).read_text())
             for record_file in record_files
         ]
+        if not records:
+            raise ValueError(f"No records found in {records}")
 
     # Find dataset xml
     erddap_files = glob(datasets_xml, recursive=True)
