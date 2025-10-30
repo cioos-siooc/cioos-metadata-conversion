@@ -212,7 +212,7 @@ def _get_dataset_id_from_record(record, erddap_url, multilingual: bool = True):
     if not dataset_ids:
         return []
     attrs  = global_attributes(record, output=None, multilingual="dict" if multilingual else None)
-    return [(dataset_id, attrs) for dataset_id, attrs in dataset_ids]
+    return [(dataset_id, attrs) for dataset_id in dataset_ids]
 
 
 def update_dataset_xml(
