@@ -278,7 +278,7 @@ def update_dataset_xml(
 @click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
 @click.option("--region", "-r", help="Region to fetch records for.")
 @click.option("--database-url", "-b", help="Firebase database URL.")
-@click.option("--multilingual", "-m", is_flag=True, help="Enable multilingual support.")
+@click.option("--multilingual", "-m", is_flag=True, help="Enable multilingual support.", default=True)
 def update(
     datasets_xml,
     records,
