@@ -317,5 +317,6 @@ def update(
             else record
             for record in records
         ]
-
+    logger.info("Updating ERDDAP dataset xml: {}", datasets_xml)
+    logger.info("Apply multilingual support: {}", multilingual)
     update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual)
