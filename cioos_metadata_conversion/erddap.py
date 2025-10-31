@@ -178,6 +178,19 @@ class ERDDAP:
                 dataset.find(".//addAttributes").append(_get_attribute(name, value))
 
             for lang, text in multilingual_fields.get(name, {}).items():
+                # Find existing multilingual attribute
+                matching_lang_attribute = dataset.xpath(
+                    f".//addAttributes/att[@name='{name}' and @xml:lang='{lang}']"
+                )
+                if matching_lang_attribute:
+                    logger.debug(
+                        f"Updating multilingual attribute {name} with lang {lang} and value {text}"
+                    )
+                    matching_lang_attribute[0].text = text
+                    continue 
+                logger.debug(
+                    f"Adding new multilingual attribute {name} with lang {lang} and value {text}"
+                )
                 if not text:
                     continue
                 dataset.find(".//addAttributes").append(
