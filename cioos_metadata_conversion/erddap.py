@@ -194,7 +194,10 @@ class ERDDAP:
                     if not lang_value:
                         continue
                     dataset.find(".//addAttributes").append(_get_attribute(name, lang_value, lang))
-        return
+        
+        # Update the tree with the modified dataset
+        self.tree = dataset.getroottree()
+        return self
 
 
 def _get_dataset_id_from_record(record, erddap_url, multilingual: bool = True):
@@ -324,3 +327,4 @@ def update(
     logger.info("Updating ERDDAP dataset xml: {}", datasets_xml)
     logger.info("Enable multilingual support: {}", multilingual)
     update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual=multilingual, spaces=spaces)
+
