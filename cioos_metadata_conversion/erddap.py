@@ -165,7 +165,6 @@ class ERDDAP:
             raise ValueError(f"Duplicate dataset ID {dataset_id} found in XML.")
         dataset = matching_dataset[0]
         
-        added_multilingual_fields = set()
         for name, value in global_attributes.items():
             # Check if the attribute already exists
             matching_attribute = dataset.xpath(f".//addAttributes/att[@name='{name}']")
@@ -177,16 +176,14 @@ class ERDDAP:
                 logger.debug(f"Adding new attribute {name} with value {value}")
                 dataset.find(".//addAttributes").append(_get_attribute(name, value))
 
-            if name in multilingual_fields:
-                added_multilingual_fields.add(name)
-                for lang in multilingual_fields[name]:
-                    if not multilingual_fields[name][lang]:
-                        continue
-                    dataset.find(".//addAttributes").append(_get_attribute(name, multilingual_fields[name][lang], lang))
+            for lang, text in multilingual_fields.get(name, {}).items():
+                if not text:
+                    continue
+                dataset.find(".//addAttributes").append(_get_attribute(name, text, lang))
 
 
         # Add multilingual fields that were not added yet
-        missing_multilingual_fields = set(multilingual_fields.keys()) - added_multilingual_fields
+        missing_multilingual_fields = set(multilingual_fields.keys()) - global_attributes.keys()
         if missing_multilingual_fields:
             logger.debug(f"Processing multilingual fields for dataset {dataset_id}")
             for name in missing_multilingual_fields:
