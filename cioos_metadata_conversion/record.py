@@ -6,7 +6,6 @@ import yaml
 from loguru import logger
 
 from cioos_metadata_conversion import (
-    cioos,
     citation_cff,
     datacite,
     erddap,

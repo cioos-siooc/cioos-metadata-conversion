@@ -1,5 +1,4 @@
 from glob import glob
-from unittest import result
 
 import pytest
 
@@ -52,6 +51,7 @@ def test_cioos_metadata_files_to_erddap_xml(file):
 
     assert result
 
+
 def test_erddap_global_attributes_xml_multilingual_suffix(record):
     result = erddap.global_attributes(
         record, output=None, language="en", multilingual="suffix"
@@ -65,6 +65,7 @@ def test_erddap_global_attributes_xml_multilingual_suffix(record):
     assert "title_en" in result
     assert "summary_fr" in result
     assert "summary_en" in result
+
 
 def test_erddap_global_attributes_xml_multilingual_nested(record):
     result = erddap.global_attributes(
@@ -96,6 +97,7 @@ def test_erddap_global_attributes_xml_multilingual_xml(record):
     assert "<att name='title' xml:lang='fr'>" in result
     assert "<att name='summary' xml:lang='en'>" in result
     assert "<att name='summary' xml:lang='fr'>" in result
+
 
 @pytest.mark.parametrize(
     "file",
@@ -137,6 +139,7 @@ def test_erddap_dataset_d_xml_update(record, tmp_path):
     )
     files = tmp_path.glob("dataset.d/*.xml")
     assert files
+
 
 def test_erddap_dataset_d_xml_update_multilangual(record, tmp_path):
     erddap.update_dataset_xml(

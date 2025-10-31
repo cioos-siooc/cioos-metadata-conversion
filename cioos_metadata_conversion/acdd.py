@@ -272,6 +272,7 @@ def acdd_json(record, **kwargs) -> str:
     """Generate an ACDD global attributes JSON string from a metadata record."""
     return acdd(record, output="json", **kwargs)
 
+
 def acdd_yaml(record, **kwargs) -> str:
     """Generate an ACDD global attributes YAML string from a metadata record."""
     return acdd(record, output="yaml", **kwargs)

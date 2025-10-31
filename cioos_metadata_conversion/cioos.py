@@ -5,8 +5,6 @@ from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from loguru import logger
 
-from loguru import logger
-
 
 @logger.catch(default={}, reraise=True)
 def cioos_firebase_to_cioos_schema(record) -> dict:
