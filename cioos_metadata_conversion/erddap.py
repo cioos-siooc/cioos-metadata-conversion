@@ -7,6 +7,7 @@ import yaml
 from loguru import logger
 from lxml import etree
 
+from cioos_metadata_conversion.utils import drop_empty_values
 from cioos_metadata_conversion import acdd
 from cioos_metadata_conversion.cioos import (
     cioos_firebase_to_cioos_schema,

@@ -51,11 +51,8 @@ def test_cioos_metadata_files_to_erddap_xml(file):
 
     assert result
 
-
 def test_erddap_global_attributes_xml_multilingual_suffix(record):
-    result = erddap.global_attributes(
-        record, language="en", multilingual="suffix"
-    )
+    result = erddap.global_attributes(record, output=None, language="en", multilingual="suffix")
 
     assert result
     assert isinstance(result, dict)
@@ -66,11 +63,8 @@ def test_erddap_global_attributes_xml_multilingual_suffix(record):
     assert "summary_fr" in result
     assert "summary_en" in result
 
-
 def test_erddap_global_attributes_xml_multilingual_nested(record):
-    result = erddap.global_attributes(
-        record, language="en", multilingual="nested"
-    )
+    result = erddap.global_attributes(record, output=None, language="en", multilingual="nested")
 
     assert result
     assert isinstance(result, dict)
@@ -97,7 +91,6 @@ def test_erddap_global_attributes_xml_multilingual_xml(record):
     assert "<att name='title' xml:lang='fr'>" in result
     assert "<att name='summary' xml:lang='en'>" in result
     assert "<att name='summary' xml:lang='fr'>" in result
-
 
 @pytest.mark.parametrize(
     "file",
