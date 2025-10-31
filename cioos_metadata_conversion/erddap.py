@@ -129,12 +129,13 @@ class ERDDAP:
     def read(self):
         self.tree = etree.parse(self.path)
 
-    def tostring(self, encoding="utf-8") -> str:
+    def tostring(self, encoding="utf-8", spaces=4) -> str:
+        etree.indent(self.tree.getroot(), space=" " * spaces)
         return etree.tostring(self.tree, pretty_print=True).decode(encoding)
 
-    def save(self, output_file=None, encoding="utf-8"):
+    def save(self, output_file=None, encoding="utf-8", spaces=4):
         with open(output_file or self.path, "w") as f:
-            f.write(self.tostring(encoding))
+            f.write(self.tostring(encoding, spaces))
 
     def has_dataset_id(self, dataset_id) -> bool:
         return bool(self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']"))
@@ -145,6 +146,7 @@ class ERDDAP:
             new_attribute = etree.Element("att")
             new_attribute.text = value
             new_attribute.attrib["name"] = name
+            new_attribute.tail = "\n"
             if lang:
                 # Use the XML namespace for the xml:lang attribute to avoid lxml errors
                 new_attribute.set("{http://www.w3.org/XML/1998/namespace}lang", lang)
@@ -219,6 +221,7 @@ def update_dataset_xml(
     erddap_url: str,
     output_dir: str = None,
     multilingual: bool = False,
+    spaces: int = 4,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
 
@@ -257,7 +260,7 @@ def update_dataset_xml(
                 updated += [dataset_id]
         file_output = Path(output_dir) / Path(file).name if output_dir else file
         logger.debug("Writing updated XML to {}", file_output)
-        erddap.save(file_output or file)
+        erddap.save(file_output or file, spaces=spaces)
 
     if missing_datasets := [
         dataset_id for dataset_id in dataset_ids if dataset_id not in updated
@@ -278,6 +281,7 @@ def update_dataset_xml(
 @click.option("--region", "-r", help="Region to fetch records for.")
 @click.option("--database-url", "-b", help="Firebase database URL.")
 @click.option("--multilingual", "-m", is_flag=True, help="Enable multilingual support.", default=False)
+@click.option("--spaces", default=4, help="Number of spaces for indentation.")
 def update(
     datasets_xml,
     records,
@@ -288,6 +292,7 @@ def update(
     region,
     database_url,
     multilingual,
+    spaces,
 ):
     """Update ERDDAP dataset xml with metadata records."""
 
@@ -318,4 +323,4 @@ def update(
         ]
     logger.info("Updating ERDDAP dataset xml: {}", datasets_xml)
     logger.info("Enable multilingual support: {}", multilingual)
-    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual)
+    update_dataset_xml(datasets_xml, records, erddap_url, output_dir, multilingual=multilingual, spaces=spaces)
