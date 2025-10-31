@@ -54,7 +54,7 @@ def test_cioos_metadata_files_to_erddap_xml(file):
 
 def test_erddap_global_attributes_xml_multilingual_suffix(record):
     result = erddap.global_attributes(
-        record, output=None, language="en", multilingual="suffix"
+        record, language="en", multilingual="suffix"
     )
 
     assert result
@@ -69,7 +69,7 @@ def test_erddap_global_attributes_xml_multilingual_suffix(record):
 
 def test_erddap_global_attributes_xml_multilingual_nested(record):
     result = erddap.global_attributes(
-        record, output=None, language="en", multilingual="nested"
+        record, language="en", multilingual="nested"
     )
 
     assert result

@@ -7,12 +7,11 @@ import yaml
 from loguru import logger
 from lxml import etree
 
-from cioos_metadata_conversion.cioos import (
-    get_records_from_firebase,
-    cioos_firebase_to_cioos_schema,
-)
 from cioos_metadata_conversion import acdd
-from cioos_metadata_conversion.utils import drop_empty_values
+from cioos_metadata_conversion.cioos import (
+    cioos_firebase_to_cioos_schema,
+    get_records_from_firebase,
+)
 
 
 def _generate_dataset_xml(

@@ -1,8 +1,9 @@
 # ACDD 1.3 Global Attributes
 
-from loguru import logger
-import yaml
 import json
+
+import yaml
+from loguru import logger
 
 from cioos_metadata_conversion.utils import drop_empty_values
 
