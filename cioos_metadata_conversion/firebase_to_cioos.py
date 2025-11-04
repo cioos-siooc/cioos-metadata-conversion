@@ -177,20 +177,20 @@ def record_json_to_yaml(record):
         },
         "spatial": {
             "bbox": [
-                float(record["map"].get("west")),
-                float(record["map"].get("south")),
-                float(record["map"].get("east")),
-                float(record["map"].get("north")),
+                float(record.get("map", {}).get("west", 0)),
+                float(record.get("map", {}).get("south", 0)),
+                float(record.get("map", {}).get("east", 0)),
+                float(record.get("map", {}).get("north", 0)),
             ]
             if not polygon
             else "",
             "polygon": fix_lat_long_polygon(polygon),
             "vertical": [
                 0
-                if record.get("noVerticalExtent")
+                if record.get("noVerticalExtent") or not record.get("verticalExtentMin")
                 else float(record.get("verticalExtentMin")),
                 0
-                if record.get("noVerticalExtent")
+                if record.get("noVerticalExtent") or not record.get("verticalExtentMax")
                 else float(record.get("verticalExtentMax")),
             ],
             "vertical_positive": "heightPositive"
@@ -199,8 +199,8 @@ def record_json_to_yaml(record):
             "vertical_epsg": epsg.get("5829")
             if record.get("noVerticalExtent")
             else epsg.get(record.get("verticalExtentEPSG")),
-            "description": record["map"].get("description"),
-            "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
+            "description": record.get("map", {}).get("description"),
+            "descriptionIdentifier": record.get("map", {}).get("descriptionIdentifier"),
         },
         "identification": {
             "title": record.get("title"),

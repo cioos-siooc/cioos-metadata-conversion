@@ -13,6 +13,7 @@ from cioos_metadata_conversion import (
     firebase_to_cioos,
     xml,
 )
+from cioos_metadata_conversion.load_from import datacite as load_from_datacite
 
 SOURCE_FILE_EXTENSIONS = (".json", ".yaml", ".yml")
 
@@ -38,6 +39,7 @@ class InputSchemas(Enum):
 
     CIOOS = "CIOOS"
     firebase = "firebase"
+    doi = "doi"
 
 
 class Record:
@@ -76,10 +78,17 @@ class Record:
         elif isinstance(self.source, str) and (
             self.source.startswith("http://") or self.source.startswith("https://")
         ):
-            # Load from URL
-            self.load_from_url(self.source)
+            # Check if it's a DOI URL
+            if "doi.org/" in self.source:
+                self.load_from_doi(self.source)
+            else:
+                # Load from URL
+                self.load_from_url(self.source)
         elif self.source.endswith((".json", ".JSON", ".yaml", ".YAML", ".yml", ".YML")):
             self.load_from_file(self.source, encoding=encoding)
+        elif isinstance(self.source, str) and self._is_valid_doi(self.source):
+            # Load from DOI
+            self.load_from_doi(self.source)
         elif isinstance(self.source, str):
             self.load_from_text(self.source)
         else:
@@ -117,6 +126,37 @@ class Record:
         else:
             self.metadata = yaml.safe_load(text)
 
+    def load_from_doi(self, doi):
+        """
+        Load metadata from a DOI using the DataCite API.
+
+        Args:
+            doi: DOI string (e.g., "10.26071/mxtr-gp72" or "https://doi.org/10.26071/mxtr-gp72")
+        """
+        try:
+            self.metadata = load_from_datacite.retrieve_doi_as_firebase_record(doi)
+            self.schema = InputSchemas.firebase
+            logger.info(f"Successfully loaded metadata from DOI: {doi}")
+        except load_from_datacite.DOIRetrievalError as e:
+            logger.error(f"Failed to load metadata from DOI: {e}")
+            raise
+
+    def _is_valid_doi(self, source):
+        """
+        Check if the source string is a valid DOI format.
+
+        DOI formats: "10.xxxx/yyyy" or "doi:10.xxxx/yyyy"
+        """
+        if not isinstance(source, str):
+            return False
+
+        # Check for common DOI patterns
+        return (
+            source.startswith("10.") or
+            source.startswith("doi:10.") or
+            source.startswith("DOI:10.")
+        )
+
     def convert_to_cioos_schema(self):
         """
         Convert the metadata to the specified schema.
@@ -125,6 +165,10 @@ class Record:
             # Already in CIOOS schema, no conversion needed
             pass
         elif self.schema == InputSchemas.firebase:
+            self.metadata = firebase_to_cioos.record_json_to_yaml(self.metadata)
+            self.schema = InputSchemas.CIOOS
+        elif self.schema == InputSchemas.doi:
+            # DOI metadata is loaded as Firebase, then convert to CIOOS
             self.metadata = firebase_to_cioos.record_json_to_yaml(self.metadata)
             self.schema = InputSchemas.CIOOS
         else:
