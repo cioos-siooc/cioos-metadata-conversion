@@ -7,7 +7,7 @@
     <tableName>"TestDataset1"</tableName>
     <addAttributes>
       <att name="cde_ingest">false</att>
-      <att name="infoUrl">https://www.hakai.org</att>
+      <att name="infoUrl">https://cioos.ca</att>
       <att name="standard_name_vocabulary">CF Standard Name Table v79</att>
       <att name="subsetVariables">station</att>
       <att name="cdm_data_type">TimeSeries</att>
