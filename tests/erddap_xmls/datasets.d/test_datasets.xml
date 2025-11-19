@@ -1,30 +1,30 @@
-<!-- Some more comments at the beginning of the file -->
+
 <dataset type="EDDTableFromDatabase" datasetID="TestDataset1">
-  <!-- Some comments at the beginning --> 
   <sourceUrl>hakai_erddap_sourceUrl</sourceUrl>
   <driverName>org.postgresql.Driver</driverName>
   <schemaName>erddap</schemaName>
-  <tableName>"HakaiBamfieldBoL5min"</tableName>
+  <tableName>"TestDataset1"</tableName>
   <addAttributes>
     <att name="cde_ingest">false</att>
+    <att name="infoUrl">https://cioos.ca</att>
     <att name="standard_name_vocabulary">CF Standard Name Table v79</att>
     <att name="subsetVariables">station</att>
     <att name="cdm_data_type">TimeSeries</att>
     <att name="cdm_timeseries_variables">station</att>
     <att name="platform">coastal structure</att>
     <att name="platform_vocabulary">http://vocab.nerc.ac.uk/collection/L06/current/</att>
-    <att name="citation">Evans, W., Pocock, K., &amp; Weekes, C. (2023). Real-Time Provisional High-Resolution Record of Seawater Carbon Dioxide (CO2) Content Collected from the Nova Harvest Ltd Hatchery in Bamfield BC Canada (Version v).</att>
+    <att name="project">Oceanography</att>
     <att name="license">https://creativecommons.org/licenses/by/4.0</att>
     <att name="instrument">Dakunalytics, LLC - Burke-o-Lator pCO2/TCO2 analyzer - ,Seabird Electronics - SBE 45 - </att>
     <att name="id">fb5c9e1e-a911-46b7-8c1d-e34215a105ed</att>
     <att name="naming_authority">ca.cioos</att>
-    <att name="keywords">Continuous measurement,Discrete measurement,Surface measurement,Ocean Acidification,Practical Salinity,Sea Surface Temperature,Sea Surface Practical Salinity,CO2,Barkley Sound,Trevor Channel</att>
+    <att name="keywords">some,key,words</att>
     <att name="platform">land/onshore structure</att>
     <att name="platform_vocabulary">http://vocab.nerc.ac.uk/collection/L06/current/</att>
     <att name="summary">summary</att>
     <att name="title">title</att>
-    <!-- Some commented text that should remain -->v
   </addAttributes>
+  <!-- Some commented text that should remain.  --> 
   <dataVariable>
     <sourceName>measurementTime</sourceName>
     <destinationName>time</destinationName>
