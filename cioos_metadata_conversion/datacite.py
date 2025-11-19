@@ -29,6 +29,7 @@ CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "mediator": "Other",
     "ressourceProvider": "Other",
     "stakeholder": "Other",
+    "custodian": "DataCurator"
 }
 
 
