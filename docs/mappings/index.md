@@ -17,6 +17,12 @@ graph LR
 
 ## Available Mapping Documents
 
+### [Field Mapping Summary](field-mapping-summary.md)
+
+**NEW!** Comprehensive table showing all CIOOS Form fields and how they map to each output format in a single view.
+
+This is the best starting point if you want to see at a glance which fields are supported by which standards, including contact role mappings, language code conversions, and data transformation details.
+
 ### [CIOOS Form to CIOOS](cioos-form-to-cioos.md)
 
 Documents the transformation from the CIOOS metadata entry form (Firebase export) to the canonical CIOOS intermediate format.
@@ -228,7 +234,8 @@ Common data processing across mappings:
 
 Choose a mapping document to explore:
 
-- [CIOOS Form to CIOOS](cioos-form-to-cioos.md) - Start here to understand the baseline transformation
+- **[Field Mapping Summary](field-mapping-summary.md)** - Complete cross-format comparison table (recommended starting point)
+- [CIOOS Form to CIOOS](cioos-form-to-cioos.md) - Baseline transformation details
 - [CIOOS to ISO 19115-3](cioos-to-iso19115-3.md) - Most comprehensive standard
 - [CIOOS to DataCite](cioos-to-datacite.md) - For DOI and citation
 - [CIOOS to ERDDAP/ACDD](cioos-to-erddap-acdd.md) - For data servers

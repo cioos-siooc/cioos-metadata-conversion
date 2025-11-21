@@ -61,6 +61,7 @@ nav:
     - CIOOS Form Schema: cioos-form-schema.md
   - Mappings:
     - Overview: mappings/index.md
+    - Field Mapping Summary: mappings/field-mapping-summary.md
     - CIOOS Form to CIOOS Intermediate: mappings/cioos-form-to-cioos.md
     - CIOOS Form to ISO 19115-3: mappings/cioos-form-to-iso19115-3.md
     - CIOOS Form to DataCite: mappings/cioos-form-to-datacite.md
