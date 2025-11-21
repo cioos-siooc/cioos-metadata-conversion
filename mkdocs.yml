@@ -1,0 +1,82 @@
+site_name: CIOOS Metadata Conversion
+site_description: Convert CIOOS metadata records to various international metadata standards
+site_author: CIOOS SIOOC
+repo_url: https://github.com/cioos-siooc/cioos-metadata-conversion
+repo_name: cioos-siooc/cioos-metadata-conversion
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - autorefs
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quick Start: quickstart.md
+    - CLI Reference: cli.md
+  - User Guide:
+    - Usage: usage.md
+    - Input Schemas: input-schemas.md
+    - Output Formats: output-formats.md
+    - CIOOS Form Schema: cioos-form-schema.md
+  - Mappings:
+    - Overview: mappings/index.md
+    - CIOOS Form to CIOOS: mappings/cioos-form-to-cioos.md
+    - CIOOS to ISO 19115-3: mappings/cioos-to-iso19115-3.md
+    - CIOOS to DataCite: mappings/cioos-to-datacite.md
+    - CIOOS to ERDDAP/ACDD: mappings/cioos-to-erddap-acdd.md
+  - Development:
+    - Contributing: contributing.md
+    - Architecture: architecture.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/cioos-siooc/cioos-metadata-conversion
