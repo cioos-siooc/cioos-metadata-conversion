@@ -1,0 +1,3116 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Convert CIOOS metadata records to various international metadata standards">
+      
+      
+        <meta name="author" content="CIOOS SIOOC">
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../cioos-form-to-cioos/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/ICON_White.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Field Mapping Summary - CIOOS Metadata Conversion</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#field-mapping-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CIOOS Metadata Conversion" class="md-header__button md-logo" aria-label="CIOOS Metadata Conversion" data-md-component="logo">
+      
+  <img src="../../assets/ICON_White.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CIOOS Metadata Conversion
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Field Mapping Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cioos-siooc/cioos-metadata-conversion
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../usage/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Mappings
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CIOOS Metadata Conversion" class="md-nav__button md-logo" aria-label="CIOOS Metadata Conversion" data-md-component="logo">
+      
+  <img src="../../assets/ICON_White.svg" alt="logo">
+
+    </a>
+    CIOOS Metadata Conversion
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cioos-siooc/cioos-metadata-conversion
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../input-schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Output Formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cioos-form-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mappings
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Mappings
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Mapping Summary
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Mapping Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-field-mapping-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Field Mapping Table
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Field Mapping Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identification-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identification &amp; Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#title-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Title &amp; Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contacts-contributors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts &amp; Contributors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geographic-extent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geographic Extent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vertical-extent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vertical Extent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keywords-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keywords &amp; Vocabularies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projects-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Projects &amp; Progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#license-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License &amp; Constraints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution &amp; Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#associated-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Associated Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platforms-instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platforms &amp; Instruments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lineage-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lineage &amp; History
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-internal-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow &amp; Internal Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-processing-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Processing &amp; Transformations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Processing &amp; Transformations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automatic-enrichment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Enrichment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-cleaning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Cleaning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coordinate-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coordinate Transformations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-code-conversions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language Code Conversions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multilingual-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multilingual Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-specific-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Format-Specific Coverage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Format-Specific Coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields-not-mapped-to-datacite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields NOT Mapped to DataCite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields-not-mapped-to-erddapacdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields NOT Mapped to ERDDAP/ACDD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields-not-mapped-to-iso-19115-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields NOT Mapped to ISO 19115-3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-cioos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to CIOOS Intermediate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-iso19115-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ISO 19115-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-datacite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to DataCite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-erddap-acdd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ERDDAP/ACDD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-field-mapping-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Field Mapping Table
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Field Mapping Table">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identification-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identification &amp; Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#title-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Title &amp; Description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contacts-contributors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contacts &amp; Contributors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geographic-extent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geographic Extent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vertical-extent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vertical Extent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keywords-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keywords &amp; Vocabularies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projects-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Projects &amp; Progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#license-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License &amp; Constraints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution &amp; Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#associated-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Associated Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platforms-instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platforms &amp; Instruments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lineage-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lineage &amp; History
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-internal-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow &amp; Internal Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-processing-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Processing &amp; Transformations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Processing &amp; Transformations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automatic-enrichment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Automatic Enrichment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-cleaning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Cleaning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coordinate-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coordinate Transformations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-code-conversions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language Code Conversions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multilingual-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multilingual Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-specific-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Format-Specific Coverage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Format-Specific Coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fields-not-mapped-to-datacite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields NOT Mapped to DataCite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields-not-mapped-to-erddapacdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields NOT Mapped to ERDDAP/ACDD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields-not-mapped-to-iso-19115-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields NOT Mapped to ISO 19115-3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Mappings
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="field-mapping-summary">Field Mapping Summary<a class="headerlink" href="#field-mapping-summary" title="Permanent link">&para;</a></h1>
+<p>This page provides a comprehensive overview of how CIOOS Form fields map across all output formats.</p>
+<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<p>The CIOOS metadata conversion follows a <strong>two-stage pipeline</strong>:</p>
+<pre class="mermaid"><code>graph LR
+    A[CIOOS Form] --&gt; B[CIOOS Intermediate]
+    B --&gt; C[ISO 19115-3]
+    B --&gt; D[DataCite]
+    B --&gt; E[ERDDAP/ACDD]</code></pre>
+<ol>
+<li><strong>Stage 1</strong>: CIOOS Form (Firebase) → CIOOS Intermediate Format</li>
+<li><strong>Stage 2</strong>: CIOOS Intermediate Format → Output Formats</li>
+</ol>
+<p>This architecture ensures consistency and makes it easy to add new output formats.</p>
+<h2 id="complete-field-mapping-table">Complete Field Mapping Table<a class="headerlink" href="#complete-field-mapping-table" title="Permanent link">&para;</a></h2>
+<h3 id="identification-metadata">Identification &amp; Metadata<a class="headerlink" href="#identification-metadata" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>identifier</code> (UUID)</td>
+<td><code>metadata.identifier</code></td>
+<td><code>mdb:metadataIdentifier/mcc:code</code></td>
+<td>-</td>
+<td><code>id</code></td>
+</tr>
+<tr>
+<td><code>datasetIdentifier</code> (DOI)</td>
+<td><code>identification.identifier</code></td>
+<td><code>mri:citation/cit:identifier</code></td>
+<td><code>identifier</code></td>
+<td><code>doi</code></td>
+</tr>
+<tr>
+<td>(auto)</td>
+<td><code>metadata.naming_authority</code></td>
+<td><code>mdb:metadataIdentifier/mcc:authority</code></td>
+<td>-</td>
+<td><code>naming_authority</code></td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td><code>metadata.language</code></td>
+<td><code>mdb:defaultLocale</code></td>
+<td><code>language</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>metadataScope</code></td>
+<td><code>metadata.scope</code></td>
+<td><code>mdb:metadataScope</code></td>
+<td><code>resourceTypeGeneral</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>created</code></td>
+<td><code>metadata.dates.revision</code></td>
+<td><code>mdb:dateInfo</code> (revision)</td>
+<td><code>dates[].Updated</code></td>
+<td><code>date_modified</code></td>
+</tr>
+<tr>
+<td><code>timeFirstPublished</code></td>
+<td><code>metadata.dates.publication</code></td>
+<td><code>mdb:dateInfo</code> (publication)</td>
+<td><code>publicationYear</code></td>
+<td><code>date_created</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="title-description">Title &amp; Description<a class="headerlink" href="#title-description" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title.en</code></td>
+<td><code>identification.title.en</code></td>
+<td><code>mri:citation/cit:title</code> (PT_FreeText)</td>
+<td><code>titles[].title</code> (lang="en")</td>
+<td><code>title_en</code> / <code>title</code></td>
+</tr>
+<tr>
+<td><code>title.fr</code></td>
+<td><code>identification.title.fr</code></td>
+<td><code>mri:citation/cit:title</code> (PT_FreeText)</td>
+<td><code>titles[].title</code> (lang="fr")</td>
+<td><code>title_fr</code></td>
+</tr>
+<tr>
+<td><code>abstract.en</code></td>
+<td><code>identification.abstract.en</code></td>
+<td><code>mri:abstract</code> (PT_FreeText)</td>
+<td><code>descriptions[].Abstract</code> (lang="en")</td>
+<td><code>summary_en</code> / <code>summary</code></td>
+</tr>
+<tr>
+<td><code>abstract.fr</code></td>
+<td><code>identification.abstract.fr</code></td>
+<td><code>mri:abstract</code> (PT_FreeText)</td>
+<td><code>descriptions[].Abstract</code> (lang="fr")</td>
+<td><code>summary_fr</code></td>
+</tr>
+<tr>
+<td><code>edition</code></td>
+<td><code>identification.edition</code></td>
+<td><code>cit:edition</code></td>
+<td><code>version</code></td>
+<td><code>product_version</code></td>
+</tr>
+<tr>
+<td><code>comment</code></td>
+<td><code>metadata.comment</code></td>
+<td><code>mri:supplementalInformation</code></td>
+<td>-</td>
+<td><code>comment</code></td>
+</tr>
+<tr>
+<td><code>limitations</code></td>
+<td><code>metadata.use_constraints.limitations</code></td>
+<td><code>mco:useLimitation</code></td>
+<td><code>descriptions[].Other</code></td>
+<td><code>comment</code> (prefixed)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="contacts-contributors">Contacts &amp; Contributors<a class="headerlink" href="#contacts-contributors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>contacts[].lastName</code></td>
+<td><code>contact[].individual.name</code></td>
+<td><code>cit:CI_Individual/cit:name</code></td>
+<td><code>creatorName</code> (Personal)</td>
+<td><code>creator_name</code></td>
+</tr>
+<tr>
+<td><code>contacts[].givenNames</code></td>
+<td><code>contact[].individual.name</code></td>
+<td>(combined with lastName)</td>
+<td>(combined with lastName)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>contacts[].indPosition</code></td>
+<td><code>contact[].individual.position</code></td>
+<td><code>cit:positionName</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>contacts[].indEmail</code></td>
+<td><code>contact[].individual.email</code></td>
+<td><code>cit:electronicMailAddress</code></td>
+<td>-</td>
+<td><code>creator_email</code></td>
+</tr>
+<tr>
+<td><code>contacts[].indOrcid</code></td>
+<td><code>contact[].individual.orcid</code></td>
+<td><code>cit:onlineResource</code></td>
+<td><code>nameIdentifier</code> (ORCID)</td>
+<td><code>creator_orcid</code></td>
+</tr>
+<tr>
+<td><code>contacts[].orgName</code></td>
+<td><code>contact[].organization.name</code></td>
+<td><code>cit:CI_Organisation/cit:name</code></td>
+<td><code>creatorName</code> / <code>affiliation</code></td>
+<td><code>creator_institution</code></td>
+</tr>
+<tr>
+<td><code>contacts[].orgEmail</code></td>
+<td><code>contact[].organization.email</code></td>
+<td><code>cit:electronicMailAddress</code></td>
+<td>-</td>
+<td><code>publisher_email</code></td>
+</tr>
+<tr>
+<td><code>contacts[].orgURL</code></td>
+<td><code>contact[].organization.url</code></td>
+<td><code>cit:onlineResource</code></td>
+<td>-</td>
+<td><code>creator_url</code></td>
+</tr>
+<tr>
+<td><code>contacts[].orgRor</code></td>
+<td><code>contact[].organization.ror</code></td>
+<td><code>cit:onlineResource</code></td>
+<td><code>affiliationIdentifier</code> (ROR)</td>
+<td><code>creator_ror</code></td>
+</tr>
+<tr>
+<td><code>contacts[].orgAddress</code></td>
+<td><code>contact[].organization.address</code></td>
+<td><code>cit:address/deliveryPoint</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>contacts[].orgCity</code></td>
+<td><code>contact[].organization.city</code></td>
+<td><code>cit:address/city</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>contacts[].orgCountry</code></td>
+<td><code>contact[].organization.country</code></td>
+<td><code>cit:address/country</code></td>
+<td>-</td>
+<td><code>publisher_country</code></td>
+</tr>
+<tr>
+<td><code>contacts[].role</code></td>
+<td><code>contact[].roles[]</code></td>
+<td><code>cit:role/CI_RoleCode</code></td>
+<td>Mapped to contributor types</td>
+<td>Mapped to attribute prefixes</td>
+</tr>
+<tr>
+<td><code>contacts[].inCitation</code></td>
+<td><code>contact[].inCitation</code></td>
+<td><code>cit:citedResponsibleParty</code></td>
+<td>Determines <code>creators</code> vs <code>contributors</code></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Contact Role Mappings</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Role</th>
+<th>ISO 19115-3 Code</th>
+<th>DataCite Type</th>
+<th>ACDD Prefix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>owner</code></td>
+<td><code>owner</code></td>
+<td><code>RightsHolder</code></td>
+<td><code>publisher_*</code></td>
+</tr>
+<tr>
+<td><code>distributor</code></td>
+<td><code>distributor</code></td>
+<td><code>Distributor</code></td>
+<td><code>publisher_*</code></td>
+</tr>
+<tr>
+<td><code>pointOfContact</code></td>
+<td><code>pointOfContact</code></td>
+<td><code>ContactPerson</code></td>
+<td><code>contributor_*</code></td>
+</tr>
+<tr>
+<td><code>principalInvestigator</code></td>
+<td><code>principalInvestigator</code></td>
+<td><code>ProjectLeader</code></td>
+<td><code>creator_*</code></td>
+</tr>
+<tr>
+<td><code>author</code></td>
+<td><code>author</code></td>
+<td><code>Researcher</code></td>
+<td><code>creator_*</code></td>
+</tr>
+<tr>
+<td><code>coAuthor</code></td>
+<td><code>coAuthor</code></td>
+<td><code>Researcher</code></td>
+<td><code>creator_*</code></td>
+</tr>
+<tr>
+<td><code>processor</code></td>
+<td><code>processor</code></td>
+<td><code>DataCurator</code></td>
+<td><code>contributor_*</code></td>
+</tr>
+<tr>
+<td><code>custodian</code></td>
+<td><code>custodian</code></td>
+<td><code>DataCurator</code></td>
+<td><code>contributor_*</code></td>
+</tr>
+<tr>
+<td><code>funder</code></td>
+<td><code>funder</code></td>
+<td><code>Funder</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sponsor</code></td>
+<td><code>sponsor</code></td>
+<td><code>Sponsor</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>publisher</code></td>
+<td><code>publisher</code></td>
+<td><code>Publisher</code></td>
+<td><code>publisher_*</code></td>
+</tr>
+<tr>
+<td><code>collaborator</code></td>
+<td><code>collaborator</code></td>
+<td><code>Other</code></td>
+<td><code>contributor_*</code></td>
+</tr>
+<tr>
+<td><code>contributor</code></td>
+<td><code>contributor</code></td>
+<td><code>Other</code></td>
+<td><code>contributor_*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="temporal-coverage">Temporal Coverage<a class="headerlink" href="#temporal-coverage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dateStart</code></td>
+<td><code>identification.temporal_begin</code></td>
+<td><code>gex:EX_TemporalExtent/begin</code></td>
+<td><code>dates[].Collected</code> (range start)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>dateEnd</code></td>
+<td><code>identification.temporal_end</code></td>
+<td><code>gex:EX_TemporalExtent/end</code></td>
+<td><code>dates[].Collected</code> (range end)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>datePublished</code></td>
+<td><code>identification.dates.publication</code></td>
+<td><code>cit:date</code> (publication)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>dateRevised</code></td>
+<td><code>identification.dates.revision</code></td>
+<td><code>cit:date</code> (revision)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="geographic-extent">Geographic Extent<a class="headerlink" href="#geographic-extent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>map.west</code></td>
+<td><code>spatial.bbox[0]</code></td>
+<td><code>gex:westBoundLongitude</code></td>
+<td><code>geoLocationBox.westBoundLongitude</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.south</code></td>
+<td><code>spatial.bbox[1]</code></td>
+<td><code>gex:southBoundLatitude</code></td>
+<td><code>geoLocationBox.southBoundLatitude</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.east</code></td>
+<td><code>spatial.bbox[2]</code></td>
+<td><code>gex:eastBoundLongitude</code></td>
+<td><code>geoLocationBox.eastBoundLongitude</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.north</code></td>
+<td><code>spatial.bbox[3]</code></td>
+<td><code>gex:northBoundLatitude</code></td>
+<td><code>geoLocationBox.northBoundLatitude</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.polygon</code></td>
+<td><code>spatial.polygon</code></td>
+<td><code>gex:EX_BoundingPolygon</code></td>
+<td><code>geoLocationPolygon</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.description.en</code></td>
+<td><code>spatial.description.en</code></td>
+<td><code>gex:EX_GeographicDescription</code></td>
+<td><code>geoLocationPlace</code> (en)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.description.fr</code></td>
+<td><code>spatial.description.fr</code></td>
+<td><code>gex:EX_GeographicDescription</code></td>
+<td><code>geoLocationPlace</code> (fr)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>map.descriptionIdentifier</code></td>
+<td>-</td>
+<td><code>mcc:code</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Coordinate Transformation</strong>: Polygon coordinates transformed from "lat,long" (CIOOS Form) to "long,lat" (standards).</p>
+<h3 id="vertical-extent">Vertical Extent<a class="headerlink" href="#vertical-extent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verticalExtentMin</code></td>
+<td><code>spatial.vertical[0]</code></td>
+<td><code>gex:minimumValue</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>verticalExtentMax</code></td>
+<td><code>spatial.vertical[1]</code></td>
+<td><code>gex:maximumValue</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>verticalExtentDirection</code></td>
+<td><code>spatial.vertical_positive</code></td>
+<td>(in reference system)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>verticalExtentEPSG</code></td>
+<td><code>spatial.vertical_epsg</code></td>
+<td><code>mrs:referenceSystemIdentifier</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>noVerticalExtent</code></td>
+<td>(omit if true)</td>
+<td>(not generated)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="keywords-vocabularies">Keywords &amp; Vocabularies<a class="headerlink" href="#keywords-vocabularies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>keywords.en[]</code></td>
+<td><code>identification.keywords.default.en[]</code></td>
+<td><code>mri:MD_Keywords</code> (default)</td>
+<td><code>subjects[]</code> (en)</td>
+<td><code>keywords</code></td>
+</tr>
+<tr>
+<td><code>keywords.fr[]</code></td>
+<td><code>identification.keywords.default.fr[]</code></td>
+<td><code>mri:MD_Keywords</code> (default)</td>
+<td><code>subjects[]</code> (fr)</td>
+<td><code>keywords</code></td>
+</tr>
+<tr>
+<td><code>eov[]</code></td>
+<td><code>identification.keywords.eov.en[]</code></td>
+<td><code>mri:MD_Keywords</code> (eov thesaurus)</td>
+<td><code>subjects[]</code> (GOOS EOV)</td>
+<td><code>keywords</code> (CIOOS: prefix)</td>
+</tr>
+<tr>
+<td>(auto-translated)</td>
+<td><code>identification.keywords.eov.fr[]</code></td>
+<td><code>mri:MD_Keywords</code> (eov thesaurus)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>taxa[].scientificName</code></td>
+<td><code>identification.keywords.taxa[]</code></td>
+<td><code>mri:MD_Keywords</code> (taxa thesaurus)</td>
+<td>-</td>
+<td><code>keywords</code> (GBIF: prefix)</td>
+</tr>
+<tr>
+<td><code>taxa[].kingdom</code> → <code>species</code></td>
+<td>(flattened hierarchy)</td>
+<td>(as keywords)</td>
+<td>-</td>
+<td>(as keywords)</td>
+</tr>
+<tr>
+<td><code>noTaxa</code></td>
+<td>(omit if true)</td>
+<td>(not generated)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EOV Processing</strong>:
+- English codes translated to French labels using <code>eov.json</code>
+- ACDD: Converted from camelCase to Title Case with "CIOOS:" prefix</p>
+<p><strong>Taxa Processing</strong>:
+- GBIF taxonomy hierarchy flattened to keyword list
+- All taxonomic ranks included (kingdom, phylum, class, order, family, genus, species)</p>
+<h3 id="projects-progress">Projects &amp; Progress<a class="headerlink" href="#projects-progress" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>projects[]</code></td>
+<td><code>identification.project[]</code></td>
+<td><code>mri:MD_Keywords</code> (project type)</td>
+<td>-</td>
+<td><code>project</code></td>
+</tr>
+<tr>
+<td><code>progress</code></td>
+<td><code>identification.progress_code</code></td>
+<td><code>mri:status/MD_ProgressCode</code></td>
+<td>-</td>
+<td><code>progress</code></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="license-constraints">License &amp; Constraints<a class="headerlink" href="#license-constraints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>license</code> (code)</td>
+<td><code>metadata.use_constraints.licence</code></td>
+<td><code>mco:MD_LegalConstraints/mco:reference</code></td>
+<td><code>rights[]</code> (SPDX scheme)</td>
+<td><code>license</code> (URL only)</td>
+</tr>
+<tr>
+<td>(resolved title)</td>
+<td><code>metadata.use_constraints.licence.title</code></td>
+<td><code>cit:title</code></td>
+<td><code>rights</code> (text)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>(resolved URL)</td>
+<td><code>metadata.use_constraints.licence.url</code></td>
+<td><code>cit:linkage</code></td>
+<td><code>rightsURI</code></td>
+<td><code>license</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>License Resolution</strong>: License codes (e.g., "CC-BY-4.0") resolved to full details via <code>licenses.json</code>.</p>
+<h3 id="distribution-access">Distribution &amp; Access<a class="headerlink" href="#distribution-access" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>distribution[].url</code></td>
+<td><code>distribution[].url</code></td>
+<td><code>mrd:MD_DigitalTransferOptions/cit:linkage</code></td>
+<td>-</td>
+<td>(used for dataset matching)</td>
+</tr>
+<tr>
+<td><code>distribution[].name.en</code></td>
+<td><code>distribution[].name.en</code></td>
+<td><code>cit:name</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>distribution[].name.fr</code></td>
+<td><code>distribution[].name.fr</code></td>
+<td><code>cit:name</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>distribution[].description.en</code></td>
+<td><code>distribution[].description.en</code></td>
+<td><code>cit:description</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>distribution[].description.fr</code></td>
+<td><code>distribution[].description.fr</code></td>
+<td><code>cit:description</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Special Detection</strong>: Distribution names containing "ERDDAP" automatically flagged as ERDDAP distributions.</p>
+<h3 id="associated-resources">Associated Resources<a class="headerlink" href="#associated-resources" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>associated_resources[].code</code></td>
+<td><code>identification.associated_resources[].code</code></td>
+<td><code>mri:MD_AssociatedResource/mri:name</code></td>
+<td><code>relatedIdentifiers[].relatedIdentifier</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>associated_resources[].title.en</code></td>
+<td><code>identification.associated_resources[].title.en</code></td>
+<td><code>cit:title</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>associated_resources[].title.fr</code></td>
+<td><code>identification.associated_resources[].title.fr</code></td>
+<td><code>cit:title</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>associated_resources[].association_type</code></td>
+<td><code>identification.associated_resources[].association_type</code></td>
+<td><code>mri:associationType</code></td>
+<td><code>relationType</code></td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>associated_resources[].association_type_iso</code></td>
+<td><code>identification.associated_resources[].association_type_iso</code></td>
+<td><code>mri:associationType</code> (ISO code)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>associated_resources[].authority</code></td>
+<td><code>identification.associated_resources[].authority</code></td>
+<td><code>mcc:authority</code></td>
+<td><code>relatedIdentifierType</code></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Association Type Mappings</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>DataCite Type</th>
+<th>ISO Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IsReferencedBy</code></td>
+<td><code>crossReference</code></td>
+</tr>
+<tr>
+<td><code>IsCitedBy</code></td>
+<td><code>crossReference</code></td>
+</tr>
+<tr>
+<td><code>IsSupplementTo</code></td>
+<td><code>largerWorkCitation</code></td>
+</tr>
+<tr>
+<td><code>IsPartOf</code></td>
+<td><code>partOfSeamlessDatabase</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="platforms-instruments">Platforms &amp; Instruments<a class="headerlink" href="#platforms-instruments" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>platforms[].id</code></td>
+<td><code>platform[].id</code></td>
+<td><code>mac:MI_Platform/mcc:code</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>platforms[].name.en</code></td>
+<td><code>platform[].name.en</code></td>
+<td><code>cit:title</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>platforms[].name.fr</code></td>
+<td><code>platform[].name.fr</code></td>
+<td><code>cit:title</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>platforms[].type</code></td>
+<td><code>platform[].type</code></td>
+<td><code>mac:description</code></td>
+<td>-</td>
+<td><code>platform</code></td>
+</tr>
+<tr>
+<td><code>platforms[].description.en</code></td>
+<td><code>platform[].description.en</code></td>
+<td><code>mac:description</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>platforms[].description.fr</code></td>
+<td><code>platform[].description.fr</code></td>
+<td><code>mac:description</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>instruments[].id</code></td>
+<td><code>platform[].instruments[].id</code></td>
+<td><code>mac:MI_Instrument/mcc:code</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>instruments[].type.en</code></td>
+<td><code>platform[].instruments[].type.en</code></td>
+<td><code>cit:title</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>instruments[].type.fr</code></td>
+<td><code>platform[].instruments[].type.fr</code></td>
+<td><code>cit:title</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>instruments[].description.en</code></td>
+<td><code>platform[].instruments[].description.en</code></td>
+<td><code>mac:description</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>instruments[].description.fr</code></td>
+<td><code>platform[].instruments[].description.fr</code></td>
+<td><code>mac:description</code> (PT_FreeText)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>noPlatform</code></td>
+<td>(affects structure)</td>
+<td>(not generated if true)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Platform/Instrument Logic</strong>:
+- If <code>noPlatform</code> = true: instruments at root level in intermediate format
+- If 1 platform: instruments nested under that platform
+- If multiple platforms: instruments matched to platforms by <code>platform</code> field</p>
+<h3 id="lineage-history">Lineage &amp; History<a class="headerlink" href="#lineage-history" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>history[].scope</code></td>
+<td><code>metadata.history[].scope</code></td>
+<td><code>mrl:LI_Lineage/mrl:scope</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>history[].statement.en</code></td>
+<td><code>metadata.history[].statement.en</code></td>
+<td><code>mrl:statement</code> (PT_FreeText)</td>
+<td>-</td>
+<td><code>history</code> (formatted)</td>
+</tr>
+<tr>
+<td><code>history[].statement.fr</code></td>
+<td><code>metadata.history[].statement.fr</code></td>
+<td><code>mrl:statement</code> (PT_FreeText)</td>
+<td>-</td>
+<td><code>history</code> (formatted)</td>
+</tr>
+<tr>
+<td><code>history[].additionalDocumentation[]</code></td>
+<td><code>metadata.history[].additionalDocumentation[]</code></td>
+<td><code>mrl:additionalDocumentation</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>history[].source[]</code></td>
+<td><code>metadata.history[].source[]</code></td>
+<td><code>mrl:source/LI_Source</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>history[].processingStep[]</code></td>
+<td><code>metadata.history[].processingStep[]</code></td>
+<td><code>mrl:processStep/LI_ProcessStep</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ACDD History Format</strong>: History formatted as YAML with statement, scope, and documentation.</p>
+<h3 id="workflow-internal-fields">Workflow &amp; Internal Fields<a class="headerlink" href="#workflow-internal-fields" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CIOOS Form Field</th>
+<th>CIOOS Intermediate</th>
+<th>ISO 19115-3</th>
+<th>DataCite</th>
+<th>ERDDAP/ACDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>recordID</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>userID</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>region</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>doiCreationStatus</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>filename</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>lastEditedBy</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>resourceType</code></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: These workflow fields are used by the CIOOS Form application but are not converted to any output format.</p>
+<h2 id="data-processing-transformations">Data Processing &amp; Transformations<a class="headerlink" href="#data-processing-transformations" title="Permanent link">&para;</a></h2>
+<h3 id="automatic-enrichment">Automatic Enrichment<a class="headerlink" href="#automatic-enrichment" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Process</th>
+<th>Description</th>
+<th>Source File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>EOV Translation</strong></td>
+<td>English EOV codes translated to French labels</td>
+<td><code>resources/eov.json</code></td>
+</tr>
+<tr>
+<td><strong>License Resolution</strong></td>
+<td>License codes resolved to full title, URL, code</td>
+<td><code>resources/licenses.json</code></td>
+</tr>
+<tr>
+<td><strong>EPSG Resolution</strong></td>
+<td>Vertical extent EPSG codes resolved to CRS details</td>
+<td><code>resources/epsg.json</code></td>
+</tr>
+<tr>
+<td><strong>Distributor Assignment</strong></td>
+<td>If no distributor, adds distributor role to owners</td>
+<td><code>firebase_to_cioos.py</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-cleaning">Data Cleaning<a class="headerlink" href="#data-cleaning" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>scrub_dict()</strong></td>
+<td>Recursively removes empty strings, None, empty lists/dicts</td>
+</tr>
+<tr>
+<td><strong>strip_keywords()</strong></td>
+<td>Removes leading/trailing whitespace from keywords</td>
+</tr>
+<tr>
+<td><strong>date_from_datetime_str()</strong></td>
+<td>Extracts date (YYYY-MM-DD) from ISO datetime strings</td>
+</tr>
+</tbody>
+</table>
+<h3 id="coordinate-transformations">Coordinate Transformations<a class="headerlink" href="#coordinate-transformations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Transformation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>fix_lat_long_polygon()</strong></td>
+<td>Converts polygon from "lat,long" to "long,lat" format</td>
+</tr>
+<tr>
+<td><strong>Bounding Box Format</strong></td>
+<td>Array as [west, south, east, north]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="language-code-conversions">Language Code Conversions<a class="headerlink" href="#language-code-conversions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Language Codes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CIOOS Form</strong></td>
+<td><code>en</code>, <code>fr</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Intermediate</strong></td>
+<td><code>en</code>, <code>fr</code></td>
+</tr>
+<tr>
+<td><strong>ISO 19115-3</strong></td>
+<td><code>eng</code>, <code>fra</code> (ISO 639-2/T)</td>
+</tr>
+<tr>
+<td><strong>DataCite</strong></td>
+<td><code>en</code>, <code>fr</code> (ISO 639-1)</td>
+</tr>
+<tr>
+<td><strong>ERDDAP/ACDD</strong></td>
+<td><code>en</code>, <code>fr</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="multilingual-implementation">Multilingual Implementation<a class="headerlink" href="#multilingual-implementation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Implementation Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ISO 19115-3</strong></td>
+<td><code>PT_FreeText</code> with <code>LocalisedCharacterString</code> elements, <code>locale="#en"</code></td>
+</tr>
+<tr>
+<td><strong>DataCite</strong></td>
+<td>Separate entries with <code>xml:lang="en"</code> or <code>lang</code> attribute</td>
+</tr>
+<tr>
+<td><strong>ERDDAP/ACDD</strong></td>
+<td>Three methods: suffix (<code>title_en</code>), nested (<code>"(en) Title"</code>), or xml (<code>xml:lang</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="format-specific-coverage">Format-Specific Coverage<a class="headerlink" href="#format-specific-coverage" title="Permanent link">&para;</a></h2>
+<h3 id="fields-not-mapped-to-datacite">Fields NOT Mapped to DataCite<a class="headerlink" href="#fields-not-mapped-to-datacite" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Spatial extent (bounding box, polygon, vertical extent)</li>
+<li>Temporal begin/end as distinct fields</li>
+<li>Platform/instrument information</li>
+<li>Distribution URLs and descriptions</li>
+<li>Project information</li>
+<li>Progress status</li>
+<li>Maintenance notes</li>
+<li>Full history/lineage structure</li>
+<li>Keywords from specific thesauri (EOV, taxa)</li>
+</ul>
+<h3 id="fields-not-mapped-to-erddapacdd">Fields NOT Mapped to ERDDAP/ACDD<a class="headerlink" href="#fields-not-mapped-to-erddapacdd" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Spatial extent details (bounding box, polygon)</li>
+<li>Temporal begin/end dates</li>
+<li>Associated resources</li>
+<li>Detailed distribution information</li>
+<li>Instrument specifications</li>
+<li>Most organizational contact details</li>
+<li>Vertical extent information</li>
+</ul>
+<h3 id="fields-not-mapped-to-iso-19115-3">Fields NOT Mapped to ISO 19115-3<a class="headerlink" href="#fields-not-mapped-to-iso-19115-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Internal workflow fields (recordID, userID, region, etc.)</li>
+<li>DOI creation status</li>
+<li>Filename</li>
+<li>Category</li>
+</ul>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../cioos-form-to-cioos/">CIOOS Form to CIOOS Intermediate</a> - Detailed first-stage mapping</li>
+<li><a href="../cioos-form-to-iso19115-3/">CIOOS Form to ISO 19115-3</a> - ISO 19115-3 mapping details</li>
+<li><a href="../cioos-form-to-datacite/">CIOOS Form to DataCite</a> - DataCite mapping details</li>
+<li><a href="../cioos-form-to-erddap-acdd/">CIOOS Form to ERDDAP/ACDD</a> - ERDDAP/ACDD mapping details</li>
+<li><a href="../../cioos-form-schema/">CIOOS Form Schema</a> - Complete form field reference</li>
+<li><a href="../../architecture/">Architecture</a> - System architecture and design</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../cioos-form-to-cioos/" class="md-footer__link md-footer__link--next" aria-label="Next: CIOOS Form to CIOOS Intermediate">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                CIOOS Form to CIOOS Intermediate
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "toc.follow", "navigation.tabs", "navigation.tabs.sticky", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

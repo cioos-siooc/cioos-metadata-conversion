@@ -1,0 +1,4336 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Convert CIOOS metadata records to various international metadata standards">
+      
+      
+        <meta name="author" content="CIOOS SIOOC">
+      
+      
+      
+        <link rel="prev" href="../cioos-form-to-datacite/">
+      
+      
+        <link rel="next" href="../../contributing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/ICON_White.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>CIOOS Form to ERDDAP/ACDD - CIOOS Metadata Conversion</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cioos-form-to-erddapacdd-mapping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CIOOS Metadata Conversion" class="md-header__button md-logo" aria-label="CIOOS Metadata Conversion" data-md-component="logo">
+      
+  <img src="../../assets/ICON_White.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CIOOS Metadata Conversion
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CIOOS Form to ERDDAP/ACDD
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cioos-siooc/cioos-metadata-conversion
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../usage/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Mappings
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CIOOS Metadata Conversion" class="md-nav__button md-logo" aria-label="CIOOS Metadata Conversion" data-md-component="logo">
+      
+  <img src="../../assets/ICON_White.svg" alt="logo">
+
+    </a>
+    CIOOS Metadata Conversion
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cioos-siooc/cioos-metadata-conversion
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../input-schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Output Formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cioos-form-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mappings
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Mappings
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-mapping-summary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Mapping Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-cioos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to CIOOS Intermediate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-iso19115-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ISO 19115-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-datacite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to DataCite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ERDDAP/ACDD
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ERDDAP/ACDD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-acdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is ACDD?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conversion-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multilingual-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multilingual Support
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multilingual Support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-1-suffix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 1: Suffix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-2-nested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 2: Nested
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-3-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 3: XML
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attribute-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attribute Mappings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attribute Mappings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-identification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Core Identification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Core Identification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming_authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        naming_authority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#title" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        title
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-and-attribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        👥 Contact and Attribution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="👥 Contact and Attribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#institution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        institution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creator-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creator Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publisher-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publisher Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contributor_name-contributor_role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        contributor_name &amp; contributor_role
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📅 Temporal Information
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📅 Temporal Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#date_created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        date_created
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date_modified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        date_modified
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scientific-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔬 Scientific Information
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔬 Scientific Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keywords
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keywords_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keywords_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform-and-instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚢 Platform and Instruments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚢 Platform and Instruments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        platform_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-and-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 Version and History
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 Version and History">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#product_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        product_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legal-and-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚖️ Legal and Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚖️ Legal and Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        license
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references-and-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 References and Links
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔗 References and Links">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#doi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        doi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata_link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata_link
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata_form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata_form
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erddap-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ERDDAP Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ERDDAP Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset Matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xml-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        XML Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate-acdd-attributes-python-dictionary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ACDD Attributes (Python Dictionary)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-with-suffix-multilingual-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate with Suffix Multilingual Method
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-acdd-as-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ACDD as JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-acdd-as-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ACDD as YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-erddap-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ERDDAP XML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-erddap-datasetsxml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update ERDDAP datasets.xml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-convert-to-acdd-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI: Convert to ACDD YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-update-erddap-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI: Update ERDDAP Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fields-not-mapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields Not Mapped
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fields Not Mapped">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geographic-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geographic Information
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#associated-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Associated Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instruments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-assurance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality Assurance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-processing-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Processing Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Processing Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automatic-distributor-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔄 Automatic Distributor Assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-creatorspublishers-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ Multiple Creators/Publishers Warning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keyword-prefix-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏷️ Keyword Prefix Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-value-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧹 Empty Value Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🌍 Language Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Locations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-acdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is ACDD?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conversion-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multilingual-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multilingual Support
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multilingual Support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-1-suffix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 1: Suffix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-2-nested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 2: Nested
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-3-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 3: XML
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attribute-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attribute Mappings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attribute Mappings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-identification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Core Identification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Core Identification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming_authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        naming_authority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#title" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        title
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-and-attribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        👥 Contact and Attribution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="👥 Contact and Attribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#institution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        institution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creator-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creator Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publisher-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publisher Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contributor_name-contributor_role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        contributor_name &amp; contributor_role
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📅 Temporal Information
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📅 Temporal Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#date_created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        date_created
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date_modified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        date_modified
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scientific-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔬 Scientific Information
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔬 Scientific Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keywords
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keywords_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keywords_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform-and-instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚢 Platform and Instruments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚢 Platform and Instruments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform_vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        platform_vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-and-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 Version and History
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 Version and History">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#product_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        product_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legal-and-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚖️ Legal and Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚖️ Legal and Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        license
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        comment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references-and-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 References and Links
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔗 References and Links">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#doi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        doi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata_link" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata_link
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata_form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata_form
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#erddap-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ERDDAP Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ERDDAP Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset Matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xml-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        XML Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate-acdd-attributes-python-dictionary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ACDD Attributes (Python Dictionary)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-with-suffix-multilingual-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate with Suffix Multilingual Method
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-acdd-as-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ACDD as JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-acdd-as-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ACDD as YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-erddap-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate ERDDAP XML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-erddap-datasetsxml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update ERDDAP datasets.xml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-convert-to-acdd-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI: Convert to ACDD YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-update-erddap-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI: Update ERDDAP Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fields-not-mapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields Not Mapped
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fields Not Mapped">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geographic-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geographic Information
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#associated-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Associated Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instruments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-assurance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality Assurance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-processing-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Processing Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Processing Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automatic-distributor-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔄 Automatic Distributor Assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-creatorspublishers-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ Multiple Creators/Publishers Warning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keyword-prefix-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏷️ Keyword Prefix Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empty-value-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧹 Empty Value Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🌍 Language Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Locations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Mappings
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cioos-form-to-erddapacdd-mapping">CIOOS Form to ERDDAP/ACDD Mapping<a class="headerlink" href="#cioos-form-to-erddapacdd-mapping" title="Permanent link">&para;</a></h1>
+<p>This document describes how CIOOS Form metadata fields are converted to ERDDAP global attributes following the ACDD 1.3 (Attribute Convention for Data Discovery) standard.</p>
+<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Purpose</th>
+<th>Use This Section</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Understand the conversion process</td>
+<td><a href="#overview">Overview</a></td>
+</tr>
+<tr>
+<td>Learn about multilingual options</td>
+<td><a href="#multilingual-support">Multilingual Support</a></td>
+</tr>
+<tr>
+<td>Find specific attribute mappings</td>
+<td><a href="#attribute-mappings">Attribute Mappings</a></td>
+</tr>
+<tr>
+<td>See examples</td>
+<td><a href="#usage-examples">Usage Examples</a></td>
+</tr>
+<tr>
+<td>Update ERDDAP servers</td>
+<td><a href="#erddap-integration">ERDDAP Integration</a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-acdd">What is ACDD?<a class="headerlink" href="#what-is-acdd" title="Permanent link">&para;</a></h3>
+<p><strong>ACDD</strong> (Attribute Convention for Data Discovery) is a standard set of global attributes that enhance data discovery and interoperability in Earth science datasets. ERDDAP data servers use these attributes to provide rich, searchable metadata.</p>
+<p><strong>Standard Version</strong>: ACDD 1.3
+<strong>Reference</strong>: http://wiki.esipfed.org/index.php/ACDD_1-3</p>
+<h3 id="conversion-pipeline">Conversion Pipeline<a class="headerlink" href="#conversion-pipeline" title="Permanent link">&para;</a></h3>
+<p>The conversion follows a two-stage process:</p>
+<pre class="mermaid"><code>graph LR
+    A[CIOOS Form&lt;br/&gt;Firebase] --&gt;|firebase_to_cioos.py| B[CIOOS&lt;br/&gt;Intermediate Format]
+    B --&gt;|acdd.py| C[ACDD Attributes&lt;br/&gt;YAML/JSON]
+    B --&gt;|erddap.py| D[ERDDAP XML&lt;br/&gt;datasets.xml]</code></pre>
+<ol>
+<li><strong>Stage 1</strong>: CIOOS Form → CIOOS Intermediate Format</li>
+<li><strong>Stage 2</strong>: CIOOS → ACDD/ERDDAP</li>
+</ol>
+<h3 id="output-formats">Output Formats<a class="headerlink" href="#output-formats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python dict</strong></td>
+<td>Dictionary of attributes</td>
+<td>Programmatic use</td>
+</tr>
+<tr>
+<td><strong>JSON</strong></td>
+<td>JSON string</td>
+<td>API integration</td>
+</tr>
+<tr>
+<td><strong>YAML</strong></td>
+<td>YAML string</td>
+<td>Human-readable config</td>
+</tr>
+<tr>
+<td><strong>XML</strong></td>
+<td>ERDDAP <code>&lt;addAttributes&gt;</code></td>
+<td>ERDDAP datasets.xml</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="multilingual-support">Multilingual Support<a class="headerlink" href="#multilingual-support" title="Permanent link">&para;</a></h2>
+<p>ACDD/ERDDAP conversion supports three methods for bilingual (English/French) metadata:</p>
+<h3 id="method-1-suffix">Method 1: Suffix<a class="headerlink" href="#method-1-suffix" title="Permanent link">&para;</a></h3>
+<p>Separate attributes for each language.</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">title_en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ocean</span><span class="nv"> </span><span class="s">Temperature</span><span class="nv"> </span><span class="s">Monitoring&quot;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">title_fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Surveillance</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">la</span><span class="nv"> </span><span class="s">température</span><span class="nv"> </span><span class="s">océanique&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">summary_en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Temperature</span><span class="nv"> </span><span class="s">measurements...&quot;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nt">summary_fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mesures</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">température...&quot;</span>
+</span></code></pre></div>
+<p><strong>Best for</strong>: NetCDF files, simple ERDDAP configurations</p>
+<h3 id="method-2-nested">Method 2: Nested<a class="headerlink" href="#method-2-nested" title="Permanent link">&para;</a></h3>
+<p>Combined in single attribute with language tags.</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;(en)</span><span class="nv"> </span><span class="s">Ocean</span><span class="nv"> </span><span class="s">Temperature</span><span class="nv"> </span><span class="s">Monitoring;</span><span class="nv"> </span><span class="s">(fr)</span><span class="nv"> </span><span class="s">Surveillance</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">la</span><span class="nv"> </span><span class="s">température</span><span class="nv"> </span><span class="s">océanique&quot;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;(en)</span><span class="nv"> </span><span class="s">Temperature</span><span class="nv"> </span><span class="s">measurements...;</span><span class="nv"> </span><span class="s">(fr)</span><span class="nv"> </span><span class="s">Mesures</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">température...&quot;</span>
+</span></code></pre></div>
+<p><strong>Best for</strong>: Compact representation, single-field displays</p>
+<h3 id="method-3-xml">Method 3: XML<a class="headerlink" href="#method-3-xml" title="Permanent link">&para;</a></h3>
+<p>Uses XML <code>xml:lang</code> attributes.</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="na">xml:lang=</span><span class="s">&quot;en&quot;</span><span class="nt">&gt;</span>Ocean<span class="w"> </span>Temperature<span class="w"> </span>Monitoring<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="na">xml:lang=</span><span class="s">&quot;fr&quot;</span><span class="nt">&gt;</span>Surveillance<span class="w"> </span>de<span class="w"> </span>la<span class="w"> </span>température<span class="w"> </span>océanique<span class="nt">&lt;/att&gt;</span>
+</span></code></pre></div>
+<p><strong>Best for</strong>: ERDDAP servers, standards compliance</p>
+<hr />
+<h2 id="attribute-mappings">Attribute Mappings<a class="headerlink" href="#attribute-mappings" title="Permanent link">&para;</a></h2>
+<h3 id="core-identification">📋 Core Identification<a class="headerlink" href="#core-identification" title="Permanent link">&para;</a></h3>
+<h4 id="id">id<a class="headerlink" href="#id" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>id</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.identifier</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>identifier</code></td>
+</tr>
+<tr>
+<td><strong>Required</strong></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String (UUID)</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"fb5c9e1e-a911-46b7-8c1d-e34215a105ed"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Unique identifier for the metadata record.</p>
+<h4 id="naming_authority">naming_authority<a class="headerlink" href="#naming_authority" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>naming_authority</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.naming_authority</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td>(auto-assigned)</td>
+</tr>
+<tr>
+<td><strong>Required</strong></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String</td>
+</tr>
+<tr>
+<td><strong>Default</strong></td>
+<td><code>"ca.cioos"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Organization responsible for the naming convention.</p>
+<h4 id="title">title<a class="headerlink" href="#title" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>title</code> (+ <code>title_en</code>, <code>title_fr</code> with suffix method)</td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.title</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>title.en</code>, <code>title.fr</code></td>
+</tr>
+<tr>
+<td><strong>Required</strong></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String</td>
+</tr>
+<tr>
+<td><strong>Multilingual</strong></td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Descriptive title for the dataset.</p>
+<p><strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Suffix method</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">title_en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Strait</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">Georgia</span><span class="nv"> </span><span class="s">Ocean</span><span class="nv"> </span><span class="s">Monitoring&quot;</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nt">title_fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Surveillance</span><span class="nv"> </span><span class="s">océanique</span><span class="nv"> </span><span class="s">du</span><span class="nv"> </span><span class="s">détroit</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">Géorgie&quot;</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># XML method</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="l l-Scalar l-Scalar-Plain">&lt;att name=&quot;title&quot; xml:lang=&quot;en&quot;&gt;Strait of Georgia Ocean Monitoring&lt;/att&gt;</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="l l-Scalar l-Scalar-Plain">&lt;att name=&quot;title&quot; xml:lang=&quot;fr&quot;&gt;Surveillance océanique du détroit de Géorgie&lt;/att&gt;</span>
+</span></code></pre></div></p>
+<h4 id="summary">summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>summary</code> (+ <code>summary_en</code>, <code>summary_fr</code> with suffix method)</td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.abstract</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>abstract.en</code>, <code>abstract.fr</code></td>
+</tr>
+<tr>
+<td><strong>Required</strong></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String (paragraph)</td>
+</tr>
+<tr>
+<td><strong>Multilingual</strong></td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Paragraph describing the dataset, its collection, and purpose.</p>
+<hr />
+<h3 id="contact-and-attribution">👥 Contact and Attribution<a class="headerlink" href="#contact-and-attribution" title="Permanent link">&para;</a></h3>
+<h4 id="institution">institution<a class="headerlink" href="#institution" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>institution</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>contact[].organization.name</code> (where <code>owner</code> in roles)</td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>contacts[].orgName</code> (role: <code>owner</code>)</td>
+</tr>
+<tr>
+<td><strong>Required</strong></td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<p>Institution responsible for the dataset (primary data owner).</p>
+<p><strong>Note</strong>: Uses first owner if multiple exist.</p>
+<h4 id="creator-attributes">Creator Attributes<a class="headerlink" href="#creator-attributes" title="Permanent link">&para;</a></h4>
+<p>Describes the person or organization that created the dataset.</p>
+<table>
+<thead>
+<tr>
+<th>ACDD Attribute</th>
+<th>CIOOS Source</th>
+<th>CIOOS Form Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>creator_name</code></td>
+<td><code>contact[].individual.name</code> or <code>organization.name</code></td>
+<td><code>lastName</code>, <code>givenNames</code> or <code>orgName</code></td>
+<td>Creator's name</td>
+</tr>
+<tr>
+<td><code>creator_email</code></td>
+<td><code>contact[].individual.email</code> or <code>organization.email</code></td>
+<td><code>indEmail</code> or <code>orgEmail</code></td>
+<td>Email address</td>
+</tr>
+<tr>
+<td><code>creator_orcid</code></td>
+<td><code>contact[].individual.orcid</code></td>
+<td><code>indOrcid</code></td>
+<td>ORCID identifier</td>
+</tr>
+<tr>
+<td><code>creator_type</code></td>
+<td>(derived)</td>
+<td>(role: <code>owner</code>)</td>
+<td><code>"person"</code> or <code>"institution"</code></td>
+</tr>
+<tr>
+<td><code>creator_institution</code></td>
+<td><code>contact[].organization.name</code></td>
+<td><code>orgName</code></td>
+<td>Institution affiliation</td>
+</tr>
+<tr>
+<td><code>creator_address</code></td>
+<td><code>contact[].organization.address</code></td>
+<td><code>orgAdress</code></td>
+<td>Street address</td>
+</tr>
+<tr>
+<td><code>creator_city</code></td>
+<td><code>contact[].organization.city</code></td>
+<td><code>orgCity</code></td>
+<td>City</td>
+</tr>
+<tr>
+<td><code>creator_country</code></td>
+<td><code>contact[].organization.country</code></td>
+<td><code>orgCountry</code></td>
+<td>Country</td>
+</tr>
+<tr>
+<td><code>creator_url</code></td>
+<td><code>contact[].organization.url</code></td>
+<td><code>orgURL</code></td>
+<td>Website URL</td>
+</tr>
+<tr>
+<td><code>creator_ror</code></td>
+<td><code>contact[].organization.ror</code></td>
+<td><code>orgRor</code></td>
+<td>ROR identifier</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Selection Logic</strong>:
+1. Find contacts with <code>owner</code> role
+2. If contact has individual info → <code>creator_type: "person"</code>, use individual name
+3. If only organization → <code>creator_type: "institution"</code>, use org name
+4. Always include organization affiliation details</p>
+<p><strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">creator_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Doe,</span><span class="nv"> </span><span class="s">Jane&quot;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">creator_email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;jane.doe@marine-research.ca&quot;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">creator_orcid</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://orcid.org/0000-0001-2345-6789&quot;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nt">creator_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;person&quot;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nt">creator_institution</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Marine</span><span class="nv"> </span><span class="s">Research</span><span class="nv"> </span><span class="s">Institute&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">creator_country</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Canada&quot;</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nt">creator_ror</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://ror.org/01234abcd&quot;</span>
+</span></code></pre></div></p>
+<h4 id="publisher-attributes">Publisher Attributes<a class="headerlink" href="#publisher-attributes" title="Permanent link">&para;</a></h4>
+<p>Same structure as creator attributes, but for contacts with <code>publisher</code> role:</p>
+<p><code>publisher_name</code>, <code>publisher_email</code>, <code>publisher_type</code>, <code>publisher_institution</code>, <code>publisher_address</code>, <code>publisher_city</code>, <code>publisher_country</code>, <code>publisher_url</code>, <code>publisher_ror</code></p>
+<h4 id="contributor_name-contributor_role">contributor_name &amp; contributor_role<a class="headerlink" href="#contributor_name-contributor_role" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attributes</strong></td>
+<td><code>contributor_name</code>, <code>contributor_role</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>contact[]</code> (all contacts)</td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>contacts</code> array</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>Semicolon-separated lists</td>
+</tr>
+</tbody>
+</table>
+<p>All contacts listed with their roles.</p>
+<p><strong>Format</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">contributor_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Doe,</span><span class="nv"> </span><span class="s">Jane;</span><span class="nv"> </span><span class="s">Marine</span><span class="nv"> </span><span class="s">Research</span><span class="nv"> </span><span class="s">Institute;</span><span class="nv"> </span><span class="s">Smith,</span><span class="nv"> </span><span class="s">John&quot;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nt">contributor_role</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;owner,pointOfContact;</span><span class="nv"> </span><span class="s">publisher;</span><span class="nv"> </span><span class="s">distributor,editor&quot;</span>
+</span></code></pre></div></p>
+<p>Each contact separated by <code>;</code>, multiple roles per contact separated by <code>,</code>.</p>
+<hr />
+<h3 id="temporal-information">📅 Temporal Information<a class="headerlink" href="#temporal-information" title="Permanent link">&para;</a></h3>
+<h4 id="date_created">date_created<a class="headerlink" href="#date_created" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>date_created</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.dates.publication</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>timeFirstPublished</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>ISO 8601 date</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"2024-03-15"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Date when the dataset was first published.</p>
+<h4 id="date_modified">date_modified<a class="headerlink" href="#date_modified" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>date_modified</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.dates.revision</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>created</code> (last modification timestamp)</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>ISO 8601 date</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"2024-11-21"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Date of last metadata revision.</p>
+<hr />
+<h3 id="scientific-information">🔬 Scientific Information<a class="headerlink" href="#scientific-information" title="Permanent link">&para;</a></h3>
+<h4 id="keywords">keywords<a class="headerlink" href="#keywords" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>keywords</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.keywords</code> (all groups)</td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>keywords</code>, <code>eov</code>, <code>taxa</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>Comma-separated list with prefixes</td>
+</tr>
+</tbody>
+</table>
+<p>Combined keywords from all sources with prefixes indicating their vocabulary.</p>
+<p><strong>Prefix System</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Keyword Type</th>
+<th>Prefix</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free keywords</td>
+<td>(none)</td>
+<td><code>ocean temperature,salinity,nutrients</code></td>
+</tr>
+<tr>
+<td>Essential Ocean Variables</td>
+<td><code>CIOOS:</code></td>
+<td><code>CIOOS:Oxygen,CIOOS:Sea Surface Temperature</code></td>
+</tr>
+<tr>
+<td>Taxa (GBIF)</td>
+<td><code>GBIF:</code></td>
+<td><code>GBIF:Animalia,GBIF:Mollusca,GBIF:Gastropoda</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Full Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">keywords</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ocean</span><span class="nv"> </span><span class="s">temperature,salinity,CIOOS:Oxygen,CIOOS:Nutrients,GBIF:Animalia,GBIF:Mollusca&quot;</span>
+</span></code></pre></div></p>
+<p><strong>Special Processing</strong>:
+- EOV values converted from camelCase to Title Case
+- Taxa flattened from hierarchical GBIF taxonomy
+- All keywords comma-separated in single attribute</p>
+<h4 id="keywords_vocabulary">keywords_vocabulary<a class="headerlink" href="#keywords_vocabulary" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>keywords_vocabulary</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td>(derived from keyword groups present)</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>Comma-separated vocabulary labels</td>
+</tr>
+</tbody>
+</table>
+<p>Lists vocabularies used with their prefixes.</p>
+<p><strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">keywords_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CIOOS:CIOOS</span><span class="nv"> </span><span class="s">Essential</span><span class="nv"> </span><span class="s">Ocean</span><span class="nv"> </span><span class="s">Variables</span><span class="nv"> </span><span class="s">Vocabulary,GBIF:GBIF</span><span class="nv"> </span><span class="s">Taxonomy</span><span class="nv"> </span><span class="s">Vocabulary&quot;</span>
+</span></code></pre></div></p>
+<h4 id="project">project<a class="headerlink" href="#project" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>project</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.project</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>projects</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>Comma-separated list</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"Ocean Observing Initiative,Coastal Monitoring Program"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Research projects associated with the dataset.</p>
+<h4 id="progress">progress<a class="headerlink" href="#progress" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>progress</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.progress_code</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>progress</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String (code)</td>
+</tr>
+<tr>
+<td><strong>Values</strong></td>
+<td><code>completed</code>, <code>onGoing</code>, <code>planned</code>, <code>obsolete</code>, etc.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: This is a CIOOS-specific extension, not standard ACDD.</p>
+<hr />
+<h3 id="platform-and-instruments">🚢 Platform and Instruments<a class="headerlink" href="#platform-and-instruments" title="Permanent link">&para;</a></h3>
+<h4 id="platform">platform<a class="headerlink" href="#platform" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>platform</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>platform[0].type</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>platforms[0].type</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"coastal structure"</code>, <code>"research vessel"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Type of platform used for data collection (first platform only).</p>
+<h4 id="platform_vocabulary">platform_vocabulary<a class="headerlink" href="#platform_vocabulary" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>platform_vocabulary</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td>(hardcoded)</td>
+</tr>
+<tr>
+<td><strong>Value</strong></td>
+<td><code>"http://vocab.nerc.ac.uk/collection/L06/current/"</code></td>
+</tr>
+</tbody>
+</table>
+<p>NERC vocabulary URL for platform types.</p>
+<hr />
+<h3 id="version-and-history">📝 Version and History<a class="headerlink" href="#version-and-history" title="Permanent link">&para;</a></h3>
+<h4 id="product_version">product_version<a class="headerlink" href="#product_version" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>product_version</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.edition</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>edition</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"1.0.0"</code>, <code>"v2.1"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Version identifier for the dataset.</p>
+<h4 id="history">history<a class="headerlink" href="#history" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>history</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.history</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>history</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String (formatted)</td>
+</tr>
+<tr>
+<td><strong>Multilingual</strong></td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Audit trail for dataset modifications.</p>
+<p><strong>Format</strong> (when structured):
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">history</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="no">Metadata record history:</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="no">- scope: Dataset</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="no">statement:</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="no">en: &quot;Data collected from coastal monitoring stations...&quot;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">      </span><span class="no">fr: &quot;Données collectées des stations de surveillance côtières...&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="legal-and-usage">⚖️ Legal and Usage<a class="headerlink" href="#legal-and-usage" title="Permanent link">&para;</a></h3>
+<h4 id="license">license<a class="headerlink" href="#license" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>license</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.use_constraints.licence.url</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>license</code> (code resolved via <code>licenses.json</code>)</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>URL</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"https://creativecommons.org/licenses/by/4.0"</code></td>
+</tr>
+</tbody>
+</table>
+<p>URL to the license governing dataset use.</p>
+<p><strong>License Code Resolution</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>CC-BY-4.0 → https://creativecommons.org/licenses/by/4.0
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>CC0 → https://creativecommons.org/publicdomain/zero/1.0/
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>OGL-Canada-2.0 → https://open.canada.ca/en/open-government-licence-canada
+</span></code></pre></div></p>
+<h4 id="comment">comment<a class="headerlink" href="#comment" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>comment</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.use_constraints.limitations</code> + translation info</td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>limitations</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>String (formatted)</td>
+</tr>
+<tr>
+<td><strong>Multilingual</strong></td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Miscellaneous information, limitations, and usage notes.</p>
+<p><strong>Format</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="no">##Limitations:</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="no">Data should not be used for navigation purposes.</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="no">##Translation:</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="no">text translated using the Amazon translate service / texte traduit à l&#39;aide du service de traduction Amazon</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="references-and-links">🔗 References and Links<a class="headerlink" href="#references-and-links" title="Permanent link">&para;</a></h3>
+<h4 id="doi">doi<a class="headerlink" href="#doi" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>doi</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.identifier</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>datasetIdentifier</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>URL</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"https://doi.org/10.26071/mxtr-gp72"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Digital Object Identifier for the dataset.</p>
+<h4 id="metadata_link">metadata_link<a class="headerlink" href="#metadata_link" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>metadata_link</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>identification.identifier</code> or provided parameter</td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td><code>datasetIdentifier</code></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>URL</td>
+</tr>
+</tbody>
+</table>
+<p>URL to the complete metadata record.</p>
+<h4 id="metadata_form">metadata_form<a class="headerlink" href="#metadata_form" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACDD Attribute</strong></td>
+<td><code>metadata_form</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Source</strong></td>
+<td><code>metadata.maintenance_note</code></td>
+</tr>
+<tr>
+<td><strong>CIOOS Form Field</strong></td>
+<td>(derived from form URL)</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>URL</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td><code>"https://cioos-siooc.github.io/metadata-entry-form#/en/stlaurent/..."</code></td>
+</tr>
+</tbody>
+</table>
+<p>Link to the form used to create this metadata.</p>
+<p><strong>Note</strong>: This is a CIOOS-specific extension, not standard ACDD.</p>
+<hr />
+<h2 id="erddap-integration">ERDDAP Integration<a class="headerlink" href="#erddap-integration" title="Permanent link">&para;</a></h2>
+<h3 id="dataset-matching">Dataset Matching<a class="headerlink" href="#dataset-matching" title="Permanent link">&para;</a></h3>
+<p>ERDDAP datasets are matched to CIOOS metadata by:</p>
+<ol>
+<li><strong>Distribution URL matching</strong>: Look for <code>distribution[].url</code> containing the ERDDAP URL</li>
+<li><strong>Dataset ID extraction</strong>: Extract dataset ID from URL (segment before <code>.html</code>)</li>
+<li><strong>Subset filtering</strong>: Ignore URLs with query parameters (<code>?</code>)</li>
+</ol>
+<p><strong>Example</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>CIOOS distribution URL: https://data.example.org/erddap/tabledap/my_dataset.html
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>ERDDAP dataset ID: my_dataset
+</span></code></pre></div></p>
+<h3 id="xml-structure">XML Structure<a class="headerlink" href="#xml-structure" title="Permanent link">&para;</a></h3>
+<p>Generated ERDDAP XML uses <code>&lt;addAttributes&gt;</code> blocks:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">&lt;dataset</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;EDDTableFromMultidimNcFiles&quot;</span><span class="w"> </span><span class="na">datasetID=</span><span class="s">&quot;my_dataset&quot;</span><span class="w"> </span><span class="na">active=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="cm">&lt;!-- Existing configuration preserved --&gt;</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">&lt;addAttributes&gt;</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;id&quot;</span><span class="nt">&gt;</span>fb5c9e1e-a911-46b7-8c1d-e34215a105ed<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;naming_authority&quot;</span><span class="nt">&gt;</span>ca.cioos<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="na">xml:lang=</span><span class="s">&quot;en&quot;</span><span class="nt">&gt;</span>Ocean<span class="w"> </span>Monitoring<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="na">xml:lang=</span><span class="s">&quot;fr&quot;</span><span class="nt">&gt;</span>Surveillance<span class="w"> </span>océanique<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;summary&quot;</span><span class="w"> </span><span class="na">xml:lang=</span><span class="s">&quot;en&quot;</span><span class="nt">&gt;</span>Temperature<span class="w"> </span>and<span class="w"> </span>salinity<span class="w"> </span>measurements...<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;summary&quot;</span><span class="w"> </span><span class="na">xml:lang=</span><span class="s">&quot;fr&quot;</span><span class="nt">&gt;</span>Mesures<span class="w"> </span>de<span class="w"> </span>température<span class="w"> </span>et<span class="w"> </span>de<span class="w"> </span>salinité...<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;keywords&quot;</span><span class="nt">&gt;</span>ocean<span class="w"> </span>temperature,salinity,CIOOS:Oxygen<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;creator_name&quot;</span><span class="nt">&gt;</span>Doe,<span class="w"> </span>Jane<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;creator_institution&quot;</span><span class="nt">&gt;</span>Marine<span class="w"> </span>Research<span class="w"> </span>Institute<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="nt">&lt;att</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;license&quot;</span><span class="nt">&gt;</span>https://creativecommons.org/licenses/by/4.0<span class="nt">&lt;/att&gt;</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">  </span><span class="nt">&lt;/addAttributes&gt;</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="nt">&lt;/dataset&gt;</span>
+</span></code></pre></div>
+<h3 id="update-process">Update Process<a class="headerlink" href="#update-process" title="Permanent link">&para;</a></h3>
+<p>When updating existing <code>datasets.xml</code>:</p>
+<ol>
+<li>✅ Parse existing XML file</li>
+<li>✅ Find datasets by <code>datasetID</code> attribute</li>
+<li>✅ Update existing <code>&lt;att&gt;</code> elements or create new ones</li>
+<li>✅ Preserve multilingual attributes using <code>xml:lang</code></li>
+<li>✅ Maintain all other configuration (data variables, source URLs, etc.)</li>
+<li>✅ Create backup if requested</li>
+</ol>
+<hr />
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="generate-acdd-attributes-python-dictionary">Generate ACDD Attributes (Python Dictionary)<a class="headerlink" href="#generate-acdd-attributes-python-dictionary" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion.record</span><span class="w"> </span><span class="kn">import</span> <span class="n">Record</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">acdd</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Load CIOOS record</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="n">record</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;record.yaml&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;CIOOS&quot;</span><span class="p">)</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="n">record</span><span class="o">.</span><span class="n">load</span><span class="p">()</span><span class="o">.</span><span class="n">convert_to_cioos_schema</span><span class="p">()</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="c1"># Generate ACDD attributes</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="n">attributes</span> <span class="o">=</span> <span class="n">acdd</span><span class="o">.</span><span class="n">acdd</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">)</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>  <span class="c1"># &quot;Ocean Temperature Monitoring&quot;</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;keywords&#39;</span><span class="p">])</span>  <span class="c1"># &quot;ocean temperature,CIOOS:Oxygen,...&quot;</span>
+</span></code></pre></div>
+<h3 id="generate-with-suffix-multilingual-method">Generate with Suffix Multilingual Method<a class="headerlink" href="#generate-with-suffix-multilingual-method" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">attributes</span> <span class="o">=</span> <span class="n">acdd</span><span class="o">.</span><span class="n">acdd</span><span class="p">(</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">record</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">multilingual</span><span class="o">=</span><span class="s2">&quot;suffix&quot;</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="p">)</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;title_en&#39;</span><span class="p">])</span>  <span class="c1"># &quot;Ocean Temperature Monitoring&quot;</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;title_fr&#39;</span><span class="p">])</span>  <span class="c1"># &quot;Surveillance de la température océanique&quot;</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;summary_en&#39;</span><span class="p">])</span>  <span class="c1"># English summary</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;summary_fr&#39;</span><span class="p">])</span>  <span class="c1"># French summary</span>
+</span></code></pre></div>
+<h3 id="generate-acdd-as-json">Generate ACDD as JSON<a class="headerlink" href="#generate-acdd-as-json" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">acdd</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">json_output</span> <span class="o">=</span> <span class="n">acdd</span><span class="o">.</span><span class="n">acdd_json</span><span class="p">(</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">record</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">multilingual</span><span class="o">=</span><span class="s2">&quot;suffix&quot;</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">)</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1"># Save to file</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;attributes.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json_output</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="generate-acdd-as-yaml">Generate ACDD as YAML<a class="headerlink" href="#generate-acdd-as-yaml" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">acdd</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">yaml_output</span> <span class="o">=</span> <span class="n">acdd</span><span class="o">.</span><span class="n">acdd_yaml</span><span class="p">(</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="n">record</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="n">multilingual</span><span class="o">=</span><span class="s2">&quot;nested&quot;</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="p">)</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1"># Save to file</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;attributes.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml_output</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="generate-erddap-xml">Generate ERDDAP XML<a class="headerlink" href="#generate-erddap-xml" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">erddap</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">xml</span> <span class="o">=</span> <span class="n">erddap</span><span class="o">.</span><span class="n">global_attributes</span><span class="p">(</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">record</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="n">multilingual</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="p">)</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="c1"># XML with xml:lang attributes</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="update-erddap-datasetsxml">Update ERDDAP datasets.xml<a class="headerlink" href="#update-erddap-datasetsxml" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion.erddap</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_dataset_xml</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion.record</span><span class="w"> </span><span class="kn">import</span> <span class="n">Record</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Load multiple CIOOS records</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">records</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">Record</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;dataset1.yaml&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;CIOOS&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span><span class="o">.</span><span class="n">convert_to_cioos_schema</span><span class="p">()</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="n">Record</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;dataset2.yaml&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;CIOOS&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span><span class="o">.</span><span class="n">convert_to_cioos_schema</span><span class="p">()</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="p">]</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="c1"># Update ERDDAP configuration</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="n">update_dataset_xml</span><span class="p">(</span>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    <span class="n">datasets_xml</span><span class="o">=</span><span class="s2">&quot;/opt/erddap/content/datasets.xml&quot;</span><span class="p">,</span>
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>    <span class="n">records</span><span class="o">=</span><span class="n">records</span><span class="p">,</span>
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    <span class="n">erddap_url</span><span class="o">=</span><span class="s2">&quot;https://data.example.org/erddap&quot;</span><span class="p">,</span>
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>    <span class="n">multilingual</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>    <span class="n">backup</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Create backup first</span>
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="cli-convert-to-acdd-yaml">CLI: Convert to ACDD YAML<a class="headerlink" href="#cli-convert-to-acdd-yaml" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>cioos_metadata_conversion<span class="w"> </span>convert<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span>--input<span class="w"> </span>record.yaml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span>--input-schema<span class="w"> </span>CIOOS<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span>--output-format<span class="w"> </span>acdd_yaml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">  </span>--output-file<span class="w"> </span>attributes.yaml
+</span></code></pre></div>
+<h3 id="cli-update-erddap-server">CLI: Update ERDDAP Server<a class="headerlink" href="#cli-update-erddap-server" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>cioos_metadata_conversion<span class="w"> </span>erddap-update<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span>--datasets-xml<span class="w"> </span>/opt/erddap/content/datasets.xml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span>--records<span class="w"> </span><span class="s2">&quot;cioos-records/*.yaml&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">  </span>--erddap-url<span class="w"> </span><span class="s2">&quot;https://data.example.org/erddap&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span>--multilingual<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">  </span>--backup
+</span></code></pre></div>
+<hr />
+<h2 id="fields-not-mapped">Fields Not Mapped<a class="headerlink" href="#fields-not-mapped" title="Permanent link">&para;</a></h2>
+<p>The following CIOOS Form fields are <strong>not</strong> currently mapped to ACDD/ERDDAP:</p>
+<h3 id="geographic-information">Geographic Information<a class="headerlink" href="#geographic-information" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Bounding box coordinates (west, east, north, south)</li>
+<li>❌ Polygon geometry</li>
+<li>❌ Vertical extent (depth/height ranges)</li>
+<li>❌ Spatial description and identifiers</li>
+</ul>
+<h3 id="temporal-coverage">Temporal Coverage<a class="headerlink" href="#temporal-coverage" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Data collection start date (<code>dateStart</code>)</li>
+<li>❌ Data collection end date (<code>dateEnd</code>)</li>
+</ul>
+<p><strong>Note</strong>: <code>date_created</code> and <code>date_modified</code> are metadata dates, not data coverage dates.</p>
+<h3 id="associated-resources">Associated Resources<a class="headerlink" href="#associated-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Related publications (with DOI)</li>
+<li>❌ Related datasets</li>
+<li>❌ Association types (IsReferencedBy, IsCitedBy, etc.)</li>
+</ul>
+<h3 id="distribution">Distribution<a class="headerlink" href="#distribution" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Download URLs (except ERDDAP URL for matching)</li>
+<li>❌ Distribution format information</li>
+<li>❌ Distribution descriptions</li>
+</ul>
+<h3 id="instruments">Instruments<a class="headerlink" href="#instruments" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Detailed instrument specifications</li>
+<li>❌ Instrument-platform relationships</li>
+<li>❌ Multiple instruments per platform</li>
+</ul>
+<h3 id="quality-assurance">Quality Assurance<a class="headerlink" href="#quality-assurance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Quality control procedures</li>
+<li>❌ Processing steps</li>
+<li>❌ Lineage source datasets</li>
+</ul>
+<h3 id="workflow-fields">Workflow Fields<a class="headerlink" href="#workflow-fields" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Internal identifiers (recordID, userID, region)</li>
+<li>❌ DOI creation status</li>
+<li>❌ Form workflow status</li>
+<li>❌ Last edited by information</li>
+</ul>
+<hr />
+<h2 id="special-processing-notes">Special Processing Notes<a class="headerlink" href="#special-processing-notes" title="Permanent link">&para;</a></h2>
+<h3 id="automatic-distributor-assignment">🔄 Automatic Distributor Assignment<a class="headerlink" href="#automatic-distributor-assignment" title="Permanent link">&para;</a></h3>
+<p>If no contact has the <code>distributor</code> role, the system automatically adds this role to all contacts with the <code>owner</code> role.</p>
+<h3 id="multiple-creatorspublishers-warning">⚠️ Multiple Creators/Publishers Warning<a class="headerlink" href="#multiple-creatorspublishers-warning" title="Permanent link">&para;</a></h3>
+<p>If multiple contacts have <code>owner</code> or <code>publisher</code> roles, only the first one is used. A warning is logged.</p>
+<p><strong>Best Practice</strong>: Designate one primary owner/publisher and use other roles (contributor, collaborator) for additional parties.</p>
+<h3 id="keyword-prefix-rules">🏷️ Keyword Prefix Rules<a class="headerlink" href="#keyword-prefix-rules" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Prefix</th>
+<th>Applied When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>keywords.en</code>, <code>keywords.fr</code></td>
+<td>(none)</td>
+<td>Free-text keywords</td>
+</tr>
+<tr>
+<td><code>eov</code></td>
+<td><code>CIOOS:</code></td>
+<td>Essential Ocean Variables</td>
+</tr>
+<tr>
+<td><code>taxa</code></td>
+<td><code>GBIF:</code></td>
+<td>Taxonomic information from GBIF</td>
+</tr>
+</tbody>
+</table>
+<h3 id="empty-value-removal">🧹 Empty Value Removal<a class="headerlink" href="#empty-value-removal" title="Permanent link">&para;</a></h3>
+<p>All empty strings, null values, and empty objects are automatically removed from the final output using <code>drop_empty_values()</code>.</p>
+<h3 id="language-selection">🌍 Language Selection<a class="headerlink" href="#language-selection" title="Permanent link">&para;</a></h3>
+<p>The <code>language</code> parameter determines which language version is used for bilingual fields when generating single-language output. Use <code>multilingual</code> parameter for including both languages.</p>
+<hr />
+<h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
+<h3 id="file-locations">File Locations<a class="headerlink" href="#file-locations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>File Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACDD conversion</td>
+<td><code>cioos_metadata_conversion/acdd.py</code></td>
+</tr>
+<tr>
+<td>ERDDAP integration</td>
+<td><code>cioos_metadata_conversion/erddap.py</code></td>
+</tr>
+<tr>
+<td>Form to CIOOS transform</td>
+<td><code>cioos_metadata_conversion/firebase_to_cioos.py</code></td>
+</tr>
+<tr>
+<td>Unit tests</td>
+<td><code>tests/test_acdd.py</code>, <code>tests/test_erddap.py</code></td>
+</tr>
+<tr>
+<td>Test ERDDAP XML</td>
+<td><code>tests/erddap_xmls/test_datasets.xml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="http://wiki.esipfed.org/index.php/ACDD_1-3">ACDD 1.3 Standard</a> - Official ACDD specification</li>
+<li><a href="https://coastwatch.pfeg.noaa.gov/erddap/download/setup.html">ERDDAP Documentation</a> - ERDDAP server setup</li>
+<li><a href="../field-mapping-summary/">Field Mapping Summary</a> - Complete cross-format comparison</li>
+<li><a href="../../cioos-form-schema/">CIOOS Form Schema</a> - Form field reference</li>
+<li><a href="../../usage/">Usage Guide</a> - General conversion examples</li>
+</ul>
+<h3 id="function-reference">Function Reference<a class="headerlink" href="#function-reference" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>acdd.acdd(record, language, multilingual)</code></td>
+<td>Generate ACDD attributes</td>
+<td>dict</td>
+</tr>
+<tr>
+<td><code>acdd.acdd_json(record, language, multilingual)</code></td>
+<td>Generate as JSON</td>
+<td>str</td>
+</tr>
+<tr>
+<td><code>acdd.acdd_yaml(record, language, multilingual)</code></td>
+<td>Generate as YAML</td>
+<td>str</td>
+</tr>
+<tr>
+<td><code>erddap.global_attributes(record, output, multilingual)</code></td>
+<td>Generate ERDDAP XML</td>
+<td>str</td>
+</tr>
+<tr>
+<td><code>erddap.update_dataset_xml(datasets_xml, records, erddap_url, multilingual, backup)</code></td>
+<td>Update datasets.xml</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../cioos-form-to-datacite/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CIOOS Form to DataCite">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                CIOOS Form to DataCite
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../contributing/" class="md-footer__link md-footer__link--next" aria-label="Next: Contributing">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Contributing
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "toc.follow", "navigation.tabs", "navigation.tabs.sticky", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

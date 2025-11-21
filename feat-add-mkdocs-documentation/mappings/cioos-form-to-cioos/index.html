@@ -1,0 +1,4112 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Convert CIOOS metadata records to various international metadata standards">
+      
+      
+        <meta name="author" content="CIOOS SIOOC">
+      
+      
+      
+        <link rel="prev" href="../field-mapping-summary/">
+      
+      
+        <link rel="next" href="../cioos-form-to-iso19115-3/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/ICON_White.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>CIOOS Form to CIOOS Intermediate - CIOOS Metadata Conversion</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cioos-form-to-cioos-intermediate-format-mapping" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CIOOS Metadata Conversion" class="md-header__button md-logo" aria-label="CIOOS Metadata Conversion" data-md-component="logo">
+      
+  <img src="../../assets/ICON_White.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CIOOS Metadata Conversion
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CIOOS Form to CIOOS Intermediate
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cioos-siooc/cioos-metadata-conversion
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../usage/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Mappings
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CIOOS Metadata Conversion" class="md-nav__button md-logo" aria-label="CIOOS Metadata Conversion" data-md-component="logo">
+      
+  <img src="../../assets/ICON_White.svg" alt="logo">
+
+    </a>
+    CIOOS Metadata Conversion
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cioos-siooc/cioos-metadata-conversion
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../input-schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../output-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Output Formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cioos-form-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mappings
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Mappings
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-mapping-summary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Mapping Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to CIOOS Intermediate
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to CIOOS Intermediate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transformation-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transformation Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-processing-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Processing Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Mappings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Field Mappings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metadata Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadatanaming_authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.naming_authority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadataidentifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.identifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatalanguage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.language
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatalanguage_alternate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.language_alternate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatamaintenance_note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.maintenance_note
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatause_constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.use_constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="metadata.use_constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadatause_constraintslimitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.use_constraints.limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatause_constraintslicence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.use_constraints.licence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatacomment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.comment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatahistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatadates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.dates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="metadata.dates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadatadatesrevision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.dates.revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatadatespublication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.dates.publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatascope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatial-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spatial Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spatial Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spatialbbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.bbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialpolygon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.polygon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialvertical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.vertical
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialvertical_positive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.vertical_positive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialvertical_epsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.vertical_epsg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialdescription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialdescriptionidentifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.descriptionIdentifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identification-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identification Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identification Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identificationtitle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.title
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationidentifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.identifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationabstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.abstract
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationassociated_resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.associated_resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationdates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="identification.dates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identificationdatescreation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates.creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationdatespublication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates.publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationdatesrevision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates.revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="identification.keywords">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywordsdefault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords.default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywordseov" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords.eov
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywordstaxa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords.taxa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationtemporal_begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.temporal_begin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationtemporal_end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.temporal_end
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationprogress_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.progress_code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationedition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.edition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contact Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contact-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-field-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Field Mappings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contact Field Mappings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        roles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationaddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.address
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationcity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.city
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationcountry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.country
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationemail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.ror
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.position
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualemail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualorcid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.orcid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incitation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inCitation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-contact-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Contact Processing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Contact Processing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-automatic-distributor-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Automatic Distributor Assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-organization-contact-prepending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Organization Contact Prepending
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Distribution Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distribution-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Distribution Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        description
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform-and-instruments-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform and Instruments Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Platform and Instruments Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#case-1-no-platform-noplatform-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 1: No Platform (noPlatform = true)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-2-single-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 2: Single Platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-3-multiple-platforms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 3: Multiple Platforms
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-processing-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Processing Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Processing Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scrub_dictd_in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scrub_dict(d_in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scrub_listd_in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scrub_list(d_in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strip_keywordskeywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strip_keywords(keywords)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date_from_datetime_strdatetime_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        date_from_datetime_str(datetime_str)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix_lat_long_polygonpolygon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fix_lat_long_polygon(polygon)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_taxataxa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        format_taxa(taxa)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eovs_to_freovs_en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eovs_to_fr(eovs_en)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licensesjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        licenses.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eovjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eov.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#epsgjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        epsg.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fields-not-mapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields Not Mapped
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-and-quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation and Quality Control
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standards-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standards Compliance
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-iso19115-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ISO 19115-3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-datacite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to DataCite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cioos-form-to-erddap-acdd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CIOOS Form to ERDDAP/ACDD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transformation-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transformation Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-processing-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Processing Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Mappings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Field Mappings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metadata Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadatanaming_authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.naming_authority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadataidentifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.identifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatalanguage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.language
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatalanguage_alternate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.language_alternate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatamaintenance_note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.maintenance_note
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatause_constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.use_constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="metadata.use_constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadatause_constraintslimitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.use_constraints.limitations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatause_constraintslicence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.use_constraints.licence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatacomment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.comment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatahistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatadates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.dates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="metadata.dates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadatadatesrevision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.dates.revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatadatespublication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.dates.publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadatascope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        metadata.scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatial-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spatial Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spatial Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spatialbbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.bbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialpolygon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.polygon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialvertical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.vertical
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialvertical_positive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.vertical_positive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialvertical_epsg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.vertical_epsg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialdescription" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.description
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spatialdescriptionidentifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spatial.descriptionIdentifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identification-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identification Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identification Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identificationtitle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.title
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationidentifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.identifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationabstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.abstract
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationassociated_resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.associated_resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationdates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="identification.dates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identificationdatescreation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates.creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationdatespublication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates.publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationdatesrevision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.dates.revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="identification.keywords">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywordsdefault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords.default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywordseov" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords.eov
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationkeywordstaxa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.keywords.taxa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationtemporal_begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.temporal_begin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationtemporal_end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.temporal_end
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationprogress_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.progress_code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identificationedition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identification.edition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contact Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contact-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-field-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Field Mappings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contact Field Mappings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        roles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationaddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.address
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationcity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.city
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationcountry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.country
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationemail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#organizationror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        organization.ror
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.position
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualemail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#individualorcid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        individual.orcid
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incitation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inCitation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-contact-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Contact Processing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Contact Processing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-automatic-distributor-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Automatic Distributor Assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-organization-contact-prepending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Organization Contact Prepending
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Distribution Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distribution-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Distribution Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        description
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform-and-instruments-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform and Instruments Section
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Platform and Instruments Section">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#case-1-no-platform-noplatform-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 1: No Platform (noPlatform = true)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-2-single-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 2: Single Platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-3-multiple-platforms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 3: Multiple Platforms
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-processing-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Processing Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Processing Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scrub_dictd_in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scrub_dict(d_in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scrub_listd_in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scrub_list(d_in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strip_keywordskeywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strip_keywords(keywords)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date_from_datetime_strdatetime_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        date_from_datetime_str(datetime_str)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix_lat_long_polygonpolygon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fix_lat_long_polygon(polygon)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_taxataxa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        format_taxa(taxa)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eovs_to_freovs_en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eovs_to_fr(eovs_en)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#licensesjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        licenses.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eovjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eov.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#epsgjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        epsg.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fields-not-mapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields Not Mapped
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-and-quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation and Quality Control
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standards-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standards Compliance
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Mappings
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cioos-form-to-cioos-intermediate-format-mapping">CIOOS Form to CIOOS Intermediate Format Mapping<a class="headerlink" href="#cioos-form-to-cioos-intermediate-format-mapping" title="Permanent link">&para;</a></h1>
+<p>This document describes how metadata fields from the CIOOS Form (Firebase-based) are transformed into the CIOOS intermediate format, which serves as the canonical representation for all subsequent conversions (ISO 19115-3, DataCite, ERDDAP/ACDD, etc.).</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The CIOOS Form is a web-based metadata entry interface that stores data in Firebase. The conversion to the intermediate CIOOS format is handled by the <code>record_json_to_yaml()</code> function in <a href="cioos_metadata_conversion/firebase_to_cioos.py:143">firebase_to_cioos.py</a>.</p>
+<h3 id="transformation-purpose">Transformation Purpose<a class="headerlink" href="#transformation-purpose" title="Permanent link">&para;</a></h3>
+<p>The CIOOS intermediate format:
+- Provides a clean, consistent structure for metadata
+- Removes empty values and normalizes data types
+- Performs coordinate transformations and data enrichment
+- Serves as the source for all output format conversions</p>
+<h3 id="key-processing-steps">Key Processing Steps<a class="headerlink" href="#key-processing-steps" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Field Restructuring</strong>: Flatten and reorganize Firebase structure</li>
+<li><strong>Data Enrichment</strong>: Resolve license codes, translate EOVs, format taxa</li>
+<li><strong>Coordinate Transformation</strong>: Convert lat,long to long,lat format</li>
+<li><strong>Date Normalization</strong>: Extract dates from datetime strings</li>
+<li><strong>Contact Processing</strong>: Restructure contact information and add missing distributors</li>
+<li><strong>Empty Value Removal</strong>: Scrub all empty strings, nulls, and empty objects</li>
+</ol>
+<h2 id="top-level-structure">Top-Level Structure<a class="headerlink" href="#top-level-structure" title="Permanent link">&para;</a></h2>
+<p>The CIOOS intermediate format has four main sections:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">metadata</span><span class="p">:</span><span class="w">      </span><span class="c1"># Metadata about the metadata</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">spatial</span><span class="p">:</span><span class="w">       </span><span class="c1"># Geographic and vertical extent</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">identification</span><span class="p">:</span><span class="w"> </span><span class="c1"># Resource identification and description</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nt">contact</span><span class="p">:</span><span class="w">       </span><span class="c1"># Responsible parties</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">distribution</span><span class="p">:</span><span class="w">  </span><span class="c1"># Distribution/access information</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nt">platform</span><span class="p">:</span><span class="w">      </span><span class="c1"># Platform and instrument information (optional)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nt">instruments</span><span class="p">:</span><span class="w">   </span><span class="c1"># Standalone instruments (optional)</span>
+</span></code></pre></div>
+<h2 id="field-mappings">Field Mappings<a class="headerlink" href="#field-mappings" title="Permanent link">&para;</a></h2>
+<h3 id="metadata-section">Metadata Section<a class="headerlink" href="#metadata-section" title="Permanent link">&para;</a></h3>
+<h4 id="metadatanaming_authority">metadata.naming_authority<a class="headerlink" href="#metadatanaming_authority" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: N/A
+<strong>Value</strong>: "ca.cioos"
+<strong>Processing</strong>: Hardcoded value
+<strong>Description</strong>: Authority responsible for creating the identifier</p>
+<h4 id="metadataidentifier">metadata.identifier<a class="headerlink" href="#metadataidentifier" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>identifier</code>
+<strong>Type</strong>: String (UUID)
+<strong>Example</strong>: "9d1a8fe4-2675-4e34-8b65-16459736535a"
+<strong>Description</strong>: Unique identifier for the metadata record</p>
+<h4 id="metadatalanguage">metadata.language<a class="headerlink" href="#metadatalanguage" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>language</code>
+<strong>Type</strong>: String
+<strong>Values</strong>: "en" | "fr"
+<strong>Description</strong>: Primary language of the metadata</p>
+<h4 id="metadatalanguage_alternate">metadata.language_alternate<a class="headerlink" href="#metadatalanguage_alternate" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: Derived (opposite of <code>language</code>)
+<strong>Processing</strong>: Not explicitly set but inferred
+<strong>Description</strong>: Alternate language for bilingual metadata</p>
+<h4 id="metadatamaintenance_note">metadata.maintenance_note<a class="headerlink" href="#metadatamaintenance_note" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: Constructed from <code>userID</code>, <code>recordID</code>, <code>language</code>, <code>region</code>
+<strong>Format</strong>: "Generated from https://cioos-siooc.github.io/metadata-entry-form#/{language}/{region}/{userID}/{recordID}"
+<strong>Example</strong>: "Generated from https://cioos-siooc.github.io/metadata-entry-form#/fr/stlaurent/Ea7wMTBNmvWBD2n1oSc8X0KQi9z1/-OTS9E-8LKZrL_Yuggg0"
+<strong>Description</strong>: Link back to the form where metadata was created</p>
+<h4 id="metadatause_constraints">metadata.use_constraints<a class="headerlink" href="#metadatause_constraints" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: Multiple sources
+<strong>Structure</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">use_constraints</span><span class="p">:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">limitations</span><span class="p">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">licence</span><span class="p">:</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">title</span><span class="p">:</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">code</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</span></code></pre></div></p>
+<h5 id="metadatause_constraintslimitations">metadata.use_constraints.limitations<a class="headerlink" href="#metadatause_constraintslimitations" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>limitations</code>
+<strong>Type</strong>: Bilingual text or string
+<strong>Default</strong>: "None" if not provided</p>
+<h5 id="metadatause_constraintslicence">metadata.use_constraints.licence<a class="headerlink" href="#metadatause_constraintslicence" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>license</code> (code like "CC-BY-4.0")
+<strong>Processing</strong>: Resolved via <code>licenses.json</code> lookup
+<strong>Structure</strong>:
+- <code>title.en</code>: Full license name
+- <code>url</code>: License URL
+- <code>code</code>: License code
+<strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">licence</span><span class="p">:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">title</span><span class="p">:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Creative</span><span class="nv"> </span><span class="s">Commons</span><span class="nv"> </span><span class="s">Attribution</span><span class="nv"> </span><span class="s">4.0</span><span class="nv"> </span><span class="s">Attribution&quot;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://creativecommons.org/licenses/by/4.0&quot;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">code</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CC-BY-4.0&quot;</span>
+</span></code></pre></div></p>
+<h4 id="metadatacomment">metadata.comment<a class="headerlink" href="#metadatacomment" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>comment</code>
+<strong>Type</strong>: Bilingual text or string</p>
+<h4 id="metadatahistory">metadata.history<a class="headerlink" href="#metadatahistory" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>history</code> array
+<strong>Type</strong>: Array of lineage objects
+<strong>Structure</strong>: Each history item includes:
+- <code>statement</code>: Bilingual text
+- <code>scope</code>: Scope code (e.g., "Dataset")
+- <code>scopeIso</code>: ISO scope code
+- <code>additionalDocumentation</code>: Array of citation objects
+- <code>source</code>: Array of source objects
+- <code>processingStep</code>: Array of processing step objects</p>
+<p><strong>Passed through</strong>: Structure preserved from form</p>
+<h4 id="metadatadates">metadata.dates<a class="headerlink" href="#metadatadates" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: Multiple date fields
+<strong>Structure</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">dates</span><span class="p">:</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-25T17:24:48.469Z&quot;</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">publication</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-01-01&quot;</span>
+</span></code></pre></div></p>
+<h5 id="metadatadatesrevision">metadata.dates.revision<a class="headerlink" href="#metadatadatesrevision" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>created</code>
+<strong>Type</strong>: ISO 8601 datetime string
+<strong>Description</strong>: Last modification timestamp</p>
+<h5 id="metadatadatespublication">metadata.dates.publication<a class="headerlink" href="#metadatadatespublication" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>timeFirstPublished</code>
+<strong>Processing</strong>: <code>date_from_datetime_str()</code> - extracts date part (first 10 characters)
+<strong>Format</strong>: "YYYY-MM-DD" or empty
+<strong>Description</strong>: First publication date</p>
+<h4 id="metadatascope">metadata.scope<a class="headerlink" href="#metadatascope" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>metadataScopeIso</code> OR <code>metadataScope</code>
+<strong>Type</strong>: String
+<strong>Values</strong>: "dataset", "series", "service", etc.
+<strong>Description</strong>: Type of resource being described</p>
+<h3 id="spatial-section">Spatial Section<a class="headerlink" href="#spatial-section" title="Permanent link">&para;</a></h3>
+<h4 id="spatialbbox">spatial.bbox<a class="headerlink" href="#spatialbbox" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>map.west</code>, <code>map.south</code>, <code>map.east</code>, <code>map.north</code>
+<strong>Type</strong>: Array of 4 floats <code>[west, south, east, north]</code>
+<strong>Condition</strong>: Only if <code>map.polygon</code> is NOT present
+<strong>Processing</strong>: Convert string values to floats
+<strong>Example</strong>: <code>[-66.97, 49.91, -66.77, 50.04]</code></p>
+<h4 id="spatialpolygon">spatial.polygon<a class="headerlink" href="#spatialpolygon" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>map.polygon</code>
+<strong>Type</strong>: String (space-separated coordinate pairs)
+<strong>Processing</strong>: <code>fix_lat_long_polygon()</code> - transforms from "lat,long" to "long,lat"
+<strong>Format</strong>: "long1,lat1 long2,lat2 long3,lat3 ..."
+<strong>Example Input</strong>: "50.03,-66.84 50.01,-66.93 49.97,-66.97"
+<strong>Example Output</strong>: "-66.84,50.03 -66.93,50.01 -66.97,49.97"
+<strong>Note</strong>: Polygon takes precedence over bbox if both exist</p>
+<h4 id="spatialvertical">spatial.vertical<a class="headerlink" href="#spatialvertical" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>verticalExtentMin</code>, <code>verticalExtentMax</code>, <code>noVerticalExtent</code>
+<strong>Type</strong>: Array of 2 floats <code>[min, max]</code>
+<strong>Processing</strong>:
+- If <code>noVerticalExtent</code> is true: <code>[0, 0]</code>
+- Otherwise: <code>[float(verticalExtentMin), float(verticalExtentMax)]</code></p>
+<h4 id="spatialvertical_positive">spatial.vertical_positive<a class="headerlink" href="#spatialvertical_positive" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>verticalExtentDirection</code> or <code>noVerticalExtent</code>
+<strong>Type</strong>: String
+<strong>Values</strong>: "heightPositive" | "depthPositive"
+<strong>Default</strong>: "heightPositive" if <code>noVerticalExtent</code> is true</p>
+<h4 id="spatialvertical_epsg">spatial.vertical_epsg<a class="headerlink" href="#spatialvertical_epsg" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>verticalExtentEPSG</code> or <code>noVerticalExtent</code>
+<strong>Processing</strong>: Resolved via <code>epsg.json</code> lookup
+<strong>Default</strong>: EPSG 5829 if <code>noVerticalExtent</code> is true
+<strong>Structure</strong>: Full EPSG definition object</p>
+<h4 id="spatialdescription">spatial.description<a class="headerlink" href="#spatialdescription" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>map.description</code>
+<strong>Type</strong>: Bilingual text
+<strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">description</span><span class="p">:</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Port-Cartier&quot;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Port-Cartier&quot;</span>
+</span></code></pre></div></p>
+<h4 id="spatialdescriptionidentifier">spatial.descriptionIdentifier<a class="headerlink" href="#spatialdescriptionidentifier" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>map.descriptionIdentifier</code>
+<strong>Type</strong>: String (UUID)
+<strong>Description</strong>: Unique identifier for the geographic description</p>
+<h3 id="identification-section">Identification Section<a class="headerlink" href="#identification-section" title="Permanent link">&para;</a></h3>
+<h4 id="identificationtitle">identification.title<a class="headerlink" href="#identificationtitle" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>title</code>
+<strong>Type</strong>: Bilingual text
+<strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">title</span><span class="p">:</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DCBA&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ABCD&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">translations</span><span class="p">:</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">en</span><span class="p">:</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;text</span><span class="nv"> </span><span class="s">translated</span><span class="nv"> </span><span class="s">using...&quot;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">      </span><span class="nt">verified</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</span></code></pre></div></p>
+<h4 id="identificationidentifier">identification.identifier<a class="headerlink" href="#identificationidentifier" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>datasetIdentifier</code>
+<strong>Type</strong>: String (usually DOI)
+<strong>Example</strong>: "https://doi.org/10.26071/mxtr-gp72"
+<strong>Description</strong>: Persistent identifier for the dataset</p>
+<h4 id="identificationabstract">identification.abstract<a class="headerlink" href="#identificationabstract" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>abstract</code>
+<strong>Type</strong>: Bilingual text
+<strong>Example</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">abstract</span><span class="p">:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Zyxwvutsrqponmi</span><span class="nv"> </span><span class="s">kjihgfedcba...&quot;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Abcdefghijk</span><span class="nv"> </span><span class="s">lmnopqrstuvwxyz...&quot;</span>
+</span></code></pre></div></p>
+<h4 id="identificationassociated_resources">identification.associated_resources<a class="headerlink" href="#identificationassociated_resources" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>associated_resources</code>
+<strong>Type</strong>: Array of resource objects
+<strong>Structure</strong>: Each resource includes:
+- <code>association_type</code>: DataCite-style type (e.g., "IsReferencedBy", "IsCitedBy")
+- <code>association_type_iso</code>: ISO-style type (e.g., "crossReference")
+- <code>authority</code>: Authority type ("DOI", "URL")
+- <code>code</code>: The identifier/URL
+- <code>title</code>: Bilingual title
+<strong>Passed through</strong>: Structure preserved from form</p>
+<h4 id="identificationdates">identification.dates<a class="headerlink" href="#identificationdates" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: Multiple date fields
+<strong>Structure</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">dates</span><span class="p">:</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">creation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-01-01&quot;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">publication</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-01-01&quot;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-01-01&quot;</span>
+</span></code></pre></div></p>
+<h5 id="identificationdatescreation">identification.dates.creation<a class="headerlink" href="#identificationdatescreation" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>dateStart</code>
+<strong>Processing</strong>: <code>date_from_datetime_str()</code> - extracts date part
+<strong>Description</strong>: Dataset creation date</p>
+<h5 id="identificationdatespublication">identification.dates.publication<a class="headerlink" href="#identificationdatespublication" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>datePublished</code>
+<strong>Processing</strong>: <code>date_from_datetime_str()</code> - extracts date part
+<strong>Description</strong>: Dataset publication date</p>
+<h5 id="identificationdatesrevision">identification.dates.revision<a class="headerlink" href="#identificationdatesrevision" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>dateRevised</code>
+<strong>Processing</strong>: <code>date_from_datetime_str()</code> - extracts date part
+<strong>Description</strong>: Dataset revision date</p>
+<h4 id="identificationkeywords">identification.keywords<a class="headerlink" href="#identificationkeywords" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>keywords</code>, <code>eov</code>, <code>taxa</code>
+<strong>Structure</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">keywords</span><span class="p">:</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">default</span><span class="p">:</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;keyword1&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;keyword2&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;mot-clé1&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;mot-clé2&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">eov</span><span class="p">:</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;oxygen&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;nutrients&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;Oxygène&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Nutriments&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="nt">taxa</span><span class="p">:</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;Animalia&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Mollusca&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;Animalia&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Mollusca&quot;</span><span class="p p-Indicator">]</span>
+</span></code></pre></div></p>
+<h5 id="identificationkeywordsdefault">identification.keywords.default<a class="headerlink" href="#identificationkeywordsdefault" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>keywords.en</code> and <code>keywords.fr</code>
+<strong>Processing</strong>: <code>strip_keywords()</code> - removes leading/trailing whitespace
+<strong>Type</strong>: Bilingual keyword lists</p>
+<h5 id="identificationkeywordseov">identification.keywords.eov<a class="headerlink" href="#identificationkeywordseov" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>eov</code> array
+<strong>Processing</strong>:
+- English: Direct from form
+- French: <code>eovs_to_fr()</code> - translates using <code>eov.json</code> lookup
+<strong>Example</strong>: "invertebrateAbundanceAndDistribution" → "Abondance et distribution d'invertébrés"</p>
+<h5 id="identificationkeywordstaxa">identification.keywords.taxa<a class="headerlink" href="#identificationkeywordstaxa" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>taxa</code> array (GBIF taxonomy objects)
+<strong>Processing</strong>: <code>format_taxa()</code> - flattens taxonomic hierarchy
+<strong>Logic</strong>:
+- Extracts: kingdom, phylum, class, order, family, genus, species
+- Joins non-null values with commas
+- Splits back into array of individual taxa names
+<strong>Example Input</strong>:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;kingdom&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Animalia&quot;</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;phylum&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mollusca&quot;</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gastropoda&quot;</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<strong>Example Output</strong>: <code>["Animalia", "Mollusca", "Gastropoda"]</code></p>
+<p><strong>Removal</strong>: If <code>noTaxa</code> is true, the entire <code>taxa</code> key is removed</p>
+<h4 id="identificationtemporal_begin">identification.temporal_begin<a class="headerlink" href="#identificationtemporal_begin" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>dateStart</code>
+<strong>Type</strong>: ISO 8601 datetime string
+<strong>Description</strong>: Start of temporal coverage</p>
+<h4 id="identificationtemporal_end">identification.temporal_end<a class="headerlink" href="#identificationtemporal_end" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>dateEnd</code>
+<strong>Type</strong>: ISO 8601 datetime string
+<strong>Description</strong>: End of temporal coverage</p>
+<h4 id="identificationstatus">identification.status<a class="headerlink" href="#identificationstatus" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>status</code>
+<strong>Type</strong>: String
+<strong>Description</strong>: Dataset status (often used for publication workflow)</p>
+<h4 id="identificationproject">identification.project<a class="headerlink" href="#identificationproject" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>projects</code>
+<strong>Type</strong>: Array of strings
+<strong>Example</strong>: <code>["Coastal Environmental Baseline Program"]</code></p>
+<h4 id="identificationprogress_code">identification.progress_code<a class="headerlink" href="#identificationprogress_code" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>progress</code>
+<strong>Type</strong>: String
+<strong>Values</strong>: "completed", "onGoing", "planned", "obsolete", etc.
+<strong>Example</strong>: "completed"</p>
+<h4 id="identificationedition">identification.edition<a class="headerlink" href="#identificationedition" title="Permanent link">&para;</a></h4>
+<p><strong>CIOOS Form Source</strong>: <code>edition</code>
+<strong>Type</strong>: String
+<strong>Description</strong>: Version or edition of the dataset</p>
+<h3 id="contact-section">Contact Section<a class="headerlink" href="#contact-section" title="Permanent link">&para;</a></h3>
+<p><strong>CIOOS Form Source</strong>: <code>contacts</code> array
+<strong>Type</strong>: Array of contact objects
+<strong>Processing</strong>: Restructures each contact, adds automatic distributor</p>
+<h4 id="contact-structure">Contact Structure<a class="headerlink" href="#contact-structure" title="Permanent link">&para;</a></h4>
+<p>Each contact in the CIOOS format:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">roles</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;owner&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;funder&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">organization</span><span class="p">:</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Organization</span><span class="nv"> </span><span class="s">Name&quot;</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.org&quot;</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123</span><span class="nv"> </span><span class="s">Street&quot;</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">city</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;City&quot;</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">country</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Country&quot;</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;org@example.org&quot;</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">ror</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://ror.org/...&quot;</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="nt">individual</span><span class="p">:</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LastName,</span><span class="nv"> </span><span class="s">FirstName&quot;</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nt">position</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Position</span><span class="nv"> </span><span class="s">Title&quot;</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nt">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;person@example.org&quot;</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="nt">orcid</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://orcid.org/...&quot;</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">  </span><span class="nt">inCitation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span></code></pre></div></p>
+<h4 id="contact-field-mappings">Contact Field Mappings<a class="headerlink" href="#contact-field-mappings" title="Permanent link">&para;</a></h4>
+<h5 id="roles">roles<a class="headerlink" href="#roles" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.role</code>
+<strong>Type</strong>: Array of strings
+<strong>Direct mapping</strong>: Roles passed through as-is</p>
+<h5 id="organizationname">organization.name<a class="headerlink" href="#organizationname" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgName</code></p>
+<h5 id="organizationurl">organization.url<a class="headerlink" href="#organizationurl" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgURL</code></p>
+<h5 id="organizationaddress">organization.address<a class="headerlink" href="#organizationaddress" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgAdress</code>
+<strong>Note</strong>: Typo in form field name preserved</p>
+<h5 id="organizationcity">organization.city<a class="headerlink" href="#organizationcity" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgCity</code></p>
+<h5 id="organizationcountry">organization.country<a class="headerlink" href="#organizationcountry" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgCountry</code></p>
+<h5 id="organizationemail">organization.email<a class="headerlink" href="#organizationemail" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgEmail</code></p>
+<h5 id="organizationror">organization.ror<a class="headerlink" href="#organizationror" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.orgRor</code>
+<strong>Description</strong>: Research Organization Registry identifier</p>
+<h5 id="individualname">individual.name<a class="headerlink" href="#individualname" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.lastName</code>, <code>contact.givenNames</code>
+<strong>Processing</strong>: Concatenates as "LastName, FirstName"
+<strong>Logic</strong>: <code>", ".join([lastName, givenNames])</code> with None removal</p>
+<h5 id="individualposition">individual.position<a class="headerlink" href="#individualposition" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.indPosition</code></p>
+<h5 id="individualemail">individual.email<a class="headerlink" href="#individualemail" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.indEmail</code></p>
+<h5 id="individualorcid">individual.orcid<a class="headerlink" href="#individualorcid" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.indOrcid</code>
+<strong>Format</strong>: "https://orcid.org/0000-0000-0000-0000"</p>
+<h5 id="incitation">inCitation<a class="headerlink" href="#incitation" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>contact.inCitation</code>
+<strong>Type</strong>: Boolean
+<strong>Description</strong>: Whether this contact should appear in dataset citations</p>
+<h4 id="special-contact-processing">Special Contact Processing<a class="headerlink" href="#special-contact-processing" title="Permanent link">&para;</a></h4>
+<h5 id="1-automatic-distributor-assignment">1. Automatic Distributor Assignment<a class="headerlink" href="#1-automatic-distributor-assignment" title="Permanent link">&para;</a></h5>
+<p><strong>Logic</strong> (lines 296-303):
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># If there&#39;s no distributor set, set it to the data contact (owner)</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">all_roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">contact</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">contact</span> <span class="ow">in</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;contacts&quot;</span><span class="p">]]</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">all_roles_flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">all_roles</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">]</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">if</span> <span class="s2">&quot;distributor&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_roles_flat</span><span class="p">:</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="k">for</span> <span class="n">contact</span> <span class="ow">in</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;contacts&quot;</span><span class="p">]:</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>        <span class="k">if</span> <span class="s2">&quot;owner&quot;</span> <span class="ow">in</span> <span class="n">contact</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]:</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>            <span class="n">contact</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;distributor&quot;</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Effect</strong>: If no contact has "distributor" role, it's automatically added to all "owner" contacts</p>
+<h5 id="2-organization-contact-prepending">2. Organization Contact Prepending<a class="headerlink" href="#2-organization-contact-prepending" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>organization</code> (top-level field)
+<strong>Logic</strong> (lines 305-313):
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">if</span> <span class="n">organization</span><span class="p">:</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">organization</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        <span class="s2">&quot;roles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;owner&quot;</span><span class="p">],</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;organization&quot;</span><span class="p">)},</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="p">}</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">record_yaml</span><span class="p">[</span><span class="s2">&quot;contact&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">organization</span><span class="p">]</span> <span class="o">+</span> <span class="n">record_yaml</span><span class="p">[</span><span class="s2">&quot;contact&quot;</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Effect</strong>: If a top-level <code>organization</code> field exists, creates a new contact and prepends it to the contact list</p>
+<h3 id="distribution-section">Distribution Section<a class="headerlink" href="#distribution-section" title="Permanent link">&para;</a></h3>
+<p><strong>CIOOS Form Source</strong>: <code>distribution</code> array
+<strong>Type</strong>: Array of distribution objects
+<strong>Structure Preserved</strong>: Each distribution object passed through with minimal processing</p>
+<h4 id="distribution-structure">Distribution Structure<a class="headerlink" href="#distribution-structure" title="Permanent link">&para;</a></h4>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">distribution</span><span class="p">:</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.org/data&quot;</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">      </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ERDDAP</span><span class="nv"> </span><span class="s">Dataset&quot;</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">      </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Jeu</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">données</span><span class="nv"> </span><span class="s">ERDDAP&quot;</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="nt">description</span><span class="p">:</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">      </span><span class="nt">en</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Complete</span><span class="nv"> </span><span class="s">dataset...&quot;</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">      </span><span class="nt">fr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ensemble</span><span class="nv"> </span><span class="s">de</span><span class="nv"> </span><span class="s">données</span><span class="nv"> </span><span class="s">complet...&quot;</span>
+</span></code></pre></div>
+<h5 id="url">url<a class="headerlink" href="#url" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>distribution[].url</code>
+<strong>Type</strong>: String (URL)</p>
+<h5 id="name">name<a class="headerlink" href="#name" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>distribution[].name</code>
+<strong>Type</strong>: Bilingual text</p>
+<h5 id="description">description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h5>
+<p><strong>CIOOS Form Source</strong>: <code>distribution[].description</code>
+<strong>Type</strong>: Bilingual text</p>
+<h3 id="platform-and-instruments-section">Platform and Instruments Section<a class="headerlink" href="#platform-and-instruments-section" title="Permanent link">&para;</a></h3>
+<p><strong>Condition</strong>: Behavior depends on <code>noPlatform</code> flag</p>
+<h4 id="case-1-no-platform-noplatform-true">Case 1: No Platform (<code>noPlatform</code> = true)<a class="headerlink" href="#case-1-no-platform-noplatform-true" title="Permanent link">&para;</a></h4>
+<p><strong>Result</strong>: <code>instruments</code> array at root level
+<strong>CIOOS Form Source</strong>: <code>instruments</code>
+<strong>Structure</strong>: Array passed through as-is</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">instruments</span><span class="p">:</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inst-1&quot;</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Sensor&quot;</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</span></code></pre></div>
+<h4 id="case-2-single-platform">Case 2: Single Platform<a class="headerlink" href="#case-2-single-platform" title="Permanent link">&para;</a></h4>
+<p><strong>Condition</strong>: <code>platforms</code> array has exactly 1 element
+<strong>Result</strong>: <code>platform</code> array with instruments nested
+<strong>Processing</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">record</span><span class="p">[</span><span class="s2">&quot;platforms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;instruments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instrumentsList</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">record_yaml</span><span class="p">[</span><span class="s2">&quot;platform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;platforms&quot;</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Structure</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nt">platform</span><span class="p">:</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;plat-1&quot;</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Platform</span><span class="nv"> </span><span class="s">Name&quot;</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;coastal</span><span class="nv"> </span><span class="s">structure&quot;</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="nt">instruments</span><span class="p">:</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inst-1&quot;</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Sensor&quot;</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inst-2&quot;</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Profiler&quot;</span>
+</span></code></pre></div></p>
+<h4 id="case-3-multiple-platforms">Case 3: Multiple Platforms<a class="headerlink" href="#case-3-multiple-platforms" title="Permanent link">&para;</a></h4>
+<p><strong>Condition</strong>: <code>platforms</code> array has &gt; 1 element
+<strong>Result</strong>: <code>platform</code> array with instruments matched by platform ID
+<strong>Processing</strong>: Each instrument's <code>platform</code> field matched to platform <code>id</code></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">platformList</span><span class="p">:</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">instruments</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">instrumentsList</span><span class="p">:</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>        <span class="k">if</span> <span class="n">instrument</span><span class="p">[</span><span class="s2">&quot;platform&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">platform</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]:</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>            <span class="n">instruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">instruments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        <span class="n">platform</span><span class="p">[</span><span class="s2">&quot;instruments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instruments</span>
+</span></code></pre></div>
+<p><strong>Structure</strong>:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">platform</span><span class="p">:</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;plat-1&quot;</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Platform</span><span class="nv"> </span><span class="s">1&quot;</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="nt">instruments</span><span class="p">:</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inst-1&quot;</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;plat-2&quot;</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Platform</span><span class="nv"> </span><span class="s">2&quot;</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="nt">instruments</span><span class="p">:</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inst-2&quot;</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inst-3&quot;</span>
+</span></code></pre></div></p>
+<h2 id="data-processing-functions">Data Processing Functions<a class="headerlink" href="#data-processing-functions" title="Permanent link">&para;</a></h2>
+<h3 id="scrub_dictd_in">scrub_dict(d_in)<a class="headerlink" href="#scrub_dictd_in" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Recursively remove empty strings, None values, and empty objects
+<strong>Applied</strong>: To entire output structure
+<strong>Effect</strong>: Clean, minimal output without null pollution</p>
+<h3 id="scrub_listd_in">scrub_list(d_in)<a class="headerlink" href="#scrub_listd_in" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Scrub dictionaries within lists
+<strong>Applied</strong>: To all array values</p>
+<h3 id="strip_keywordskeywords">strip_keywords(keywords)<a class="headerlink" href="#strip_keywordskeywords" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Remove leading/trailing whitespace from keywords
+<strong>Input</strong>: <code>{"en": ["keyword "], "fr": [" mot-clé"]}</code>
+<strong>Output</strong>: <code>{"en": ["keyword"], "fr": ["mot-clé"]}</code></p>
+<h3 id="date_from_datetime_strdatetime_str">date_from_datetime_str(datetime_str)<a class="headerlink" href="#date_from_datetime_strdatetime_str" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Extract date from datetime string
+<strong>Input</strong>: "2025-01-01T17:00:00.000Z"
+<strong>Output</strong>: "2025-01-01"
+<strong>Logic</strong>: Returns first 10 characters</p>
+<h3 id="fix_lat_long_polygonpolygon">fix_lat_long_polygon(polygon)<a class="headerlink" href="#fix_lat_long_polygonpolygon" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Transform coordinate order from lat,long to long,lat
+<strong>Input</strong>: "50.03,-66.84 50.01,-66.93"
+<strong>Output</strong>: "-66.84,50.03 -66.93,50.01"
+<strong>Steps</strong>:
+1. Replace ", " with "," (clean spacing)
+2. Split by spaces into coordinate pairs
+3. For each pair, split by comma into [lat, long]
+4. Rejoin as [long, lat]</p>
+<h3 id="format_taxataxa">format_taxa(taxa)<a class="headerlink" href="#format_taxataxa" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Flatten GBIF taxonomy objects to keyword list
+<strong>Input</strong>: Array of taxonomy objects with hierarchical structure
+<strong>Output</strong>: Flat array of taxonomic names
+<strong>Logic</strong>:
+- Extract: kingdom, phylum, class, order, family, genus, species
+- Filter out None/null values
+- Join with commas, then split back to array
+<strong>Effect</strong>: Converts complex taxonomy to simple keyword list</p>
+<h3 id="eovs_to_freovs_en">eovs_to_fr(eovs_en)<a class="headerlink" href="#eovs_to_freovs_en" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Translate EOV codes from English to French
+<strong>Input</strong>: <code>["oxygen", "nutrients"]</code>
+<strong>Output</strong>: <code>["Oxygène", "Nutriments"]</code>
+<strong>Data Source</strong>: <code>eov.json</code> lookup table
+<strong>Fallback</strong>: Empty string for missing translations</p>
+<h2 id="resource-files">Resource Files<a class="headerlink" href="#resource-files" title="Permanent link">&para;</a></h2>
+<h3 id="licensesjson">licenses.json<a class="headerlink" href="#licensesjson" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: License code to full license information
+<strong>Structure</strong>:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="nt">&quot;CC-BY-4.0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;en&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Creative Commons Attribution 4.0 Attribution&quot;</span><span class="p">},</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://creativecommons.org/licenses/by/4.0&quot;</span><span class="p">,</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CC-BY-4.0&quot;</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<strong>Supported Licenses</strong>: CC-BY-4.0, CC-BY-SA-4.0, CC-BY-ND-4.0, CC-BY-NC-4.0, CC-BY-NC-SA-4.0, CC-BY-NC-ND-4.0, CC0, and others</p>
+<h3 id="eovjson">eov.json<a class="headerlink" href="#eovjson" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: EOV translations and metadata
+<strong>Structure</strong>:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="p">[</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="p">{</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Biogeochemical&quot;</span><span class="p">,</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oxygen&quot;</span><span class="p">,</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="nt">&quot;label EN&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Oxygen&quot;</span><span class="p">,</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">    </span><span class="nt">&quot;label FR&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Oxygène&quot;</span><span class="p">,</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">    </span><span class="nt">&quot;definition EN&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The amount of dissolved oxygen in seawater.&quot;</span><span class="p">,</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">    </span><span class="nt">&quot;definition FR&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Concentration d&#39;oxygène dissous dans l&#39;eau de mer&quot;</span><span class="p">,</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">    </span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dissolved-oxygen.svg&quot;</span><span class="p">,</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.goosocean.org/...&quot;</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="p">]</span>
+</span></code></pre></div></p>
+<h3 id="epsgjson">epsg.json<a class="headerlink" href="#epsgjson" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: EPSG coordinate reference system definitions
+<strong>Structure</strong>: Array of EPSG code objects indexed by code
+<strong>Usage</strong>: Vertical extent reference system lookup</p>
+<h2 id="fields-not-mapped">Fields Not Mapped<a class="headerlink" href="#fields-not-mapped" title="Permanent link">&para;</a></h2>
+<p>The following CIOOS Form fields are <strong>NOT</strong> included in the CIOOS intermediate format:</p>
+<ul>
+<li><code>category</code> - Internal categorization</li>
+<li><code>doiCreationStatus</code> - DOI workflow status</li>
+<li><code>filename</code> - Internal file tracking</li>
+<li><code>lastEditedBy</code> - Editor information</li>
+<li><code>recordID</code> - Firebase record ID (used only for maintenance_note URL)</li>
+<li><code>region</code> - Regional classification (used only for maintenance_note URL)</li>
+<li><code>resourceType</code> - Resource type classification</li>
+<li><code>status</code> - Mapped but often empty/unused</li>
+<li><code>userID</code> - User identifier (used only for maintenance_note URL)</li>
+<li><code>noVerticalExtent</code> - Flag only, values default to 0</li>
+<li><code>noTaxa</code> - Flag only, causes taxa removal</li>
+<li><code>noPlatform</code> - Flag only, affects platform/instrument structure</li>
+</ul>
+<h2 id="validation-and-quality-control">Validation and Quality Control<a class="headerlink" href="#validation-and-quality-control" title="Permanent link">&para;</a></h2>
+<p>The transformation includes several quality control measures:</p>
+<ol>
+<li><strong>Empty Value Removal</strong>: All empty strings, nulls, and empty objects removed</li>
+<li><strong>Type Conversion</strong>: String numbers converted to floats for coordinates/extents</li>
+<li><strong>Coordinate Validation</strong>: Lat/long order corrected for standards compliance</li>
+<li><strong>Date Extraction</strong>: Datetime strings normalized to date-only format where needed</li>
+<li><strong>Whitespace Trimming</strong>: Keywords cleaned of leading/trailing spaces</li>
+<li><strong>None Filtering</strong>: None values removed from concatenations</li>
+</ol>
+<h2 id="usage-example">Usage Example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cioos_metadata_conversion.firebase_to_cioos</span><span class="w"> </span><span class="kn">import</span> <span class="n">record_json_to_yaml</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="c1"># Load CIOOS Form data from Firebase</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="n">firebase_record</span> <span class="o">=</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>  <span class="c1"># JSON from Firebase</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="c1"># Transform to CIOOS intermediate format</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="n">cioos_record</span> <span class="o">=</span> <span class="n">record_json_to_yaml</span><span class="p">(</span><span class="n">firebase_record</span><span class="p">)</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="c1"># Result is ready for any output conversion</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="c1"># - ISO 19115-3 XML</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="c1"># - DataCite JSON/XML</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="c1"># - ERDDAP/ACDD attributes</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="c1"># - Citation.cff</span>
+</span></code></pre></div>
+<h2 id="file-references">File References<a class="headerlink" href="#file-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Transformation code</strong>: <a href="cioos_metadata_conversion/firebase_to_cioos.py">firebase_to_cioos.py</a></li>
+<li><strong>Resource files</strong>: <a href="cioos_metadata_conversion/resources/">cioos_metadata_conversion/resources/</a></li>
+<li><a href="cioos_metadata_conversion/resources/licenses.json">licenses.json</a></li>
+<li><a href="cioos_metadata_conversion/resources/eov.json">eov.json</a></li>
+<li><a href="cioos_metadata_conversion/resources/epsg.json">epsg.json</a></li>
+<li><strong>Test data</strong>: <a href="tests/records/firebase/test-dataset-record.json">tests/records/firebase/test-dataset-record.json</a></li>
+<li><strong>Test YAML output</strong>: <a href="tests/records/test_record1.yaml">tests/records/test_record1.yaml</a></li>
+</ul>
+<h2 id="standards-compliance">Standards Compliance<a class="headerlink" href="#standards-compliance" title="Permanent link">&para;</a></h2>
+<p>The CIOOS intermediate format is designed to support:
+- <strong>ISO 19115-3</strong>: Geographic information metadata
+- <strong>DataCite 4.5</strong>: Research data citation
+- <strong>ACDD 1.3</strong>: Attribute Convention for Data Discovery
+- <strong>Schema.org</strong>: Structured data for web discovery
+- <strong>CIOOS Metadata Profile</strong>: Canadian ocean data requirements</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../field-mapping-summary/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Field Mapping Summary">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Field Mapping Summary
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../cioos-form-to-iso19115-3/" class="md-footer__link md-footer__link--next" aria-label="Next: CIOOS Form to ISO 19115-3">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                CIOOS Form to ISO 19115-3
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/cioos-siooc/cioos-metadata-conversion" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "toc.follow", "navigation.tabs", "navigation.tabs.sticky", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
