@@ -1,0 +1,78 @@
+name: Build and Deploy Website
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - feat/add-mkdocs-documentation
+  pull_request:
+    branches:
+      - development
+      - main
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Define variables
+        run: |
+          BRANCH_NAME='${{ github.head_ref || github.ref_name }}'
+          BRANCH_NAME_TRIMMED=$(printf '%s' "$BRANCH_NAME" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+          VERSION_NAME=$(printf '%s' "$BRANCH_NAME_TRIMMED" | tr -c '[:alnum:]-' '-' | sed -E 's/-{2,}/-/g; s/^-+//; s/-+$//')
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+
+      - name: Update mkdocs.yml
+        run: |
+          sed -i "s|edit_uri: edit/main/docs/|edit_uri: edit/$VERSION_NAME/docs/|" mkdocs.yml
+          if [ "$BRANCH_NAME" = "main" ]; then
+            sed -i "s/version_selector: true/version_selector: false/" mkdocs.yml
+          fi
+
+      - name: Deploy docs with mike
+        run: |
+          if [ "$BRANCH_NAME" = "main" ]; then
+            uv run mike deploy --push "$VERSION_NAME" latest
+            uv run mike set-default --push latest
+          else
+            uv run mike deploy --push "$VERSION_NAME"
+          fi
+      - name: Check if message already exists
+        if: github.event_name == 'pull_request'
+        id: find-comment
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: "🧪🎉 This version of the website will be available shortly at: "
+      - name: Add comment to PR
+        if: github.event_name == 'pull_request' && steps.find-comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🧪🎉 This version of the website will be available shortly at: https://cioos-siooc.github.io/cioos-metadata-conversion/${{ env.VERSION_NAME }}

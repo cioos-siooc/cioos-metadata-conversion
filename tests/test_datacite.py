@@ -6,7 +6,7 @@ from datacite import schema45
 
 from cioos_metadata_conversion import datacite
 from cioos_metadata_conversion.firebase_to_cioos import record_json_to_yaml
-
+    
 
 def test_dataset_cite(record):
     """
@@ -99,3 +99,119 @@ def test_firebase_record_to_json(firebase_record, tmp_path):
     assert json_output
     assert isinstance(json_output, str)  # Ensure it's a string
     assert test_file.exists()  # Ensure the path exists
+
+def test_datacite_doi_url_with_prefix(record):
+    """
+    Test the URL and DOI generation in the DataCite record.
+    """
+    url = "http://CATALOGUE_URL.com/dataset/cioos-ca_"
+    doi_prefix = "10.12345"
+
+    # Drop doi from record for this test
+    if "identifier" in record["identification"]:
+        record["identification"].pop("identifier")
+    datacite_record = datacite.generate_datacite_record(record, url, doi_prefix=doi_prefix)
+
+    assert datacite_record.get("url").startswith(url)
+    assert datacite_record.get("prefix") == doi_prefix
+    
+def test_datacite_doi_url_without_prefix(record):
+    """
+    Test the URL and DOI generation in the DataCite record without a DOI prefix.
+    """
+    url = "http://CATALOGUE_URL.com/dataset/cioos-ca_"
+
+    datacite_record = datacite.generate_datacite_record(record, url)
+
+    assert datacite_record.get("url").startswith(url)
+    assert datacite_record.get("doi") == record["identification"].get("identifier").replace("https://doi.org/", "")
+    assert datacite_record.get("prefix") is None
+
+
+def test_datacite_doi_url_with_existing_doi(record):
+    """
+    Test the URL and DOI generation in the DataCite record with an existing DOI.
+    """
+    url = "http://CATALOGUE_URL.com/dataset/cioos-ca_"
+    doi_prefix = "10.12345"
+    existing_doi = "10.12345/abcdefg"
+
+    record["identification"]["identifier"] = f"https://doi.org/{existing_doi}"
+    datacite_record = datacite.generate_datacite_record(record, url, doi_prefix=doi_prefix)
+
+    assert datacite_record.get("url").startswith(url)
+    assert datacite_record.get("doi") == existing_doi
+    assert datacite_record.get("prefix") is None
+
+
+def test_datacite_doi_url_with_nonmatching_prefix(record):
+    """
+    Test the URL and DOI generation in the DataCite record with a non-matching DOI prefix.
+    """
+    url = "http://CATALOGUE_URL.com/dataset/cioos-ca_"
+    doi_prefix = "10.12345"
+    existing_doi = "10.67890/abcdefg"
+
+    record["identification"]["identifier"] = f"https://doi.org/{existing_doi}"
+    datacite_record = datacite.generate_datacite_record(record, url, doi_prefix=doi_prefix)
+
+    assert datacite_record.get("url").startswith(url)
+    assert datacite_record.get("doi") == existing_doi
+    assert datacite_record.get("prefix") is None
+
+
+def test_datacite_record_conversion():
+    """
+    Test the full conversion process from Firebase to CIOOS to DataCite.
+    """
+    firebase_record_path = (
+        Path(__file__).parent / "records" / "firebase" / "test-dataset-record.json"
+    )
+    with open(firebase_record_path, "r") as f:
+        firebase_record = json.load(f)
+
+    # Convert Firebase to CIOOS
+    cioos_record = record_json_to_yaml(firebase_record)
+
+    # Generate DataCite record
+    datacite_record = datacite.generate_datacite_record(cioos_record)
+
+    assert datacite_record
+    assert isinstance(datacite_record, dict)
+
+    assert datacite_record.get("titles")
+    assert datacite_record.get("creators")
+    assert datacite_record.get("publisher")
+    assert datacite_record.get("publicationYear")
+    assert datacite_record.get("types")
+    assert datacite_record["types"].get("resourceTypeGeneral") == "Dataset"
+
+    # Review dates
+    collected_date = [
+        date
+        for date in datacite_record["dates"]
+        if date.get("dateType") == "Collected"
+    ]
+    assert datacite_record.get("dates")
+    assert any(
+        [date for date in datacite_record["dates"] if date.get("dateType") == "Created"]
+    ), "Missing 'Created' date"
+    assert any(
+        [date for date in datacite_record["dates"] if date.get("dateType") == "Updated"]
+    ), "Missing 'Updated' date"
+    assert any(
+        collected_date
+    ), "Missing 'Collected' date"
+    assert len(collected_date) == 1, "Multiple 'Collected' dates found"
+    assert collected_date[0].get("date"), "'Collected' date is empty"
+    assert "/" in collected_date[0]["date"]
+
+    # Review Geospatial items
+    assert datacite_record.get("geoLocations")
+    assert datacite_record["geoLocations"][0].get("geoLocationPolygon"), "Missing 'geoLocationPolygon'"
+    assert datacite_record["geoLocations"][0].get("geoLocationPlace"), "Missing 'geoLocationPlace'"
+
+    # Validate funder
+    assert datacite_record.get("fundingReferences")
+    assert len(datacite_record["fundingReferences"]) == 1
+    assert datacite_record["fundingReferences"][0].get("funderName")

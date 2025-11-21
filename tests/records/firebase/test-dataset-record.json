@@ -3,6 +3,102 @@
     "en": "Zyxwvutsrqponmi kjihgfedcba hihrwefj\n\n- [**A 600-year marine record**](https://doi.org/10.1002/jqs.3531)",
     "fr": "Abcdefghijk lmnopqrstuvwxyz kaskkf\n\n- [**A 600-year marine record**](https://doi.org/10.1002/jqs.3531)"
   },
+  "history": [
+    {
+      "additionalDocumentation": [
+        {
+          "authority": "URL",
+          "code": "https://cioos.ca",
+          "title": {
+            "en": "Some lineage docs",
+            "fr": "Quelques documents sur le lignage",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        },
+        {
+          "authority": "URL",
+          "code": "https://test.com",
+          "title": {
+            "en": "Some more lineage docs",
+            "fr": "Quelques documents supplémentaires sur le lignage",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        }
+      ],
+      "processingStep": [
+        {
+          "authority": "URL",
+          "code": "https://process.com",
+          "description": {
+            "en": "Some processing method description",
+            "fr": "Description de certaines méthodes de traitement",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          },
+          "title": {
+            "en": "Some processing method title",
+            "fr": "Titre de certaines méthodes de traitement",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        }
+      ],
+      "scope": "Dataset",
+      "source": [
+        {
+          "authority": "URL",
+          "code": "https://source.com",
+          "description": {
+            "en": "Some source docs description",
+            "fr": "Description de certains documents sources",
+            "translations": {
+              "fr": {
+                "verified": true
+              }
+            }
+          },
+          "title": {
+            "en": "Some source title",
+            "fr": "Un titre de source",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        }
+      ],
+      "statement": {
+        "en": "Lineage Title",
+        "fr": "Titre de la lignée",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      }
+    }
+  ],
   "associated_resources": [
     {
       "association_type": "IsReferencedBy",
@@ -55,7 +151,8 @@
       "orgRor": "",
       "orgURL": "https://ogsl.ca/en/home-slgo/",
       "role": [
-        "owner"
+        "owner",
+        "funder"
       ]
     },
     {

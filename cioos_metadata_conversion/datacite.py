@@ -8,35 +8,28 @@ from datetime import datetime
 from datacite import schema45
 from loguru import logger
 
-# TODO map cioos roles to datacite contributor roles
+from cioos_metadata_conversion.utils import camel_to_title
+
 CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "pointOfContact": "ContactPerson",
-    "DataCollector": "DataCollector",
-    "custodian": "DataCurator",
-    "DataManager": "DataManager",
     "distributor": "Distributor",
-    "Editor": "Editor",
-    "HostingInstitution": "HostingInstitution",
-    "Producer": "Producer",
-    "ProjectLeader": "ProjectLeader",
-    "ProjectManager": "ProjectManager",
-    "ProjectMember": "ProjectMember",
-    "RegistrationAgency": "RegistrationAgency",
-    "RegistrationAuthority": "RegistrationAuthority",
-    "RelatedPerson": "RelatedPerson",
-    "Researcher": "Researcher",
-    "ResearchGroup": "ResearchGroup",
-    "RightsHolder": "RightsHolder",
-    "Sponsor": "Sponsor",
-    "Supervisor": "Supervisor",
-    "Translator": "Translator",
-    "WorkPackageLeader": "WorkPackageLeader",
-    "Other": "Other",
-    "processor": "Other",
-    "collaborator": "RelatedPerson",
-    "contributor": "Other",
-    "originator": "Other",
+    "editor": "Editor",
+    "rightsHolder": "RightsHolder",
+    "sponsor": "Sponsor",
+    "processor": "DataCurator",
+    "metadataCustodian": "DataCurator",
+    "owner": "RightsHolder",
+    "funder": "Sponsor",
     "principalInvestigator": "ProjectLeader",
+    "collaborator": "ProjectMember",
+    "originator": "ProjectMember",
+    "contributor": "ProjectMember",
+    "author": "Researcher",
+    "coAuthor": "Researcher",
+    "mediator": "Other",
+    "ressourceProvider": "Other",
+    "stakeholder": "Other",
+    "custodian": "DataCurator"
 }
 
 
@@ -95,7 +88,7 @@ def _get_creators(record) -> list:
     return [
         _get_contact_info(contact)
         for contact in record["contact"]
-        if "owner" in contact["roles"]
+        if contact["inCitation"]
     ]
 
 
@@ -121,7 +114,7 @@ def _get_contributors(record) -> list:
         }
         for contact in record["contact"]
         for role in contact["roles"]
-        if role not in {"owner", "publisher", "funder"}
+        if role != "publisher"
     ]
 
 
@@ -189,50 +182,24 @@ def _get_subject_scheme(group) -> dict:
         return {}
 
 
-DATES_MAPPING = {
-    "creation": "Created",
-    "publication": "Issued",
-    "revision": "Updated",
-}
-
-
 def _get_dates(record) -> list:
     """
     Get the dates from the Cioos record.
     """
-
-    def _get_date(name, date):
-        """
-        Get the date from the Cioos record.
-        """
-        if name not in DATES_MAPPING:
-            logger.error(f"Unknown date type: {name}")
-            return {
-                "date": date,
-                "dateInformation": name,
-                "type": "Other",
-            }
-        return {
-            "date": date,
-            "dateType": DATES_MAPPING[name],
-        }
-
-    return (
-        [
-            _get_date(name, date)
-            for name, date in record["identification"].get("dates", {}).items()
-        ]
-        + [
-            _get_date(name, date)
-            for name, date in record["metadata"].get("dates", {}).items()
-        ]
-        + [
-            {
-                "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
-                "dateType": "Collected",
-            }
-        ]
-    )
+    return [
+        {
+            "date": record["identification"]["dates"].get("created", ""),
+            "dateType": "Created",
+        },
+        {
+            "date": record["metadata"]["dates"].get("revision", ""),
+            "dateType": "Updated",
+        },
+        {
+            "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
+            "dateType": "Collected",
+        },
+    ]
 
 
 def _get_alternate_identifiers(record) -> dict:
@@ -246,7 +213,14 @@ def _get_related_identifiers(record) -> dict:
     """
     Get the related identifiers from the Cioos record.
     """
-    return {"relatedIdentifiers": []}
+    return {"relatedIdentifiers": [
+        {
+            "relatedIdentifier": item['code'],
+            "relatedIdentifierType": item["authority"],
+            "relationType": item['association_type'],
+        }
+        for item in record['identification'].get('associated_resources', [])
+    ]}
 
 
 def _get_related_items(record) -> dict:
@@ -305,12 +279,56 @@ def _get_geo_bounding_box(record) -> dict:
     }
 
 
+def _get_geo_location_place(record) -> dict:
+    if not record["spatial"].get("description"):
+        return {}
+    return {"geoLocationPlace": record["spatial"]["description"].get("en", "") }
+
+
 def _get_unique_dicts(dict_list: list) -> list:
     unique_dicts = {frozenset(d.items()) for d in dict_list}
     return [dict(items) for items in unique_dicts]
 
 
-def generate_datacite_record(record) -> dict:
+def _get_eov_subjects(record) -> list:
+    """
+    Get the EOV subjects from the CIOOS record and return a non camelcase list of unique dicts.
+    """
+    if not record.get("metadata", {}).get("eov"):
+        return []
+    return _get_unique_dicts(
+        [
+            {
+                "subject": camel_to_title(eov),
+                "lang": "en",
+                **_get_subject_scheme("eov"),
+            }
+            for eov in record["metadata"]["eov"]
+            if eov
+        ]
+    )
+
+
+def _get_keyword_subjects(record) -> list:
+    """
+    Get the keyword subjects from the CIOOS record.
+    """
+    if not record.get("metadata", {}).get("keywords"):
+        return []
+    return _get_unique_dicts(
+        [
+            {
+                "subject": keyword,
+                "lang": "en",
+                **_get_subject_scheme("default"),
+            }
+            for keyword in record["metadata"]["keywords"]
+            if keyword
+        ]
+    )
+
+
+def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/dataset/cioos-ca_", doi_prefix=None) -> dict:
     """
     Generate a DataCite record from a Cioos record.
     """
@@ -329,15 +347,25 @@ def generate_datacite_record(record) -> dict:
         "doi",
         record["identification"].get("identifier", "").replace("https://doi.org/", ""),
     )
+    doi = record["identification"].get("identifier", "")
+    if doi_prefix and not doi:
+        doi_attributes = {"prefix": doi_prefix}
+    elif doi and doi_prefix and doi.startswith(doi_prefix):
+        doi_attributes = {"doi": doi}
+    else:
+        doi_attributes = {}
 
     return {
+        "url": catalogue_url + record["metadata"].get("identifier", "")   ,
+        **doi_attributes,
         "titles": [
             {
                 "title": title,
                 "lang": lang,
+                "titleType": "TranslatedTitle",
             }
             for lang, title in record["identification"]["title"].items()
-            if lang != "translations"
+            if lang != "translations" and title
         ],
         **optional_fields,
         "creators": _get_creators(record),
@@ -354,23 +382,20 @@ def generate_datacite_record(record) -> dict:
         "subjects": _get_unique_dicts(
             [
                 {
-                    "subject": keyword,
-                    "lang": lang,
-                    **_get_subject_scheme(group),
+                    "subject": "FOS: Earth and related environmental sciences",
+                    "lang": "en",
+                    "subjectScheme": "Fields of Science and Technology (FOS)",
+                    "schemeUri": "https://www.oecd.org/science/inno/38235147.pdf",
                 }
-                for group, group_keywords in record["identification"][
-                    "keywords"
-                ].items()
-                for lang, keywords in group_keywords.items()
-                for keyword in keywords
-                if keyword
             ]
+            + _get_eov_subjects(record)
+            + _get_keyword_subjects(record)
         ),
         "dates": _get_dates(record),
         "language": record["metadata"]["language"],
         "types": {
-            "resourceTypeGeneral": "Dataset",  # TODO revise with latest version of cioos
-            "resourceType": "CIOOS Dataset Record",  # TODO revise with latest version of cioos
+            "resourceTypeGeneral": record.get("metadataScope", "Dataset"),
+            "resourceType": "",
         },
         **_get_alternate_identifiers(record),
         **_get_related_identifiers(record),
@@ -385,7 +410,7 @@ def generate_datacite_record(record) -> dict:
                 "descriptionType": "Abstract",
             }
             for lang, abstract in record["identification"]["abstract"].items()
-            if lang != "translations"
+            if lang != "translations" and abstract
         ]
         + [
             {
@@ -400,12 +425,11 @@ def generate_datacite_record(record) -> dict:
             if lang != "translations"
         ],
         "geoLocations": [
-            item
-            for item in [
-                _get_geo_polygon(record),
-                _get_geo_bounding_box(record),
-            ]
-            if item
+            {
+                **_get_geo_polygon(record),
+                **_get_geo_bounding_box(record),
+                **_get_geo_location_place(record),
+            }
         ],
         **_get_funding_references(record),
         **_get_related_items(record),

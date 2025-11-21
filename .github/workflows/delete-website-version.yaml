@@ -1,0 +1,32 @@
+name: Delete Mike version on PR close
+
+on:
+  pull_request:
+    types: [closed]
+    branches-ignore:
+      - main
+
+jobs:
+  delete-docs-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Define variables
+        run: |
+          BRANCH_NAME='${{ github.head_ref || github.ref_name }}'
+          BRANCH_NAME_TRIMMED=$(printf '%s' "$BRANCH_NAME" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+          VERSION_NAME=$(printf '%s' "$BRANCH_NAME_TRIMMED" | tr -c '[:alnum:]-' '-' | sed -E 's/-{2,}/-/g; s/^-+//; s/-+$//')
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+
+      - name: Deploy docs with mike
+        run: |
+          uv run mike delete "$VERSION_NAME" --push
