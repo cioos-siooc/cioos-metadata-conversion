@@ -75,4 +75,4 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            🧪🎉 This version of the website will be available shortly at: https://guide.cioos.ca/${{ env.VERSION_NAME }}
+            🧪🎉 This version of the website will be available shortly at: https://cioos-siooc.github.io/cioos-metadata-conversion/${{ env.VERSION_NAME }}
