@@ -6,54 +6,47 @@ repo_name: cioos-siooc/cioos-metadata-conversion
 
 theme:
   name: material
+  logo: assets/ICON_White.svg
+  favicon: assets/ICON_White.svg
   palette:
     # Palette toggle for light mode
-    - scheme: default
-      primary: blue
-      accent: light blue
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
+      primary: custom
+      accent: custom
+
     # Palette toggle for dark mode
-    - scheme: slate
-      primary: blue
-      accent: light blue
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to system preference
+      primary: custom
+      accent: custom
   features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
+    # - header.autohide
+    - navigation.instant
+    - navigation.tracking
+    - navigation.footer
     - navigation.top
-    - search.suggest
-    - search.highlight
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.path
+    # - navigation.indexes
+    # - toc.integrate
+    - toc.follow
+    - navigation.tabs
+    - navigation.tabs.sticky
     - content.code.copy
-    - content.code.annotate
+    - content.code.select
+    - content.tabs.link
 
 plugins:
   - search
   - autorefs
-
-markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.tabbed:
-      alternate_style: true
-  - tables
-  - toc:
-      permalink: true
-  - attr_list
-  - md_in_html
 
 nav:
   - Home: index.md
@@ -68,10 +61,10 @@ nav:
     - CIOOS Form Schema: cioos-form-schema.md
   - Mappings:
     - Overview: mappings/index.md
-    - CIOOS Form to CIOOS: mappings/cioos-form-to-cioos.md
-    - CIOOS to ISO 19115-3: mappings/cioos-to-iso19115-3.md
-    - CIOOS to DataCite: mappings/cioos-to-datacite.md
-    - CIOOS to ERDDAP/ACDD: mappings/cioos-to-erddap-acdd.md
+    - CIOOS Form to CIOOS Intermediate: mappings/cioos-form-to-cioos.md
+    - CIOOS Form to ISO 19115-3: mappings/cioos-form-to-iso19115-3.md
+    - CIOOS Form to DataCite: mappings/cioos-form-to-datacite.md
+    - CIOOS Form to ERDDAP/ACDD: mappings/cioos-form-to-erddap-acdd.md
   - Development:
     - Contributing: contributing.md
     - Architecture: architecture.md
@@ -80,3 +73,34 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/cioos-siooc/cioos-metadata-conversion
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+extra_css:
+  - stylesheets/extra.css
