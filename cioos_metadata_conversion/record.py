@@ -7,6 +7,7 @@ from loguru import logger
 
 from cioos_metadata_conversion import (
     acdd,
+    cioos_ckan,
     citation_cff,
     datacite,
     erddap,
@@ -28,6 +29,7 @@ OUTPUT_FORMATS = {
     "datacite_xml": datacite.to_xml,
     "acdd_json": acdd.acdd_json,
     "acdd_yaml": acdd.acdd_yaml,
+    "cioos_ckan_json": cioos_ckan.to_json,
 }
 
 
