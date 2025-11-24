@@ -533,6 +533,11 @@ def generate_ckan_record(record: dict) -> dict:
             "statement": _format_fluent_text(history)
         }
 
+    # Name - use metadata identifier as the dataset name
+    metadata_identifier = record.get("metadata", {}).get("identifier")
+    if metadata_identifier:
+        ckan_record["name"] = metadata_identifier
+
     return ckan_record
 
 
