@@ -9,7 +9,10 @@
       "type": "python",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["cioos_metadata_conversion.api:app", "--reload"],
+      "args": [
+        "cioos_metadata_conversion.api:app",
+        "--reload"
+      ],
       "jinja": true,
       "justMyCode": true
     },
