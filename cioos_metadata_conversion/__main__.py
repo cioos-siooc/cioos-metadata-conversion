@@ -143,6 +143,12 @@ def convert(
             output_file.write_text(converted_record, encoding=output_encoding)
         else:
             returned_output += "\n" + converted_record
+    
+    if not output_file:
+        logger.info("Returning converted output")
+        print(returned_output)
+    else:
+        logger.info("Conversion completed.")
 
     return returned_output
 
