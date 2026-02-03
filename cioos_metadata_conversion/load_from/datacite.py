@@ -9,17 +9,26 @@ This module provides utilities to:
 DataCite API Documentation: https://developer.datacite.org/
 """
 
+from attr import attributes
 import requests
 from typing import Dict, Any, Optional, List
 from loguru import logger
 from datetime import datetime, timezone
+import os
 
+from datacite import DataCiteRESTClient
 
-DATACITE_API_BASE = "https://api.datacite.org/dois"
+datacite_client = DataCiteRESTClient(
+    username=os.getenv("DATACITE_ACCOUNT_ID"),
+    password=os.getenv("DATACITE_PASSWORD"),
+    prefix=os.getenv("DATACITE_PREFIX"),
+    test_mode=os.getenv("DATACITE_TEST_MODE", "true").lower() == "true",
+)
 
 
 class DOIRetrievalError(Exception):
     """Raised when DOI retrieval or mapping fails."""
+
     pass
 
 
@@ -36,30 +45,13 @@ def fetch_doi_metadata(doi: str) -> Dict[str, Any]:
     Raises:
         DOIRetrievalError: If the DOI is not found or the API request fails
     """
-    # Normalize DOI format
-    if doi.startswith("https://doi.org/"):
-        doi = doi.replace("https://doi.org/", "")
-    elif doi.startswith("http://doi.org/"):
-        doi = doi.replace("http://doi.org/", "")
-    elif doi.startswith("doi.org/"):
-        doi = doi.replace("doi.org/", "")
-
-    url = f"{DATACITE_API_BASE}/{doi}"
-
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        if response.status_code == 404:
-            raise DOIRetrievalError(f"DOI not found: {doi}")
-        else:
-            raise DOIRetrievalError(f"Failed to retrieve DOI {doi}: {str(e)}")
-    except requests.exceptions.RequestException as e:
-        raise DOIRetrievalError(f"API request failed for DOI {doi}: {str(e)}")
+        return datacite_client.metadata_get(doi)  # Test if DOI exists
+    except Exception as e:
+        raise DOIRetrievalError(f"Failed to retrieve DOI {doi} from DataCite: {str(e)}")
 
 
-def map_datacite_to_firebase(datacite_data: Dict[str, Any], doi: str) -> Dict[str, Any]:
+def map_datacite_to_firebase(datacite_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Map DataCite API response to CIOOS Firebase metadata structure.
 
@@ -67,8 +59,7 @@ def map_datacite_to_firebase(datacite_data: Dict[str, Any], doi: str) -> Dict[st
     the CIOOS metadata form, focusing on essential fields while preserving the structure.
 
     Args:
-        datacite_data: Raw DataCite API response
-        doi: The original DOI (for reference in datasetIdentifier)
+        datacite_data: DataCite metadata dictionary
 
     Returns:
         Dictionary with Firebase metadata structure
@@ -76,61 +67,45 @@ def map_datacite_to_firebase(datacite_data: Dict[str, Any], doi: str) -> Dict[st
     Raises:
         DOIRetrievalError: If mapping fails due to invalid data
     """
-    try:
-        attributes = datacite_data.get("data", {}).get("attributes", {})
 
-        # Normalize DOI format for datasetIdentifier
-        normalized_doi = doi
-        if not doi.startswith("https://doi.org/"):
-            normalized_doi = f"https://doi.org/{doi}"
-
-        firebase_record = {
-            # Basic identification
-            "datasetIdentifier": normalized_doi,
-            "identifier": _extract_identifier(attributes),
-
-            # Title and description
-            "title": _map_title(attributes.get("titles", [])),
-            "abstract": _map_abstract(attributes.get("descriptions", [])),
-
-            # Keywords
-            "keywords": _map_keywords(attributes.get("keywords", [])),
-
-            # Dates
-            "dateStart": _map_date(attributes.get("publicationYear")),
-            "dateEnd": None,
-
-            # Contacts/Contributors
-            "contacts": [*_map_contacts(attributes.get("creators", [])),*_map_contacts(attributes.get("contributors", []))], # TODO missing publisher
-
-            # Associated resources/related identifiers
-            "associated_resources": _map_associated_resources(
-                attributes.get("relatedIdentifiers", [])
-            ),
-
-            # Rights/License
-            "license": _map_license(attributes.get("rightsList", [])),
-
-            # Resource type
-            "resourceType": _map_resource_type(attributes.get("types", {})),
-
-            # Publication metadata
-            "language": _map_language(attributes.get("language", "en")),
-            "created": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-            "metadataScope": "Dataset",
-            "doiCreationStatus": attributes.get("state", "findable").lower(),
-            "progress": "completed",
-        }
-
-        return firebase_record
-
-    except Exception as e:
-        raise DOIRetrievalError(f"Failed to map DataCite data to Firebase format: {str(e)}")
+    return {
+        # Basic identification
+        "datasetIdentifier": datacite_data.get("doi"),
+        "identifier": _extract_identifier(datacite_data),
+        # Title and description
+        "title": _map_title(datacite_data.get("titles", [])),
+        "abstract": _map_abstract(datacite_data.get("descriptions", [])),
+        # Keywords
+        "keywords": _map_keywords(datacite_data.get("keywords", [])),
+        # Dates
+        "dateStart": _map_date(datacite_data.get("publicationYear")),
+        "dateEnd": None,
+        # Contacts/Contributors
+        "contacts": [
+            *_map_contacts(datacite_data.get("creators", [])),
+            *_map_contacts(datacite_data.get("contributors", [])),
+        ],  # TODO missing publisher
+        # Associated resources/related identifiers
+        "associated_resources": _map_associated_resources(
+            datacite_data.get("relatedIdentifiers", [])
+        ),
+        # Rights/License
+        "license": _map_license(datacite_data.get("rightsList", [])),
+        # Resource type
+        "resourceType": _map_resource_type(datacite_data.get("types", {})),
+        # Publication metadata
+        "language": _map_language(datacite_data.get("language", "en")),
+        "created": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "metadataScope": "Dataset",
+        "doiCreationStatus": datacite_data.get("state", "findable").lower(),
+        "progress": "completed",
+    }
 
 
 def _extract_identifier(attributes: Dict[str, Any]) -> str:
     """Generate a unique identifier from DataCite attributes."""
     import uuid
+
     # Use a combination of DOI and timestamp as identifier
     return str(uuid.uuid4())
 
@@ -203,7 +178,9 @@ def _map_date(publication_year: Optional[int]) -> Optional[str]:
     return None
 
 
-def _map_contacts(creators: List[Dict[str, Any]], in_citation:bool=False) -> List[Dict[str, Any]]:
+def _map_contacts(
+    creators: List[Dict[str, Any]], in_citation: bool = False
+) -> List[Dict[str, Any]]:
     """
     Map creators/contributors from DataCite to Firebase contacts format.
 
@@ -292,7 +269,9 @@ def _extract_ror(affiliation: List[Dict[str, Any]]) -> str:
     return ""
 
 
-def _map_associated_resources(related_identifiers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _map_associated_resources(
+    related_identifiers: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
     """
     Map related identifiers from DataCite to Firebase associated_resources format.
 
