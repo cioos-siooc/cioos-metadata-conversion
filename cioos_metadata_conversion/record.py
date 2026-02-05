@@ -14,6 +14,7 @@ from cioos_metadata_conversion import (
     xml,
 )
 from cioos_metadata_conversion.load_from import datacite as load_from_datacite
+from cioos_metadata_conversion.load_from import obis as load_from_obis
 
 SOURCE_FILE_EXTENSIONS = (".json", ".yaml", ".yml")
 
@@ -40,6 +41,7 @@ class InputSchemas(Enum):
     CIOOS = "CIOOS"
     firebase = "firebase"
     doi = "doi"
+    obis = "obis"
 
 
 class Record:
@@ -81,6 +83,16 @@ class Record:
             # Check if it's a DOI URL
             if "doi.org/" in self.source:
                 self.load_from_doi(self.source)
+            elif "obis.org/" in self.source:
+                # Handle OBIS URLs e.g. https://obis.org/dataset/{id} or API urls
+                # Extract ID from URL
+                if "dataset/" in self.source:
+                    dataset_id = (
+                        self.source.split("dataset/")[-1].split("?")[0].strip("/")
+                    )
+                    self.load_from_obis(dataset_id)
+                else:
+                    self.load_from_url(self.source)
             else:
                 # Load from URL
                 self.load_from_url(self.source)
@@ -89,6 +101,8 @@ class Record:
         elif isinstance(self.source, str) and self._is_valid_doi(self.source):
             # Load from DOI
             self.load_from_doi(self.source)
+        elif self.schema == InputSchemas.obis:
+            self.load_from_obis(self.source)
         elif isinstance(self.source, str):
             self.load_from_text(self.source)
         else:
@@ -141,6 +155,21 @@ class Record:
             logger.error(f"Failed to load metadata from DOI: {e}")
             raise
 
+    def load_from_obis(self, obis_id):
+        """
+        Load metadata from OBIS using the OBIS API.
+
+        Args:
+            obis_id: OBIS dataset ID (UUID)
+        """
+        try:
+            self.metadata = load_from_obis.retrieve_obis_metadata(obis_id)
+            self.schema = InputSchemas.firebase
+            logger.info(f"Successfully loaded metadata from OBIS: {obis_id}")
+        except Exception as e:
+            logger.error(f"Failed to load metadata from OBIS: {e}")
+            raise
+
     def _is_valid_doi(self, source):
         """
         Check if the source string is a valid DOI format.
@@ -152,9 +181,9 @@ class Record:
 
         # Check for common DOI patterns
         return (
-            source.startswith("10.") or
-            source.startswith("doi:10.") or
-            source.startswith("DOI:10.")
+            source.startswith("10.")
+            or source.startswith("doi:10.")
+            or source.startswith("DOI:10.")
         )
 
     def convert_to_cioos_schema(self):
@@ -169,6 +198,10 @@ class Record:
             self.schema = InputSchemas.CIOOS
         elif self.schema == InputSchemas.doi:
             # DOI metadata is loaded as Firebase, then convert to CIOOS
+            self.metadata = firebase_to_cioos.record_json_to_yaml(self.metadata)
+            self.schema = InputSchemas.CIOOS
+        elif self.schema == InputSchemas.obis:
+            # OBIS metadata is loaded as Firebase, then convert to CIOOS
             self.metadata = firebase_to_cioos.record_json_to_yaml(self.metadata)
             self.schema = InputSchemas.CIOOS
         else:

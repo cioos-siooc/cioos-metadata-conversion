@@ -99,7 +99,7 @@ def convert(
     """Convert metadata records to different metadata formats or standards."""
 
     logger.info("Loading input {}", input)
-    if input.startswith("http"):
+    if input.startswith("http") or input_schema in ["doi", "obis"]:
         files = [input]
     else:
         files = glob(input, recursive=recursive)
@@ -143,7 +143,7 @@ def convert(
             output_file.write_text(converted_record, encoding=output_encoding)
         else:
             returned_output += "\n" + converted_record
-    
+
     if not output_file:
         logger.info("Returning converted output")
         print(returned_output)
