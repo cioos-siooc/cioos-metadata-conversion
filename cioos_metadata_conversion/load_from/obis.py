@@ -71,6 +71,66 @@ def parse_extent_to_map(extent_wkt):
         }
 
 
+# Valid CIOOS/ISO 19115 role codes (from cioos-siooc_schema.json)
+CIOOS_ROLE_CODES = {
+    "author", "custodian", "distributor", "originator", "owner",
+    "pointOfContact", "principalInvestigator", "processor", "publisher",
+    "resourceProvider", "user", "sponsor", "coAuthor", "collaborator",
+    "editor", "mediator", "rightsHolder", "contributor", "funder",
+    "stakeholder",
+}
+
+# Mapping from OBIS EML construct types to CIOOS role codes.
+# OBIS uses EML element names (creator, contact, metadataProvider, etc.)
+# as the contact "type" field. These don't exist in the ISO role codelist
+# that CIOOS uses, so we map them to the closest CIOOS equivalent.
+# See: https://manual.obis.org/eml.html
+# See: https://github.com/cioos-siooc/metadata-xml
+OBIS_TO_CIOOS_ROLE = {
+    "creator": "author",
+    "contact": "pointOfContact",
+    "metadataProvider": "custodian",
+    "metadataprovider": "custodian",
+    "associatedParty": "contributor",
+    "associatedparty": "contributor",
+    "personnel": "contributor",
+}
+
+
+def map_obis_role_to_cioos(obis_role):
+    """Map an OBIS EML role/type to a valid CIOOS ISO 19115 role code.
+
+    Checks in order:
+    1. If the role is already a valid CIOOS role code, use it as-is.
+    2. If it matches a known OBIS EML construct, map it.
+    3. Otherwise fall back to 'contributor'.
+    """
+    if not obis_role:
+        return "contributor"
+
+    # Already a valid CIOOS role code (e.g. from associatedParty/role)
+    if obis_role in CIOOS_ROLE_CODES:
+        return obis_role
+
+    # Known OBIS EML construct mapping
+    mapped = OBIS_TO_CIOOS_ROLE.get(obis_role)
+    if mapped:
+        return mapped
+
+    # Case-insensitive fallback check
+    lower = obis_role.lower()
+    for code in CIOOS_ROLE_CODES:
+        if lower == code.lower():
+            return code
+
+    mapped = OBIS_TO_CIOOS_ROLE.get(lower)
+    if mapped:
+        return mapped
+
+    logger.warning(f"Unknown OBIS role '{obis_role}', falling back to 'contributor'")
+    return "contributor"
+
+
 def convert_contacts(obis_contacts):
     cioos_contacts = []
     if not obis_contacts:
@@ -95,7 +155,7 @@ def convert_contacts(obis_contacts):
             "indName": full_name,
             "indOrcid": "",
             "inCitation": True,  # Default to true for creators/authors
-            "role": [contact.get("type", "")],  # role is an array in CIOOS
+            "role": [map_obis_role_to_cioos(contact.get("type", ""))],
             "orgName": contact.get("organization", ""),
             "orgAddress": "",
             "orgCity": "",
