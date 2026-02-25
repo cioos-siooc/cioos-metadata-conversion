@@ -2,6 +2,129 @@ import requests
 from loguru import logger
 
 OBIS_API_BASE = "https://api.obis.org/v3/dataset"
+OBIS_FACET_URL = "https://api.obis.org/v3/facet"
+
+# Mapping from OBIS taxonomic class names to CIOOS Essential Ocean Variables.
+# Built from the OBIS /v3/facet?facets=class endpoint values and the CIOOS
+# EOV choices in cioos-siooc_schema.json.
+TAXON_CLASS_TO_EOV = {
+    # Fish — fishAbundanceAndDistribution
+    "Actinopterygii": "fishAbundanceAndDistribution",
+    "Teleostei": "fishAbundanceAndDistribution",
+    "Elasmobranchii": "fishAbundanceAndDistribution",
+    "Chondrichthyes": "fishAbundanceAndDistribution",
+    "Myxini": "fishAbundanceAndDistribution",
+    "Petromyzonti": "fishAbundanceAndDistribution",
+    "Holocephali": "fishAbundanceAndDistribution",
+    "Chondrostei": "fishAbundanceAndDistribution",
+    "Ichthyostraca": "fishAbundanceAndDistribution",
+    # Marine turtles, birds, mammals
+    "Mammalia": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+    "Aves": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+    "Reptilia": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+    # Phytoplankton
+    "Bacillariophyceae": "phytoplanktonBiomassAndDiversity",
+    "Dinophyceae": "phytoplanktonBiomassAndDiversity",
+    "Coscinodiscophyceae": "phytoplanktonBiomassAndDiversity",
+    "Mediophyceae": "phytoplanktonBiomassAndDiversity",
+    "Fragilariophyceae": "phytoplanktonBiomassAndDiversity",
+    "Cyanophyceae": "phytoplanktonBiomassAndDiversity",
+    "Prymnesiophyceae": "phytoplanktonBiomassAndDiversity",
+    "Coccolithophyceae": "phytoplanktonBiomassAndDiversity",
+    "Chrysophyceae": "phytoplanktonBiomassAndDiversity",
+    "Cryptophyceae": "phytoplanktonBiomassAndDiversity",
+    "Prasinophyceae": "phytoplanktonBiomassAndDiversity",
+    "Raphidophyceae": "phytoplanktonBiomassAndDiversity",
+    "Dictyochophyceae": "phytoplanktonBiomassAndDiversity",
+    "Euglenoidea": "phytoplanktonBiomassAndDiversity",
+    "Euglenophyceae": "phytoplanktonBiomassAndDiversity",
+    "Xanthophyceae": "phytoplanktonBiomassAndDiversity",
+    "Chlorophyceae": "phytoplanktonBiomassAndDiversity",
+    "Chlorodendrophyceae": "phytoplanktonBiomassAndDiversity",
+    "Trebouxiophyceae": "phytoplanktonBiomassAndDiversity",
+    "Zygnematophyceae": "phytoplanktonBiomassAndDiversity",
+    # Zooplankton (includes many protist microzooplankton & foraminifera groups)
+    "Hexanauplia": "zooplanktonBiomassAndDiversity",
+    "Copepoda": "zooplanktonBiomassAndDiversity",
+    "Branchiopoda": "zooplanktonBiomassAndDiversity",
+    "Ostracoda": "zooplanktonBiomassAndDiversity",
+    "Scyphozoa": "zooplanktonBiomassAndDiversity",
+    "Hydrozoa": "zooplanktonBiomassAndDiversity",
+    "Appendicularia": "zooplanktonBiomassAndDiversity",
+    "Thaliacea": "zooplanktonBiomassAndDiversity",
+    "Sagittoidea": "zooplanktonBiomassAndDiversity",
+    "Choanoflagellatea": "zooplanktonBiomassAndDiversity",
+    "Oligotrichea": "zooplanktonBiomassAndDiversity",
+    "Heterotrichea": "zooplanktonBiomassAndDiversity",
+    "Prostomatea": "zooplanktonBiomassAndDiversity",
+    "Oligohymenophorea": "zooplanktonBiomassAndDiversity",
+    "Globothalamea": "zooplanktonBiomassAndDiversity",
+    "Tubothalamea": "zooplanktonBiomassAndDiversity",
+    "Nodosariata": "zooplanktonBiomassAndDiversity",
+    "Monothalamea": "zooplanktonBiomassAndDiversity",
+    "Tubulinea": "zooplanktonBiomassAndDiversity",
+    "Foraminifera incertae sedis": "zooplanktonBiomassAndDiversity",
+    # Microbes
+    "Alphaproteobacteria": "microbeBiomassAndDiversity",
+    "Betaproteobacteria": "microbeBiomassAndDiversity",
+    "Gammaproteobacteria": "microbeBiomassAndDiversity",
+    "Deltaproteobacteria": "microbeBiomassAndDiversity",
+    "Epsilonproteobacteria": "microbeBiomassAndDiversity",
+    "Flavobacteria": "microbeBiomassAndDiversity",
+    "Actinobacteria": "microbeBiomassAndDiversity",
+    "Bacilli": "microbeBiomassAndDiversity",
+    "Bacili": "microbeBiomassAndDiversity",
+    "Cytophagia": "microbeBiomassAndDiversity",
+    "Sphingobacteria": "microbeBiomassAndDiversity",
+    "Gemmatimonadetes(class)": "microbeBiomassAndDiversity",
+    "Aquificae": "microbeBiomassAndDiversity",
+    "Methanomicrobia": "microbeBiomassAndDiversity",
+    # Macroalgae
+    "Phaeophyceae": "macroalgalCanopyCoverAndComposition",
+    "Florideophyceae": "macroalgalCanopyCoverAndComposition",
+    "Ulvophyceae": "macroalgalCanopyCoverAndComposition",
+    "Bangiophyceae": "macroalgalCanopyCoverAndComposition",
+    "Compsopogonophyceae": "macroalgalCanopyCoverAndComposition",
+    # Hard coral
+    "Anthozoa": "hardCoralCoverAndComposition",
+    "Hexacorallia": "hardCoralCoverAndComposition",
+    "Octocorallia": "hardCoralCoverAndComposition",
+    # Invertebrates (catch-all for many marine invertebrate classes)
+    "Gastropoda": "invertebrateAbundanceAndDistribution",
+    "Bivalvia": "invertebrateAbundanceAndDistribution",
+    "Cephalopoda": "invertebrateAbundanceAndDistribution",
+    "Polychaeta": "invertebrateAbundanceAndDistribution",
+    "Clitellata": "invertebrateAbundanceAndDistribution",
+    "Echinoidea": "invertebrateAbundanceAndDistribution",
+    "Asteroidea": "invertebrateAbundanceAndDistribution",
+    "Ophiuroidea": "invertebrateAbundanceAndDistribution",
+    "Holothuroidea": "invertebrateAbundanceAndDistribution",
+    "Crinoidea": "invertebrateAbundanceAndDistribution",
+    "Malacostraca": "invertebrateAbundanceAndDistribution",
+    "Thecostraca": "invertebrateAbundanceAndDistribution",
+    "Demospongiae": "invertebrateAbundanceAndDistribution",
+    "Calcarea": "invertebrateAbundanceAndDistribution",
+    "Hexactinellida": "invertebrateAbundanceAndDistribution",
+    "Ascidiacea": "invertebrateAbundanceAndDistribution",
+    "Tentaculata": "invertebrateAbundanceAndDistribution",
+    "Gymnolaemata": "invertebrateAbundanceAndDistribution",
+    "Stenolaemata": "invertebrateAbundanceAndDistribution",
+    "Polyplacophora": "invertebrateAbundanceAndDistribution",
+    "Scaphopoda": "invertebrateAbundanceAndDistribution",
+    "Sipunculidea": "invertebrateAbundanceAndDistribution",
+    "Pycnogonida": "invertebrateAbundanceAndDistribution",
+    "Hexapoda": "invertebrateAbundanceAndDistribution",
+    "Arachnida": "invertebrateAbundanceAndDistribution",
+    "Turbellaria": "invertebrateAbundanceAndDistribution",
+    "Chromadorea": "invertebrateAbundanceAndDistribution",
+    "Monogenea": "invertebrateAbundanceAndDistribution",
+    "Hoplonemertea": "invertebrateAbundanceAndDistribution",
+    # Seagrass — Magnoliopsida covers most seagrasses (Zostera, Posidonia, etc.)
+    "Magnoliopsida": "seagrassCoverAndComposition",
+    "Liliopsida": "seagrassCoverAndComposition",
+    # Other
+    "Amphibia": "other",
+}
 
 
 def add_fr(text):
@@ -97,6 +220,59 @@ OBIS_TO_CIOOS_ROLE = {
 }
 
 
+def fetch_eovs_from_taxonomy(dataset_id):
+    """Fetch taxonomic classes for an OBIS dataset and map them to CIOOS EOVs.
+
+    Calls the OBIS facet API to get class-level taxonomy, then maps each class
+    to a CIOOS Essential Ocean Variable using TAXON_CLASS_TO_EOV.
+    Returns a deduplicated list of EOV codes.
+    """
+    if not dataset_id:
+        return []
+
+    try:
+        response = requests.get(
+            OBIS_FACET_URL,
+            params={"datasetid": dataset_id, "facets": "class"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError) as e:
+        logger.warning(f"Failed to fetch taxonomy facets for {dataset_id}: {e}")
+        return []
+
+    classes = data.get("results", {}).get("class", [])
+    if not classes:
+        logger.info(f"No taxonomic classes found for dataset {dataset_id}")
+        return []
+
+    eovs = set()
+    unmapped = []
+    for entry in classes:
+        taxon_class = entry.get("key", "")
+        eov = TAXON_CLASS_TO_EOV.get(taxon_class)
+        if eov:
+            eovs.add(eov)
+        else:
+            unmapped.append(taxon_class)
+
+    if unmapped:
+        logger.info(
+            f"Dataset {dataset_id}: unmapped taxonomic classes: {unmapped}"
+        )
+
+    # CIOOS requires at least one EOV; if we can't map any taxonomy classes
+    # (or if a dataset only contains odd/terrestrial classes), fall back to "other".
+    if not eovs:
+        logger.warning(
+            f"Dataset {dataset_id}: no EOVs mapped from taxonomy; falling back to ['other']"
+        )
+        return ["other"]
+
+    return sorted(eovs)
+
+
 def map_obis_role_to_cioos(obis_role):
     """Map an OBIS EML role/type to a valid CIOOS ISO 19115 role code.
 
@@ -139,6 +315,14 @@ def convert_contacts(obis_contacts):
     for contact in obis_contacts:
         given_name = contact.get("givenname", "")
         last_name = contact.get("surname", "")
+        org_name = contact.get("organization", "")
+
+        # Skip contacts with no usable identity — they would produce empty
+        # individual/organization dicts that crash the XML template after
+        # scrub_dict removes all the empty values.
+        if not given_name and not last_name and not org_name:
+            logger.debug(f"Skipping contact with no name or organization: {contact}")
+            continue
 
         # Build full name
         full_name = ""
@@ -156,7 +340,7 @@ def convert_contacts(obis_contacts):
             "indOrcid": "",
             "inCitation": True,  # Default to true for creators/authors
             "role": [map_obis_role_to_cioos(contact.get("type", ""))],
-            "orgName": contact.get("organization", ""),
+            "orgName": org_name,
             "orgAddress": "",
             "orgCity": "",
             "orgCountry": "",
@@ -164,13 +348,12 @@ def convert_contacts(obis_contacts):
             "orgURL": contact.get("url", ""),
         }
 
-        # For contacts with email, add it with different field name
         if contact.get("email"):
             cioos_contact["indEmail"] = contact.get("email")
 
-        # Add position if available
+        # indPosition is the field name firebase_to_cioos expects
         if contact.get("position"):
-            cioos_contact["position"] = contact.get("position")
+            cioos_contact["indPosition"] = contact.get("position")
 
         cioos_contacts.append(cioos_contact)
 
@@ -326,7 +509,9 @@ def map_obis_to_cioos(obis_data):
     cioos_data["timeFirstPublished"] = cioos_data[
         "datePublished"
     ]  # Use same as datePublished
-    cioos_data["eov"] = []  # Essential Ocean Variables - can't map from OBIS
+    # Derive EOVs from OBIS taxonomy via the facet API
+    dataset_id = obis_data.get("id")
+    cioos_data["eov"] = fetch_eovs_from_taxonomy(dataset_id)
     cioos_data["platforms"] = []  # Platform information not available
     cioos_data["projects"] = []  # Project information not available
     cioos_data["region"] = ""  # Geographic region classification
