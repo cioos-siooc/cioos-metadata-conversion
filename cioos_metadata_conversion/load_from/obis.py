@@ -363,7 +363,11 @@ def convert_contacts(obis_contacts):
 def map_obis_to_cioos(obis_data):
     cioos_data = {}
     cioos_data["abstract"] = add_fr(obis_data.get("abstract", ""))
-    cioos_data["datasetIdentifier"] = obis_data.get("id")
+    # Only set datasetIdentifier when the dataset has a real DOI.
+    # The metadata-xml template emits a bare cit:identifier (no mcc:authority)
+    # and the CKAN harvester defaults unqualified identifiers to doi.org,
+    # producing broken links like doi.org/<UUID> for datasets without DOIs.
+    cioos_data["datasetIdentifier"] = obis_data.get("doi", "") or ""
     cioos_data["title"] = add_fr(obis_data.get("title", ""))
     cioos_data["license"] = obis_data.get("intellectualrights", "")
     cioos_data["category"] = "dataset"
@@ -378,7 +382,9 @@ def map_obis_to_cioos(obis_data):
             elif isinstance(keyword, str):
                 keywords.append(keyword)
 
-    cioos_data["keywords"] = {"en": keywords, "fr": []}
+    # OBIS only provides English keywords. Use them as French placeholders
+    # since many are scientific terms or proper nouns that don't change.
+    cioos_data["keywords"] = {"en": keywords, "fr": keywords}
 
     # Associated resources
     associated_resources = []
@@ -435,7 +441,26 @@ def map_obis_to_cioos(obis_data):
     cioos_data["associated_resources"] = associated_resources
     cioos_data["contacts"] = convert_contacts(obis_data.get("contacts"))
 
-    created_date = obis_data.get("created")
+    # The metadata-xml template only emits mdb:contact (required by ISO 19115-3)
+    # for contacts with the "custodian" role.  When the OBIS metadataProvider
+    # entry has no name/org it gets dropped by convert_contacts(), leaving no
+    # custodian.  Promote the first available contact so the XML stays valid.
+    has_custodian = any(
+        "custodian" in c.get("role", []) for c in cioos_data["contacts"]
+    )
+    if not has_custodian and cioos_data["contacts"]:
+        cioos_data["contacts"][0]["role"].append("custodian")
+        logger.info(
+            "No custodian contact found; promoted first contact to custodian"
+        )
+
+    # Dates — the metadata-xml template requires metadata.dates to survive
+    # scrub_dict (which strips empty values).  When created or published are
+    # missing we fall back to updated so at least one date is always present.
+    updated_date = obis_data.get("updated", "")
+    updated_clean = updated_date.split(".")[0] + "Z" if updated_date else ""
+
+    created_date = obis_data.get("created") or updated_date
     if created_date:
         cioos_data["created"] = created_date.split(".")[0] + "Z"
     else:
@@ -446,18 +471,14 @@ def map_obis_to_cioos(obis_data):
     cioos_data["dateEnd"] = ""
 
     # Dataset publication
-    published_date = obis_data.get("published", "")
+    published_date = obis_data.get("published", "") or updated_date
     if published_date:
         cioos_data["datePublished"] = published_date.split(".")[0] + "Z"
     else:
         cioos_data["datePublished"] = ""
 
     # Last revision / update
-    updated_date = obis_data.get("updated", "")
-    if updated_date:
-        cioos_data["dateRevised"] = updated_date.split(".")[0] + "Z"
-    else:
-        cioos_data["dateRevised"] = ""
+    cioos_data["dateRevised"] = updated_clean
 
     # Spatial extent
     cioos_data["map"] = parse_extent_to_map(obis_data.get("extent"))
