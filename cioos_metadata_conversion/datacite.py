@@ -130,10 +130,8 @@ def _get_publisher(record) -> dict:
                 publisher["publisherIdentifierScheme"] = "ROR"
                 publisher["schemeUri"] = "https://ror.org/"
             return publisher
-    logger.warning(
-        "No publisher found in the record. We will use 'CIOOS' as publisher."
-    )
-    return {"name": "CIOOS", "lang": "en"}
+    logger.warning("No publisher found in the record.")
+    return {}
 
 
 def _get_funding_references(record) -> dict:
@@ -184,22 +182,26 @@ def _get_subject_scheme(group) -> dict:
 
 def _get_dates(record) -> list:
     """
-    Get the dates from the Cioos record.
+    Get the dates from the Cioos record. Only includes entries where the date exists.
     """
-    return [
-        {
-            "date": record["identification"]["dates"].get("created", ""),
-            "dateType": "Created",
-        },
-        {
-            "date": record["metadata"]["dates"].get("revision", ""),
-            "dateType": "Updated",
-        },
-        {
-            "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
+    dates = []
+    created = record.get("identification", {}).get("dates", {}).get("creation")
+    if created:
+        dates.append({"date": created, "dateType": "Created"})
+
+    revision = record.get("metadata", {}).get("dates", {}).get("revision")
+    if revision:
+        dates.append({"date": revision, "dateType": "Updated"})
+
+    temporal_begin = record.get("identification", {}).get("temporal_begin")
+    temporal_end = record.get("identification", {}).get("temporal_end")
+    if temporal_begin or temporal_end:
+        dates.append({
+            "date": f"{temporal_begin or '*'}/{temporal_end or '*'}",
             "dateType": "Collected",
-        },
-    ]
+        })
+
+    return dates
 
 
 def _get_alternate_identifiers(record) -> dict:
@@ -356,6 +358,8 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
 
     # Set the URL
     optional_fields["url"] = catalogue_url + record["metadata"].get("identifier", "")
+
+    # titles — only added if title.en or .fr exist
     _add_optional(
         "titles",
         [
@@ -364,130 +368,115 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
                 "lang": lang,
                 "titleType": "TranslatedTitle",
             }
-            for lang, title in record["identification"].get("title", {}).items()
-            if lang != "translations"
-        ],
-    )
-    _add_optional(
-        "descriptions",
-        [
-            {
-                "description": abstract,
-                "lang": lang,
-                "descriptionType": "Abstract",
-            }
-            for lang, abstract in record["identification"]
-            .get("abstract", {})
-            .items()
-            if lang != "translations"
-        ]
-        + [
-            {
-                "description": "limitations: " + description,
-                "lang": lang,
-                "descriptionType": "Other",
-            }
-            for lang, description in record["metadata"]
-            .get("use_constraints", {})
-            .get("limitations", {})
-            .items()
-            if lang != "translations"
+            for lang, title in (record["identification"].get("title") or {}).items()
+            if lang != "translations" and title
         ],
     )
 
-    geo_locations = [
-        item
-        for item in [
-            _get_geo_polygon(record),
-            _get_geo_bounding_box(record),
-        ]
-        if item
+    # descriptions — only added if abstract exists
+    descriptions = [
+        {
+            "description": abstract,
+            "lang": lang,
+            "descriptionType": "Abstract",
+        }
+        for lang, abstract in (record["identification"].get("abstract") or {}).items()
+        if lang != "translations" and abstract
+    ] + [
+        {
+            "description": "limitations: " + description,
+            "lang": lang,
+            "descriptionType": "Other",
+        }
+        for lang, description in record["metadata"]
+        .get("use_constraints", {})
+        .get("limitations", {})
+        .items()
+        if lang != "translations" and description
     ]
+
     vertical = record.get("spatial", {}).get("vertical")
     if vertical and len(vertical) == 2:
         vertical_description = f"Vertical extent: {vertical[0]} to {vertical[1]}"
         vertical_positive = record.get("spatial", {}).get("vertical_positive", "")
         if vertical_positive:
             vertical_description += f" ({vertical_positive})"
-        _add_optional(
-            "descriptions",
-            optional_fields.get("descriptions", [])
-            + [
-                {
-                    "description": vertical_description,
-                    "descriptionType": "Other",
-                    "lang": "en",
-                }
-            ],
+        descriptions.append(
+            {
+                "description": vertical_description,
+                "descriptionType": "Other",
+                "lang": "en",
+            }
         )
-    _add_optional("geoLocations", geo_locations)
+
+    _add_optional("descriptions", descriptions)
+
+    # creators — only added if contacts with inCitation exist
+    creators = _get_creators(record)
+    _add_optional("creators", creators)
+
+    # publisher — only added if a publisher contact exists
+    publisher = _get_publisher(record)
+    _add_optional("publisher", publisher)
+
+    # contributors
+    _add_optional("contributors", _get_contributors(record))
+
+    # publicationYear — use publication date if available, fall back to current year
+    # (required by DataCite schema)
+    publication_date = record.get("metadata", {}).get("dates", {}).get("publication")
+    if publication_date:
+        optional_fields["publicationYear"] = str(
+            datetime.strptime(publication_date, "%Y-%m-%d").year
+        )
+    else:
+        optional_fields["publicationYear"] = str(datetime.now().year)
+
+    # subjects — only added if keywords exist
+    subjects = _get_eov_subjects(record) + _get_keyword_subjects(record)
+    if subjects:
+        _add_optional(
+            "subjects",
+            _get_unique_dicts(
+                [
+                    {
+                        "subject": "FOS: Earth and related environmental sciences",
+                        "lang": "en",
+                        "subjectScheme": "Fields of Science and Technology (FOS)",
+                        "schemeUri": "https://www.oecd.org/science/inno/38235147.pdf",
+                    }
+                ]
+                + subjects
+            ),
+        )
+
+    # dates — only added if dateStart/dateEnd/dateRevised exist
+    dates = _get_dates(record)
+    _add_optional("dates", dates)
+
+    # geoLocations — only added if all bounds exist
+    geo_location = {
+        **_get_geo_polygon(record),
+        **_get_geo_bounding_box(record),
+        **_get_geo_location_place(record),
+    }
+    _add_optional("geoLocations", [geo_location] if geo_location else [])
+
+    # fundingReferences — only added if funders exist
+    funding = _get_funding_references(record)
+    _add_optional("fundingReferences", funding.get("fundingReferences"))
 
     return {
         **optional_fields,
-        "creators": _get_creators(record),
-        "publisher": _get_publisher(record),
-        "contributors": _get_contributors(record),
-        # parse iso date and return year from record['identification']["dates"]["created"]
-        "publicationYear": str(
-            datetime.strptime(
-                record["metadata"]["dates"].get("publication"), "%Y-%m-%d"
-            ).year
-            if record["metadata"]["dates"].get("publication")
-            else datetime.now().year
-        ),
-        "subjects": _get_unique_dicts(
-            [
-                {
-                    "subject": "FOS: Earth and related environmental sciences",
-                    "lang": "en",
-                    "subjectScheme": "Fields of Science and Technology (FOS)",
-                    "schemeUri": "https://www.oecd.org/science/inno/38235147.pdf",
-                }
-            ]
-            + _get_eov_subjects(record)
-            + _get_keyword_subjects(record)
-        ),
-        "dates": _get_dates(record),
-        "language": record["metadata"]["language"],
+        "language": record.get("metadata", {}).get("language", ""),
         "types": {
             "resourceTypeGeneral": record.get("metadataScope", "Dataset"),
             "resourceType": "",
         },
         **_get_alternate_identifiers(record),
         **_get_related_identifiers(record),
-        # "sizes": [],
-        # "formats": [],
         "version": record["identification"].get("edition", ""),
         "rightsList": [_get_right_lists(record)],
-        "descriptions": [
-            {
-                "description": abstract,
-                "lang": lang,
-                "descriptionType": "Abstract",
-            }
-            for lang, abstract in record["identification"]["abstract"].items()
-            if lang != "translations" and abstract
-        ]
-        + [
-            {
-                "description": "limitations: " + description,
-                "lang": lang,
-                "descriptionType": "Other",
-            }
-            for lang, description in record["metadata"]
-            .get("use_constraints", {})
-            .get("limitations", {})
-            .items()
-            if lang != "translations"
-        ],
-        "geoLocations": [
-            {
-                **_get_geo_polygon(record),
-                **_get_geo_bounding_box(record),
-                **_get_geo_location_place(record),
-            }
-        ],
-        **_get_funding_references(record),
         **_get_related_items(record),
         "schemaVersion": "http://datacite.org/schema/kernel-4",
     }
