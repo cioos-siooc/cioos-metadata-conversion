@@ -122,8 +122,8 @@
       "authority": "URL",
       "code": "https://obis.org/dataset/06704bbe-f905-4b5e-b797-a216cb791eb8",
       "title": {
-        "en": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d’importance de la rive nord de l’estuaire maritime du Saint-Laurent",
-        "fr": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d’importance de la rive nord de l’estuaire maritime du Saint-Laurent",
+        "en": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d'importance de la rive nord de l'estuaire maritime du Saint-Laurent",
+        "fr": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d'importance de la rive nord de l'estuaire maritime du Saint-Laurent",
         "translations": {
           "fr": {
             "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
@@ -156,12 +156,12 @@
       ]
     },
     {
-      "givenNames": "María-Emilia",
+      "givenNames": "Alex",
       "inCitation": true,
-      "indEmail": "rodriguezcme@ogsl.com",
-      "indOrcid": "https://orcid.org/0000-0003-0067-3670",
-      "indPosition": "Intégratrice de données",
-      "lastName": "Rodríguez-Cuicas",
+      "indEmail": "contact@example.com",
+      "indOrcid": "https://orcid.org/0000-0000-0000-0000",
+      "indPosition": "Data Integrator",
+      "lastName": "Doe",
       "orgAdress": "",
       "orgCity": "Rimouski",
       "orgCountry": "Canada",
@@ -175,12 +175,12 @@
       ]
     },
     {
-      "givenNames": "Omnain",
+      "givenNames": "Jordan",
       "inCitation": true,
       "indEmail": "",
       "indOrcid": "",
       "indPosition": "",
-      "lastName": "Kutos",
+      "lastName": "Smith",
       "orgAdress": "",
       "orgCity": "Rimouski",
       "orgCountry": "Canada",
@@ -247,8 +247,8 @@
   },
   "language": "fr",
   "lastEditedBy": {
-    "displayName": "Maria-Émilia Rodriguez-Cuicas",
-    "email": "rodriguezcme@ogsl.ca"
+    "displayName": "Alex Doe",
+    "email": "contact@example.com"
   },
   "license": "CC-BY-4.0",
   "limitations": "",

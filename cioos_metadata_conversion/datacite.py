@@ -347,26 +347,73 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
         "doi",
         record["identification"].get("identifier", "").replace("https://doi.org/", ""),
     )
-    doi = record["identification"].get("identifier", "")
-    if doi_prefix and not doi:
-        doi_attributes = {"prefix": doi_prefix}
-    elif doi and doi_prefix and doi.startswith(doi_prefix):
-        doi_attributes = {"doi": doi}
-    else:
-        doi_attributes = {}
-
-    return {
-        "url": catalogue_url + record["metadata"].get("identifier", "")   ,
-        **doi_attributes,
-        "titles": [
+    _add_optional(
+        "titles",
+        [
             {
                 "title": title,
                 "lang": lang,
                 "titleType": "TranslatedTitle",
             }
-            for lang, title in record["identification"]["title"].items()
-            if lang != "translations" and title
+            for lang, title in record["identification"].get("title", {}).items()
+            if lang != "translations"
         ],
+    )
+    _add_optional(
+        "descriptions",
+        [
+            {
+                "description": abstract,
+                "lang": lang,
+                "descriptionType": "Abstract",
+            }
+            for lang, abstract in record["identification"]
+            .get("abstract", {})
+            .items()
+            if lang != "translations"
+        ]
+        + [
+            {
+                "description": "limitations: " + description,
+                "lang": lang,
+                "descriptionType": "Other",
+            }
+            for lang, description in record["metadata"]
+            .get("use_constraints", {})
+            .get("limitations", {})
+            .items()
+            if lang != "translations"
+        ],
+    )
+
+    geo_locations = [
+        item
+        for item in [
+            _get_geo_polygon(record),
+            _get_geo_bounding_box(record),
+        ]
+        if item
+    ]
+    vertical = record.get("spatial", {}).get("vertical")
+    if vertical and len(vertical) == 2:
+        vertical_description = f"Vertical extent: {vertical[0]} to {vertical[1]}"
+        vertical_positive = record.get("spatial", {}).get("vertical_positive", "")
+        if vertical_positive:
+            vertical_description += f" ({vertical_positive})"
+        _add_optional(
+            "descriptions",
+            optional_fields.get("descriptions", [])
+            + [
+                {
+                    "description": vertical_description,
+                    "descriptionType": "Other",
+                    "lang": "en",
+                }
+            ],
+        )
+    _add_optional("geoLocations", geo_locations)
+
+    return {
         **optional_fields,
         "creators": _get_creators(record),
         "publisher": _get_publisher(record),

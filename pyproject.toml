@@ -33,6 +33,11 @@ dev-dependencies = [
 [tool.uv.sources]
 metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that call external APIs (DataCite test API)",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
