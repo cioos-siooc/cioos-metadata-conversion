@@ -343,10 +343,19 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
         optional_fields[field] = value
 
     optional_fields = {}
-    _add_optional(
-        "doi",
-        record["identification"].get("identifier", "").replace("https://doi.org/", ""),
-    )
+
+    # Set the catalogue URL
+    identifier = record["identification"].get("identifier", "")
+    existing_doi = identifier.replace("https://doi.org/", "") if identifier else ""
+
+    # If there's an existing DOI, use it; otherwise use the prefix for auto-generation
+    if existing_doi:
+        _add_optional("doi", existing_doi)
+    elif doi_prefix:
+        optional_fields["prefix"] = doi_prefix
+
+    # Set the URL
+    optional_fields["url"] = catalogue_url + record["metadata"].get("identifier", "")
     _add_optional(
         "titles",
         [
