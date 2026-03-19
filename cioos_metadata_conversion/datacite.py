@@ -1,7 +1,18 @@
-# Generate a DataCite record from a Cioos record
+# Generate a DataCite record from a CIOOS record
 #
-# This follow the DataCite schema v4.6 as described in:
-# https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/overview/
+# This follows the DataCite schema v4.7 as described in:
+# https://schema.datacite.org/meta/kernel-4.7/metadata.xsd
+#
+# Required fields (per XSD):
+#   - identifier (DOI)
+#   - creators
+#   - titles
+#   - publisher
+#   - publicationYear
+#   - resourceType
+#
+# All other fields (subjects, contributors, dates, descriptions,
+# geoLocations, fundingReferences, rightsList, etc.) are optional.
 import json
 from datetime import datetime
 
@@ -87,8 +98,8 @@ def _get_creators(record) -> list:
     """
     return [
         _get_contact_info(contact)
-        for contact in record["contact"]
-        if contact["inCitation"]
+        for contact in record.get("contact", [])
+        if contact.get("inCitation")
     ]
 
 
@@ -112,14 +123,14 @@ def _get_contributors(record) -> list:
             "contributorType": _get_contributor_type(role),
             "lang": "en",
         }
-        for contact in record["contact"]
-        for role in contact["roles"]
+        for contact in record.get("contact", [])
+        for role in contact.get("roles", [])
         if role != "publisher"
     ]
 
 
 def _get_publisher(record) -> dict:
-    for contact in record["contact"]:
+    for contact in record.get("contact", []):
         if "publisher" in contact["roles"]:
             publisher = {
                 "name": contact["organization"]["name"],
@@ -153,8 +164,8 @@ def _get_funding_references(record) -> dict:
                 "funderName": contact.get("organization", {}).get("name"),
                 **_get_funder_ror(contact),
             }
-            for contact in record["contact"]
-            if "funder" in contact["roles"]
+            for contact in record.get("contact", [])
+            if "funder" in contact.get("roles", [])
         ]
     }
 
@@ -236,24 +247,26 @@ def _get_right_lists(record) -> dict:
     """
     Get the right lists from the Cioos record.
     """
-    if "use_constraints" not in record["metadata"]:
-        logger.warning("No use_constraints found in the record.")
+    licence = record.get("metadata", {}).get("use_constraints", {}).get("licence")
+    if not licence:
+        logger.warning("No use_constraints/licence found in the record.")
         return {}
     return {
-        "rights": record["metadata"]["use_constraints"]["licence"]["title"]["en"],
-        "rightsUri": record["metadata"]["use_constraints"]["licence"]["url"],
+        "rights": licence.get("title", {}).get("en", ""),
+        "rightsUri": licence.get("url", ""),
         "schemeUri": "https://spdx.org/licenses/",  # TODO confirm
-        "rightsIdentifier": record["metadata"]["use_constraints"]["licence"]["code"],
+        "rightsIdentifier": licence.get("code", ""),
         "rightsIdentifierScheme": "SPDX",  # TODO confirm
         "lang": "en",
     }
 
 
-def _get_geo_polygon(record) -> list:
+def _get_geo_polygon(record) -> dict:
     """
     Get the polygon from the Cioos record.
     """
-    if "polygon" not in record["spatial"] or not record["spatial"]["polygon"]:
+    polygon = record.get("spatial", {}).get("polygon")
+    if not polygon:
         return {}
     return {
         "geoLocationPolygon": [
@@ -263,28 +276,36 @@ def _get_geo_polygon(record) -> list:
                     "pointLongitude": float(loc.split(",")[0]),
                 }
             }
-            for loc in record["spatial"]["polygon"].split(" ")
+            for loc in polygon.split(" ")
         ]
     }
 
 
 def _get_geo_bounding_box(record) -> dict:
-    if "bounding_box" not in record["spatial"]:
+    bounding_box = record.get("spatial", {}).get("bounding_box")
+    if not bounding_box:
+        return {}
+    east = bounding_box.get("east")
+    west = bounding_box.get("west")
+    north = bounding_box.get("north")
+    south = bounding_box.get("south")
+    if not all(v is not None for v in [east, west, north, south]):
         return {}
     return {
         "geoLocationBoundingBox": {
-            "westBoundLongitude": float(record["spatial"]["bounding_box"]["west"]),
-            "eastBoundLongitude": float(record["spatial"]["bounding_box"]["east"]),
-            "southBoundLatitude": float(record["spatial"]["bounding_box"]["south"]),
-            "northBoundLatitude": float(record["spatial"]["bounding_box"]["north"]),
+            "westBoundLongitude": float(west),
+            "eastBoundLongitude": float(east),
+            "southBoundLatitude": float(south),
+            "northBoundLatitude": float(north),
         }
     }
 
 
 def _get_geo_location_place(record) -> dict:
-    if not record["spatial"].get("description"):
+    description = record.get("spatial", {}).get("description")
+    if not description:
         return {}
-    return {"geoLocationPlace": record["spatial"]["description"].get("en", "") }
+    return {"geoLocationPlace": description.get("en", "") if isinstance(description, dict) else ""}
 
 
 def _get_unique_dicts(dict_list: list) -> list:
@@ -359,21 +380,18 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
     # Set the URL
     optional_fields["url"] = catalogue_url + record["metadata"].get("identifier", "")
 
-    # titles — only added if title.en or .fr exist
-    _add_optional(
-        "titles",
-        [
-            {
-                "title": title,
-                "lang": lang,
-                "titleType": "TranslatedTitle",
-            }
-            for lang, title in (record["identification"].get("title") or {}).items()
-            if lang != "translations" and title
-        ],
-    )
+    # titles — required by DataCite schema
+    optional_fields["titles"] = [
+        {
+            "title": title,
+            "lang": lang,
+            "titleType": "TranslatedTitle",
+        }
+        for lang, title in (record["identification"].get("title") or {}).items()
+        if lang != "translations" and title
+    ] or [{"title": "Untitled", "lang": "en"}]
 
-    # descriptions — only added if abstract exists
+    # descriptions — optional
     descriptions = [
         {
             "description": abstract,
@@ -382,18 +400,18 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
         }
         for lang, abstract in (record["identification"].get("abstract") or {}).items()
         if lang != "translations" and abstract
-    ] + [
-        {
-            "description": "limitations: " + description,
-            "lang": lang,
-            "descriptionType": "Other",
-        }
-        for lang, description in record["metadata"]
-        .get("use_constraints", {})
-        .get("limitations", {})
-        .items()
-        if lang != "translations" and description
     ]
+    limitations = record.get("metadata", {}).get("use_constraints", {}).get("limitations")
+    if isinstance(limitations, dict):
+        descriptions += [
+            {
+                "description": "limitations: " + description,
+                "lang": lang,
+                "descriptionType": "Other",
+            }
+            for lang, description in limitations.items()
+            if lang != "translations" and description
+        ]
 
     vertical = record.get("spatial", {}).get("vertical")
     if vertical and len(vertical) == 2:
@@ -411,13 +429,13 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
 
     _add_optional("descriptions", descriptions)
 
-    # creators — only added if contacts with inCitation exist
+    # creators — required by DataCite schema
     creators = _get_creators(record)
-    _add_optional("creators", creators)
+    optional_fields["creators"] = creators or [{"name": ":unav", "nameType": "Organizational"}]
 
-    # publisher — only added if a publisher contact exists
+    # publisher — required by DataCite schema
     publisher = _get_publisher(record)
-    _add_optional("publisher", publisher)
+    optional_fields["publisher"] = publisher or {"name": ":unav", "lang": "en"}
 
     # contributors
     _add_optional("contributors", _get_contributors(record))

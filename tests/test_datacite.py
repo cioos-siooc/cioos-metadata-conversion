@@ -13,7 +13,7 @@ from cioos_metadata_conversion.firebase_to_cioos import record_json_to_yaml
 load_dotenv()
 
 DATACITE_API_URL = "https://api.test.datacite.org/dois"
-DATACITE_REPOSITORY_ID = os.environ.get("DATACITE_REPOSITORY_ID")
+DATACITE_REPOSITORY_ID = os.environ.get("DATACITE_REPOSITORY_ID") or os.environ.get("DATACITE_ACCOUNT_ID")
 DATACITE_PASSWORD = os.environ.get("DATACITE_PASSWORD")
 DATACITE_PREFIX = os.environ.get("DATACITE_PREFIX")
 
@@ -261,6 +261,64 @@ def test_datacite_record_conversion():
     assert datacite_record.get("fundingReferences")
     assert len(datacite_record["fundingReferences"]) == 1
     assert datacite_record["fundingReferences"][0].get("funderName")
+
+def test_empty_firebase_record_generates_datacite():
+    """
+    Test that an empty Firebase record can be converted to a DataCite record
+    without raising errors. Optional fields should be omitted.
+    """
+    empty_firebase = {"contacts": [], "noPlatform": True, "noTaxa": True}
+    cioos_record = record_json_to_yaml(empty_firebase)
+
+    datacite_record = datacite.generate_datacite_record(cioos_record)
+
+    assert datacite_record
+    assert isinstance(datacite_record, dict)
+
+    # Required fields should always be present (per DataCite XSD)
+    assert datacite_record.get("publicationYear")
+    assert datacite_record.get("types")
+    assert datacite_record.get("schemaVersion")
+    assert datacite_record.get("titles")
+    assert datacite_record.get("creators")
+    assert datacite_record.get("publisher")
+
+    # Optional fields should be absent when data is missing
+    assert "descriptions" not in datacite_record
+    assert "subjects" not in datacite_record
+    assert "dates" not in datacite_record
+    assert "geoLocations" not in datacite_record
+    assert "fundingReferences" not in datacite_record
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not has_datacite_credentials,
+    reason="DataCite test API credentials not set (DATACITE_REPOSITORY_ID, DATACITE_PASSWORD, DATACITE_PREFIX)",
+)
+def test_empty_firebase_record_submit_datacite_api():
+    """
+    Test submitting an empty Firebase-converted DataCite record as a draft
+    to the DataCite test API.
+    """
+    empty_firebase = {"contacts": [], "noPlatform": True, "noTaxa": True}
+    cioos_record = record_json_to_yaml(empty_firebase)
+    datacite_record = datacite.generate_datacite_record(cioos_record)
+
+    doi = None
+    try:
+        response = _submit_datacite_draft(datacite_record)
+        assert response.status_code == 201, (
+            f"DataCite API returned {response.status_code} for empty record: "
+            f"{response.json().get('errors', response.text)}"
+        )
+        data = response.json()
+        doi = data["data"]["id"]
+        assert data["data"]["attributes"]["state"] == "draft"
+    finally:
+        if doi:
+            _delete_datacite_draft(doi)
+
 
 @pytest.mark.integration
 @pytest.mark.skipif(

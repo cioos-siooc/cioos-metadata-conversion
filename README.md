@@ -58,7 +58,7 @@ Copy `.env.sample` to `.env` and fill in the values:
 | Variable | Description |
 |---|---|
 | `LOCAL_RECORDS_PATH` | Path to local metadata records |
-| `DATACITE_REPOSITORY_ID` | DataCite repository ID for API access |
+| `DATACITE_ACCOUNT_ID` | DataCite repository ID for API access |
 | `DATACITE_PASSWORD` | DataCite repository password |
 | `DATACITE_PREFIX` | DataCite DOI prefix (e.g. `10.xxxxx`) |
 
