@@ -516,7 +516,7 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
         **optional_fields,
         "language": record.get("metadata", {}).get("language", ""),
         "types": {
-            "resourceTypeGeneral": record.get("metadata", {}).get("scope", "Dataset"),
+            "resourceTypeGeneral": record.get("metadata", {}).get("metadataScope") or record.get("metadata", {}).get("scope", "Dataset"),
             "resourceType": next(iter(record.get("metadata", {}).get("resourceType", [])), ""),
         },
         **_get_alternate_identifiers(record),
