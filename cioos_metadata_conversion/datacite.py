@@ -316,39 +316,45 @@ def _get_unique_dicts(dict_list: list) -> list:
 def _get_eov_subjects(record) -> list:
     """
     Get the EOV subjects from the CIOOS record and return a non camelcase list of unique dicts.
+    Keywords are stored at record["identification"]["keywords"]["eov"] with "en" and "fr" sublists.
     """
-    if not record.get("metadata", {}).get("eov"):
-        return []
-    return _get_unique_dicts(
-        [
+    eov_keywords = record.get("identification", {}).get("keywords", {}).get("eov", {})
+    subjects = []
+    for lang, eovs in eov_keywords.items():
+        if lang == "translations" or not eovs:
+            continue
+        subjects += [
             {
-                "subject": camel_to_title(eov),
-                "lang": "en",
+                "subject": camel_to_title(eov) if lang == "en" else eov,
+                "lang": lang,
                 **_get_subject_scheme("eov"),
             }
-            for eov in record["metadata"]["eov"]
+            for eov in eovs
             if eov
         ]
-    )
+    return _get_unique_dicts(subjects)
 
 
 def _get_keyword_subjects(record) -> list:
     """
     Get the keyword subjects from the CIOOS record.
+    Keywords are stored at record["identification"]["keywords"]["default"] with "en" and "fr" sublists.
     """
-    if not record.get("metadata", {}).get("keywords"):
-        return []
-    return _get_unique_dicts(
-        [
+    default_keywords = record.get("identification", {}).get("keywords", {}).get("default", {})
+    subjects = []
+    for lang, keywords in default_keywords.items():
+        if lang == "translations" or not keywords:
+            continue
+        subjects += [
             {
                 "subject": keyword,
-                "lang": "en",
+                "lang": lang,
                 **_get_subject_scheme("default"),
             }
-            for keyword in record["metadata"]["keywords"]
+            for keyword in keywords
             if keyword
         ]
-    )
+    return _get_unique_dicts(subjects)
 
 
 def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/dataset/cioos-ca_", doi_prefix=None) -> dict:
