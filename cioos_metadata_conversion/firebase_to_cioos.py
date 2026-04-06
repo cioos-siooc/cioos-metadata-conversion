@@ -215,6 +215,7 @@ def record_json_to_yaml(record):
                 "publication": date_from_datetime_str(record.get("timeFirstPublished")),
             },
             "scope": record.get("metadataScopeIso") or record.get("metadataScope"),
+            "resourceType": record.get("resourceType", []),
         },
         "spatial": _build_spatial(record, polygon),
         "identification": {
