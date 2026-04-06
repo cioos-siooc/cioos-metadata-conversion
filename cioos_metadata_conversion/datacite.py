@@ -302,10 +302,27 @@ def _get_geo_bounding_box(record) -> dict:
 
 
 def _get_geo_location_place(record) -> dict:
-    description = record.get("spatial", {}).get("description")
-    if not description:
+    spatial = record.get("spatial", {})
+    default_lang = record.get("metadata", {}).get("language", "en")
+
+    # Location description in the record's default language
+    description = spatial.get("description")
+    place_parts = []
+    if description:
+        text = description.get(default_lang, "") if isinstance(description, dict) else ""
+        if text:
+            place_parts.append(text)
+
+    # Vertical extent
+    vertical = spatial.get("vertical")
+    if vertical and len(vertical) == 2:
+        direction = spatial.get("vertical_positive", "")
+        direction_label = "depth" if direction == "depthPositive" else "height"
+        place_parts.append(f"Vertical extent ({direction_label}): {vertical[0]} to {vertical[1]} m")
+
+    if not place_parts:
         return {}
-    return {"geoLocationPlace": description.get("en", "") if isinstance(description, dict) else ""}
+    return {"geoLocationPlace": "; ".join(place_parts)}
 
 
 def _get_unique_dicts(dict_list: list) -> list:
