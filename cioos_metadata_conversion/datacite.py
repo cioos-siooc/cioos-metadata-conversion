@@ -381,26 +381,31 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
     optional_fields["url"] = catalogue_url + record["metadata"].get("identifier", "")
 
     # titles — required by DataCite schema
-    optional_fields["titles"] = [
-        {
-            "title": title,
-            "lang": lang,
-            "titleType": "TranslatedTitle",
-        }
-        for lang, title in (record["identification"].get("title") or {}).items()
-        if lang != "translations" and title
-    ] or [{"title": "Untitled", "lang": "en"}]
+    # The default language title is the primary title (no titleType),
+    # other languages get titleType "TranslatedTitle".
+    default_lang = record.get("metadata", {}).get("language", "en")
+    titles = []
+    for lang, title in (record["identification"].get("title") or {}).items():
+        if lang == "translations" or not title:
+            continue
+        entry = {"title": title, "lang": lang}
+        if lang != default_lang:
+            entry["titleType"] = "TranslatedTitle"
+        titles.append(entry)
+    optional_fields["titles"] = titles or [{"title": "Untitled", "lang": "en"}]
 
     # descriptions — optional
-    descriptions = [
-        {
-            "description": abstract,
-            "lang": lang,
-            "descriptionType": "Abstract",
-        }
-        for lang, abstract in (record["identification"].get("abstract") or {}).items()
-        if lang != "translations" and abstract
-    ]
+    # Only include the default language abstract.
+    descriptions = []
+    for lang, abstract in (record["identification"].get("abstract") or {}).items():
+        if lang == "translations" or not abstract:
+            continue
+        if lang == default_lang:
+            descriptions.append({
+                "description": abstract,
+                "lang": lang,
+                "descriptionType": "Abstract",
+            })
     limitations = record.get("metadata", {}).get("use_constraints", {}).get("limitations")
     if isinstance(limitations, dict):
         descriptions += [
