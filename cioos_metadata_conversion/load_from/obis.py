@@ -1,4 +1,6 @@
+import json
 import re
+from pathlib import Path
 
 import requests
 from loguru import logger
@@ -854,6 +856,208 @@ def fetch_eovs_from_measurements(dataset_id, extensions=None, sample_size=100):
     return sorted(eovs)
 
 
+# ── Platform inference ──────────────────────────────────────────────────────
+# OBIS exposes no structured platform field; DwC samplingProtocol (free text
+# on occurrence records) is the only reliable signal. We sample occurrences,
+# match samplingProtocol against the controlled keyword table below, and emit
+# values from the CIOOS form vocabulary (cioos_metadata_conversion/resources/
+# platforms.json — mirrors cioos-siooc/metadata-entry-form/src/platforms.json).
+# Conservative on purpose: when nothing matches we emit no platform and the
+# loader sets noPlatform=True. Mixing free-text NLP with controlled-vocab
+# signals is the same trap the EOV mapping deliberately avoids (see line ~1117).
+
+_PLATFORM_RESOURCE_PATH = (
+    Path(__file__).parent.parent / "resources" / "platforms.json"
+)
+
+
+def _load_platform_vocab():
+    """Return the set of valid CIOOS platform label_en strings."""
+    with open(_PLATFORM_RESOURCE_PATH, encoding="utf-8") as f:
+        return {entry["label_en"] for entry in json.load(f)}
+
+
+VALID_PLATFORM_LABELS = _load_platform_vocab()
+
+
+# Ordered keyword table. Each entry is (pattern, label_en). Patterns are
+# case-insensitive substring/word matches over samplingProtocol text. Order
+# does not matter for correctness — overlap is resolved post-match via
+# _PLATFORM_SPECIFICITY below — but specific patterns are listed first to
+# make the intent readable.
+_PLATFORM_KEYWORD_TABLE = [
+    # Moorings / floats / buoys
+    (r"\b(?:subsurface|sub-surface|bottom)\s+mooring\b", "subsurface mooring"),
+    (
+        r"\b(?:moored\s+(?:surface\s+)?buoy|surface\s+buoy|wave\s+buoy)\b",
+        "moored surface buoy",
+    ),
+    (r"\b(?:mooring|moored)\b", "mooring"),
+    (
+        r"\b(?:argo\s+float|profiling\s+float)\b",
+        "drifting subsurface profiling float",
+    ),
+    (
+        r"\b(?:drifting\s+buoy|drifter|argos\s+drifter)\b",
+        "drifting surface float",
+    ),
+    # Gliders
+    (r"\bsurface\s+glider", "surface gliders"),
+    (r"\bglider\b", "sub-surface gliders"),
+    # Submersibles
+    (
+        r"\b(?:auv|autonomous\s+underwater\s+vehicle)\b",
+        "autonomous underwater vehicle",
+    ),
+    (
+        r"\b(?:rov|remotely\s+operated\s+vehicle)\b",
+        "propelled unmanned submersible",
+    ),
+    # Vessels — specific first, generic last; specificity table strips
+    # the generic "ship" hit when a more-specific vessel label is present.
+    (
+        r"\b(?:research\s+vessel|r/v|research\s+cruise|ccgs|expedition)\b",
+        "research vessel",
+    ),
+    (r"\b(?:fishing\s+vessel|trawler|seiner)\b", "fishing vessel"),
+    (r"\b(?:vessel|ship|boat)\b", "ship"),
+    # Divers / humans in water
+    (r"\b(?:diver|scuba|snorkel|free\s+dive)\b", "diver"),
+    # Aircraft / aerial
+    (r"\b(?:drone|uav|unmanned\s+aerial)\b", "unmanned aerial vehicle"),
+    (r"\bhelicopter\b", "helicopter"),
+    (r"\b(?:aircraft|airplane|aeroplane|aerial)\b", "aeroplane"),
+    # Remote sensing
+    (r"\bsatellite\b", "satellite"),
+    # Land / coastal / seafloor
+    (
+        r"\b(?:shore|beach|intertidal|marsh|tidepool|tide\s+pool|shoreline)\b",
+        "beach/intertidal zone structure",
+    ),
+    (r"\b(?:onshore|terrestrial)\b", "land/onshore structure"),
+    (
+        r"\b(?:seafloor|seabed|benthic\s+lander|lander)\b",
+        "fixed benthic node",
+    ),
+    (
+        r"\b(?:offshore\s+platform|oil\s+platform|wind\s+farm|drilling\s+rig)\b",
+        "offshore structure",
+    ),
+    (r"\b(?:coastal\s+station|pier|wharf|jetty)\b", "coastal structure"),
+    (r"\b(?:river\s+station|stream\s+gauge)\b", "river station"),
+]
+
+_PLATFORM_KEYWORDS_COMPILED = [
+    (re.compile(pat, re.IGNORECASE), label)
+    for pat, label in _PLATFORM_KEYWORD_TABLE
+]
+
+# When the LHS label is matched, drop any RHS labels from the result set.
+# Lets generic patterns like \bvessel\b stay in the table without producing
+# duplicate hits when a more specific phrase (e.g. "research vessel") also
+# matched. Same trick for moorings, drifters, aircraft.
+_PLATFORM_SPECIFICITY = {
+    "research vessel": {"ship"},
+    "fishing vessel": {"ship"},
+    "moored surface buoy": {"mooring"},
+    "subsurface mooring": {"mooring"},
+    "drifting subsurface profiling float": {"drifting surface float"},
+    "surface gliders": {"sub-surface gliders"},
+    "unmanned aerial vehicle": {"aeroplane"},
+    "helicopter": {"aeroplane"},
+}
+
+
+def _match_platform_keywords(text):
+    """Return CIOOS platform label_en values matched in text.
+
+    Case-insensitive. Deduplicated. Applies the specificity overrides so
+    generic labels are dropped when a more specific label also hit.
+    """
+    if not text:
+        return []
+    hits = []
+    for regex, label in _PLATFORM_KEYWORDS_COMPILED:
+        if label in hits:
+            continue
+        if regex.search(text):
+            hits.append(label)
+
+    drop = set()
+    for specific, generics in _PLATFORM_SPECIFICITY.items():
+        if specific in hits:
+            drop.update(generics)
+
+    return [h for h in hits if h not in drop]
+
+
+def fetch_platforms_from_obis(dataset_id, sample_size=100):
+    """Sample OBIS occurrences and infer CIOOS platform types.
+
+    Reads samplingProtocol from a bounded slice of /v3/occurrence records,
+    matches it against _PLATFORM_KEYWORD_TABLE, and returns a list of
+    {"id", "type", "description"} dicts whose "type" is a label_en from
+    the bundled CIOOS platform vocabulary. Returns [] when nothing was
+    sampled, no samplingProtocol carried recognisable keywords, or the
+    API call failed — callers should then set noPlatform=True.
+
+    Args:
+        dataset_id: OBIS dataset UUID.
+        sample_size: max occurrences to fetch. 100 is usually enough to
+            cover the distinct samplingProtocol strings used in a dataset.
+    """
+    if not dataset_id:
+        return []
+
+    try:
+        response = requests.get(
+            OBIS_OCCURRENCE_URL,
+            params={
+                "datasetid": dataset_id,
+                "size": sample_size,
+                "fields": "samplingProtocol,basisOfRecord",
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError) as e:
+        logger.warning(
+            f"Failed to fetch occurrences for platform inference {dataset_id}: {e}"
+        )
+        return []
+
+    protocols = set()
+    for occ in data.get("results", []) or []:
+        proto = occ.get("samplingProtocol")
+        if proto:
+            protocols.add(proto)
+
+    matched_labels = []
+    for proto in protocols:
+        for label in _match_platform_keywords(proto):
+            if label in matched_labels:
+                continue
+            if label not in VALID_PLATFORM_LABELS:
+                # Belt-and-braces: the keyword table is authored against the
+                # vendored vocab, but flag drift instead of emitting garbage.
+                logger.warning(
+                    f"Platform label '{label}' is not in the CIOOS "
+                    f"vocabulary; skipping (dataset {dataset_id})"
+                )
+                continue
+            matched_labels.append(label)
+
+    return [
+        {
+            "id": f"obis-platform-{i + 1}",
+            "type": label,
+            "description": {"en": "", "fr": ""},
+        }
+        for i, label in enumerate(matched_labels)
+    ]
+
+
 def map_obis_role_to_cioos(obis_role):
     """Map an OBIS EML role/type to a valid CIOOS ISO 19115 role code.
 
@@ -1095,7 +1299,7 @@ def map_obis_to_cioos(obis_data):
     cioos_data["edition"] = ""
     cioos_data["filename"] = ""
     cioos_data["identifier"] = ""
-    cioos_data["noPlatform"] = ""
+    # noPlatform is set after platform inference below.
     cioos_data["progress"] = ""
     cioos_data["recordID"] = ""
     cioos_data["status"] = ""
@@ -1128,7 +1332,15 @@ def map_obis_to_cioos(obis_data):
     if measurement_eovs:
         merged.discard("other")
     cioos_data["eov"] = sorted(merged) if merged else ["other"]
-    cioos_data["platforms"] = []  # Platform information not available
+
+    # Infer platforms from DwC samplingProtocol on occurrence records. OBIS
+    # has no structured platform field, so a no-hit result is the common
+    # case; flip noPlatform=True so firebase_to_cioos.py:318 cleanly skips
+    # the platform path and the XML omits the section.
+    platforms = fetch_platforms_from_obis(dataset_id)
+    cioos_data["platforms"] = platforms
+    cioos_data["noPlatform"] = not platforms
+
     cioos_data["projects"] = []  # Project information not available
     cioos_data["region"] = ""  # Geographic region classification
 

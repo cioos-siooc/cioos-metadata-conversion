@@ -11,9 +11,12 @@ import pytest
 import requests
 
 from cioos_metadata_conversion.load_from.obis import (
+    VALID_PLATFORM_LABELS,
     _map_measurement_pair,
+    _match_platform_keywords,
     fetch_eovs_from_measurements,
     fetch_eovs_from_taxonomy,
+    fetch_platforms_from_obis,
     map_obis_to_cioos,
 )
 
@@ -549,6 +552,16 @@ class TestFetchEovsFromTaxonomy:
 class TestMapObisToCioosEovMerging:
     """map_obis_to_cioos merges taxonomy and measurement EOVs correctly."""
 
+    @pytest.fixture(autouse=True)
+    def _stub_platform_fetch(self):
+        # These tests are about EOV merging — skip the live platform
+        # API call by stubbing the inference helper.
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_platforms_from_obis",
+            return_value=[],
+        ):
+            yield
+
     @staticmethod
     def _minimal_obis_data():
         return {"id": "dataset-uuid", "extensions": ["ExtendedMeasurementOrFact"]}
@@ -646,3 +659,250 @@ def test_real_obis_dataset_with_measurements(dataset_id):
     # The dataset may or may not actually declare extensions the way we
     # expect; call without the gate to force the fetch.
     assert isinstance(eovs, list)
+
+
+class TestPlatformKeywordMatching:
+    """_match_platform_keywords: keyword table + specificity dedup."""
+
+    def test_empty_text_returns_empty(self):
+        assert _match_platform_keywords("") == []
+        assert _match_platform_keywords(None) == []
+
+    def test_no_keyword_match_returns_empty(self):
+        assert _match_platform_keywords("Random text with no clue.") == []
+
+    def test_research_vessel_drops_generic_ship(self):
+        # "research vessel" matches both the specific and the generic pattern;
+        # specificity table should drop "ship".
+        assert _match_platform_keywords(
+            "Sampled aboard research vessel CCGS Vector"
+        ) == ["research vessel"]
+
+    def test_fishing_vessel_drops_generic_ship(self):
+        assert _match_platform_keywords("Hauled aboard a fishing vessel") == [
+            "fishing vessel"
+        ]
+
+    def test_bare_vessel_maps_to_ship(self):
+        assert _match_platform_keywords("Collected from vessel during transit") == [
+            "ship"
+        ]
+
+    def test_subsurface_mooring_drops_generic_mooring(self):
+        assert _match_platform_keywords(
+            "Instruments on a subsurface mooring at 100m"
+        ) == ["subsurface mooring"]
+
+    def test_moored_surface_buoy_drops_generic_mooring(self):
+        assert _match_platform_keywords(
+            "ADCP attached to a moored surface buoy"
+        ) == ["moored surface buoy"]
+
+    def test_bare_mooring_keeps_label(self):
+        assert _match_platform_keywords("Sampled from a long-term mooring") == [
+            "mooring"
+        ]
+
+    def test_surface_glider_distinct_from_subsurface(self):
+        assert _match_platform_keywords("Deployed surface glider") == [
+            "surface gliders"
+        ]
+
+    def test_bare_glider_defaults_to_subsurface(self):
+        assert _match_platform_keywords("Slocum glider mission") == [
+            "sub-surface gliders"
+        ]
+
+    def test_argo_float_maps_to_profiling_float(self):
+        # And drops the generic drifting-surface-float hit even though
+        # "float" overlaps with the float family.
+        assert _match_platform_keywords("Argo float profile") == [
+            "drifting subsurface profiling float"
+        ]
+
+    def test_rov_maps_to_propelled_unmanned_submersible(self):
+        assert _match_platform_keywords(
+            "Video observations from ROV during dive"
+        ) == ["propelled unmanned submersible"]
+
+    def test_auv_maps_to_autonomous_underwater_vehicle(self):
+        assert _match_platform_keywords("REMUS AUV survey transect") == [
+            "autonomous underwater vehicle"
+        ]
+
+    def test_diver_keywords(self):
+        assert _match_platform_keywords("SCUBA divers on transect") == ["diver"]
+
+    def test_intertidal_marsh_maps_to_beach(self):
+        # Salt-marsh dataset (the user's working example).
+        assert _match_platform_keywords(
+            "Sampling along the salt marsh shoreline"
+        ) == ["beach/intertidal zone structure"]
+
+    def test_seafloor_maps_to_fixed_benthic_node(self):
+        assert _match_platform_keywords("Benthic lander on seafloor") == [
+            "fixed benthic node"
+        ]
+
+    def test_uav_drops_generic_aeroplane(self):
+        assert _match_platform_keywords("Aerial survey from UAV / drone") == [
+            "unmanned aerial vehicle"
+        ]
+
+    def test_helicopter_drops_generic_aeroplane(self):
+        assert _match_platform_keywords(
+            "Aerial photo survey from helicopter"
+        ) == ["helicopter"]
+
+    def test_satellite_keyword(self):
+        assert _match_platform_keywords("Derived from satellite imagery") == [
+            "satellite"
+        ]
+
+    def test_case_insensitive(self):
+        assert _match_platform_keywords("RESEARCH VESSEL") == ["research vessel"]
+
+    def test_multiple_distinct_platforms_kept(self):
+        # A benthic survey combining ROV + divers should emit both.
+        result = _match_platform_keywords(
+            "Habitat survey by ROV and accompanying SCUBA divers"
+        )
+        assert set(result) == {"propelled unmanned submersible", "diver"}
+
+    def test_every_table_label_is_in_vocab(self):
+        # Guardrail: the keyword table must never emit a label that the
+        # CIOOS form wouldn't accept.
+        from cioos_metadata_conversion.load_from.obis import (
+            _PLATFORM_KEYWORD_TABLE,
+        )
+
+        for _pattern, label in _PLATFORM_KEYWORD_TABLE:
+            assert label in VALID_PLATFORM_LABELS, (
+                f"{label!r} is not a valid CIOOS platform label_en — "
+                f"check resources/platforms.json"
+            )
+
+
+class TestFetchPlatformsFromObis:
+    """fetch_platforms_from_obis: API sampling + samplingProtocol → label."""
+
+    def test_empty_dataset_id_returns_empty(self):
+        assert fetch_platforms_from_obis("") == []
+        assert fetch_platforms_from_obis(None) == []
+
+    def test_no_occurrences_returns_empty(self):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"results": []}
+        mock_response.raise_for_status.return_value = None
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.requests.get",
+            return_value=mock_response,
+        ):
+            assert fetch_platforms_from_obis("abc-123") == []
+
+    def test_api_error_returns_empty(self):
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.requests.get",
+            side_effect=requests.ConnectionError("boom"),
+        ):
+            assert fetch_platforms_from_obis("abc-123") == []
+
+    def test_blank_sampling_protocol_returns_empty(self):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "results": [
+                {"samplingProtocol": "", "basisOfRecord": "HumanObservation"},
+                {"samplingProtocol": None, "basisOfRecord": "HumanObservation"},
+            ]
+        }
+        mock_response.raise_for_status.return_value = None
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.requests.get",
+            return_value=mock_response,
+        ):
+            assert fetch_platforms_from_obis("abc-123") == []
+
+    def test_single_protocol_returns_single_platform(self):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "results": [
+                {"samplingProtocol": "Sampled aboard research vessel CCGS Vector"}
+            ]
+        }
+        mock_response.raise_for_status.return_value = None
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.requests.get",
+            return_value=mock_response,
+        ):
+            result = fetch_platforms_from_obis("abc-123")
+        assert result == [
+            {
+                "id": "obis-platform-1",
+                "type": "research vessel",
+                "description": {"en": "", "fr": ""},
+            }
+        ]
+
+    def test_mixed_protocols_emit_multiple_platforms(self):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "results": [
+                {"samplingProtocol": "ROV survey"},
+                {"samplingProtocol": "SCUBA divers on transect"},
+                # duplicate text should not produce a third entry
+                {"samplingProtocol": "ROV survey"},
+            ]
+        }
+        mock_response.raise_for_status.return_value = None
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.requests.get",
+            return_value=mock_response,
+        ):
+            result = fetch_platforms_from_obis("abc-123")
+        types = {p["type"] for p in result}
+        assert types == {"propelled unmanned submersible", "diver"}
+        # Deterministic IDs starting from 1.
+        assert [p["id"] for p in result] == [
+            f"obis-platform-{i + 1}" for i in range(len(result))
+        ]
+
+
+class TestMapObisToCioosPlatforms:
+    """map_obis_to_cioos wires the platform inference into the record."""
+
+    def test_no_platforms_sets_noPlatform_true(self):
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_eovs_from_taxonomy",
+            return_value=[],
+        ), patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_eovs_from_measurements",
+            return_value=[],
+        ), patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_platforms_from_obis",
+            return_value=[],
+        ):
+            result = map_obis_to_cioos({"id": "x"})
+        assert result["platforms"] == []
+        assert result["noPlatform"] is True
+
+    def test_platforms_present_sets_noPlatform_false(self):
+        platforms = [
+            {
+                "id": "obis-platform-1",
+                "type": "mooring",
+                "description": {"en": "", "fr": ""},
+            }
+        ]
+        with patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_eovs_from_taxonomy",
+            return_value=[],
+        ), patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_eovs_from_measurements",
+            return_value=[],
+        ), patch(
+            "cioos_metadata_conversion.load_from.obis.fetch_platforms_from_obis",
+            return_value=platforms,
+        ):
+            result = map_obis_to_cioos({"id": "x"})
+        assert result["platforms"] == platforms
+        assert result["noPlatform"] is False
