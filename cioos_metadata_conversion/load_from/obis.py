@@ -159,42 +159,34 @@ TAXON_CLASS_TO_EOV = {
     "Nanoarchaeia": "microbeBiomassAndDiversity",
     "Archaeoglobi": "microbeBiomassAndDiversity",
     "Methanococci": "microbeBiomassAndDiversity",
-    # Fungi — marine fungi are microbes per NOAA/NIH/GOOS definitions
-    "Dothideomycetes": "microbeBiomassAndDiversity",
-    "Agaricomycetes": "microbeBiomassAndDiversity",
-    "Sordariomycetes": "microbeBiomassAndDiversity",
-    "Eurotiomycetes": "microbeBiomassAndDiversity",
-    "Tremellomycetes": "microbeBiomassAndDiversity",
-    "Saccharomycetes": "microbeBiomassAndDiversity",
-    "Leotiomycetes": "microbeBiomassAndDiversity",
-    "Microbotryomycetes": "microbeBiomassAndDiversity",
-    "Lecanoromycetes": "microbeBiomassAndDiversity",
-    "Chytridiomycetes": "microbeBiomassAndDiversity",
-    "Cystobasidiomycetes": "microbeBiomassAndDiversity",
-    "Glomeromycetes": "microbeBiomassAndDiversity",
-    "Taphrinomycetes": "microbeBiomassAndDiversity",
-    "Pezizomycetes": "microbeBiomassAndDiversity",
-    "Orbiliomycetes": "microbeBiomassAndDiversity",
-    "Wallemiomycetes": "microbeBiomassAndDiversity",
-    "Ustilaginomycetes": "microbeBiomassAndDiversity",
-    "Agaricostilbomycetes": "microbeBiomassAndDiversity",
-    # Heterotrophic / parasitic protists — eukaryotic microbes
-    "Labyrinthulea": "microbeBiomassAndDiversity",        # Thraustochytrids (decomposers)
-    "Conoidasida": "microbeBiomassAndDiversity",           # Apicomplexa parasites
-    "Perkinsea": "microbeBiomassAndDiversity",             # Parasitic protists (mollusc pathogens)
-    "Kinetoplastea": "microbeBiomassAndDiversity",         # Flagellates (incl. parasites)
-    "Diplonemea": "microbeBiomassAndDiversity",            # Heterotrophic flagellates
-    "Peronosporea": "microbeBiomassAndDiversity",          # Oomycetes
+    # Deliberately *not* mapped to microbeBiomassAndDiversity:
+    #   - Fungal classes (Dothideomycetes, Agaricomycetes, Sordariomycetes,
+    #     Eurotiomycetes, Saccharomycetes, Lecanoromycetes, etc.). OBIS is a
+    #     biodiversity catalogue; these classes include many terrestrial
+    #     fungi (mushrooms, lichens, yeasts) that surface as incidental
+    #     shoreline records and do not indicate a microbe-focused dataset.
+    #   - Host-bound parasites (Conoidasida apicomplexans, Perkinsea mollusc
+    #     pathogens) and ambiguous heterotrophic protists (Labyrinthulea,
+    #     Kinetoplastea, Diplonemea, Peronosporea). GOOS microbe scope is
+    #     free-living marine microbes; these classes appear in occurrence
+    #     data without matching that scope and curators don't tag them.
     # ── Macroalgae ──
     "Phaeophyceae": "macroalgalCanopyCoverAndComposition",
     "Florideophyceae": "macroalgalCanopyCoverAndComposition",
     "Ulvophyceae": "macroalgalCanopyCoverAndComposition",
     "Bangiophyceae": "macroalgalCanopyCoverAndComposition",
     "Compsopogonophyceae": "macroalgalCanopyCoverAndComposition",
-    # ── Hard coral ──
-    "Anthozoa": "hardCoralCoverAndComposition",
-    "Hexacorallia": "hardCoralCoverAndComposition",
-    "Octocorallia": "hardCoralCoverAndComposition",
+    # ── Cnidarian classes → invertebrateAbundanceAndDistribution ──
+    # GOOS hardCoralCoverAndComposition scopes reef-building Scleractinia
+    # (an *order* within Hexacorallia), not classes. Octocorallia (sea pens,
+    # gorgonians, soft corals), Hexacorallia (which also contains anemones
+    # and black corals), and the phylum-level Anthozoa all carry too much
+    # non-hard-coral content to map directly to the cover EOV. CIOOS
+    # curators reflect this — across the audit corpus, 0 datasets were
+    # hand-tagged with hardCoralCoverAndComposition.
+    "Anthozoa": "invertebrateAbundanceAndDistribution",
+    "Hexacorallia": "invertebrateAbundanceAndDistribution",
+    "Octocorallia": "invertebrateAbundanceAndDistribution",
     # ── Invertebrates — benthic & other marine invertebrates ──
     "Gastropoda": "invertebrateAbundanceAndDistribution",
     "Bivalvia": "invertebrateAbundanceAndDistribution",
@@ -284,12 +276,18 @@ MEASUREMENT_P01_TO_EOV = {
     # Turbidity / suspended matter
     "TURBXXXX": "particulateMatter",
     "TSEDZZ01": "particulateMatter",
-    # Wind → ocean surface stress proxy
-    "EWSBZZ01": "oceanSurfaceStress",      # Wind speed
-    "EWDAZZ01": "oceanSurfaceStress",      # Wind direction
+    # Wind P01 codes (EWSBZZ01 wind speed, EWDAZZ01 wind direction) are
+    # deliberately *not* mapped to oceanSurfaceStress. Wind is an input to
+    # the stress product (τ = ρ·Cd·|U|·U), not the EOV itself, and zero
+    # curators tagged oceanSurfaceStress across the audit corpus even on
+    # datasets where the codes could apply. If a platform publishes a
+    # derived stress parameter directly, add that P01 code here.
     # Sea state — Beaufort wind force is the classic sea-state proxy
     "WMOCWFBF": "seaState",                # Beaufort wind force
     "WMOCSSXX": "seaState",                # Beaufort wind force / sea state
+    # Sea surface height — tide-gauge / bottom-pressure surface-elevation codes.
+    "ASLVZZ01": "seaSurfaceHeight",        # Surface elevation, unspecified datum
+    "ASLVTD01": "seaSurfaceHeight",        # Surface elevation by fixed in-situ pressure sensor
 }
 
 
@@ -298,12 +296,26 @@ MEASUREMENT_P01_TO_EOV = {
 # matters: more specific keys should precede broader ones. Surface-vs-subsurface
 # for temperature/salinity is handled separately in _map_measurement_pair.
 MEASUREMENT_TEXT_TO_EOV = {
-    # Temperature / salinity — surface vs subsurface disambiguation below
+    # Temperature / salinity — surface vs subsurface disambiguation below.
+    # French variants included: many DFO Quebec / St. Lawrence OBIS datasets
+    # ship eMoF with French-only or bilingual "label | label" measurementType
+    # strings and no P01 ID. The atmospheric-vs-water-temperature guard in
+    # _map_measurement_pair keeps "Température atmosphérique" from matching.
+    # ASCII snake_case variants (`temp_eau`, `salinite_psu`) appear in some
+    # Comité ZIP Rive Nord de l'Estuaire datasets; underscore is a word
+    # character, so regex word boundaries don't let "temperature"/"salinity"
+    # bleed into these — they need explicit keys.
     "temperature": "subSurfaceTemperature",
+    "température": "subSurfaceTemperature",
+    "temp_eau": "subSurfaceTemperature",
     "salinity": "subSurfaceSalinity",
+    "salinité": "subSurfaceSalinity",
+    "salinite_psu": "subSurfaceSalinity",
     # Oxygen
     "dissolved oxygen": "oxygen",
+    "oxygène dissous": "oxygen",
     "oxygen": "oxygen",
+    "oxygène": "oxygen",
     # Nutrients
     "nitrate": "nutrients",
     "nitrite": "nutrients",
@@ -312,10 +324,14 @@ MEASUREMENT_TEXT_TO_EOV = {
     "silicate": "nutrients",
     "total nitrogen": "nutrients",
     "total phosphorus": "nutrients",
-    # Inorganic carbon chemistry
+    # Inorganic carbon chemistry. A lone pH doesn't emit inorganicCarbon at
+    # the dataset level — see the carbonate-system aggregation in
+    # fetch_eovs_from_measurements. pH still maps here so it contributes
+    # when paired with a "strong" carbonate parameter.
     "ph": "inorganicCarbon",
     "pco2": "inorganicCarbon",
     "alkalinity": "inorganicCarbon",
+    "alcalinité": "inorganicCarbon",
     "dic": "inorganicCarbon",
     # Organic carbon
     "dissolved organic carbon": "dissolvedOrganicCarbon",
@@ -333,17 +349,26 @@ MEASUREMENT_TEXT_TO_EOV = {
     "current direction": "subSurfaceCurrents",
     "current strength": "subSurfaceCurrents",
     "tidal current": "surfaceCurrents",
-    # Sea state — must precede wind keys so "Beaufort wind force (sea state)"
-    # matches "beaufort" / "sea state" before falling through to "wind force".
+    # Sea state — GOOS scope is wave height, period, direction, steepness.
+    # Bare "Beaufort" / "wind" free-text is deliberately *not* mapped: OBIS
+    # eMoF "Beaufort Scale" / "Vent (Beaufort)" / "Wind speed" labels are
+    # usually ancillary wind observations recorded at biological sampling
+    # stations, not wave/stress measurements, and curator tagging is
+    # inconsistent when these are the only signal. The WMOCWFBF / WMOCSSXX
+    # (seaState) and EWSBZZ01 / EWDAZZ01 (oceanSurfaceStress) P01 codes
+    # remain mapped below as authoritative signals.
     "sea state": "seaState",
-    "beaufort": "seaState",
     "wave height": "seaState",
     "wave observation": "seaState",
     "wave exposure": "seaState",
-    # Wind → ocean surface stress
-    "wind speed": "oceanSurfaceStress",
-    "wind direction": "oceanSurfaceStress",
-    "wind force": "oceanSurfaceStress",
+    # Sea surface height — tide-gauge-style numeric height above datum. Phase
+    # labels ("tide level", "tide stage", "stade de la marée") are categorical
+    # ebb/flood markers, not heights, and are deliberately not mapped.
+    "tide height": "seaSurfaceHeight",
+    "hauteur de la marée": "seaSurfaceHeight",  # French, DFO-Quebec
+    "water level": "seaSurfaceHeight",
+    "niveau d'eau": "seaSurfaceHeight",
+    "sea level": "seaSurfaceHeight",
     # Sea ice
     "sea ice": "seaIce",
     "ice cover": "seaIce",
@@ -375,6 +400,41 @@ MEASUREMENT_TEXT_TO_EOV = {
 
 _P01_CODE_RE = re.compile(r"/([A-Z0-9]{8})/?$")
 
+# Air/atmospheric temperature has no CIOOS EOV; these tokens must suppress
+# the "temperature" keys from firing. Without this guard, "Température
+# atmosphérique" matches "température" and emits subSurfaceTemperature.
+_ATMOSPHERIC_RE = re.compile(r"\b(air|atmospheric|atmosph[eé]rique)\b", re.IGNORECASE)
+_TEMPERATURE_EOVS = {"subSurfaceTemperature", "seaSurfaceTemperature"}
+
+# "Per cell" labels are flow-cytometry phytoplankton carbon metrics, not
+# bulk water-column particulate measurements. e.g. the P01 code MAOCCB11
+# ("Organic carbon content per cell") and free-text "Particulate Organic
+# Carbon per cell". These should inform phytoplankton biomass (captured
+# via taxonomy classes) rather than emit particulateMatter.
+_PER_CELL_RE = re.compile(r"\bper\s+cell\b", re.IGNORECASE)
+_PER_CELL_P01 = {"MAOCCB11"}
+
+# Inorganic-carbon EOV requires more than a lone pH to flag at the dataset
+# level. GOOS defines the EOV as the ocean carbonate system (pH, total
+# alkalinity, DIC, pCO2); CIOOS curators in practice only tag it when a
+# non-pH carbonate parameter is present. pH alone is treated as incidental
+# water quality. See fetch_eovs_from_measurements for the aggregation.
+_STRONG_IC_P01 = {"ALKYAAZX", "TCO2AAZX", "PCO2XXXX"}
+_STRONG_IC_TEXT_RE = re.compile(
+    r"\b(alkalinity|alcalinit[eé]|dic|pco2|pco₂)\b", re.IGNORECASE
+)
+
+
+def _is_strong_inorganic_carbon(m_type, m_type_id):
+    """True when an eMoF pair measures a non-pH carbonate parameter."""
+    if m_type_id:
+        match = _P01_CODE_RE.search(m_type_id)
+        if match and match.group(1) in _STRONG_IC_P01:
+            return True
+    if m_type and _STRONG_IC_TEXT_RE.search(m_type):
+        return True
+    return False
+
 
 def _map_measurement_pair(m_type, m_type_id):
     """Map one OBIS eMoF (measurementType, measurementTypeID) pair to a CIOOS EOV.
@@ -384,25 +444,41 @@ def _map_measurement_pair(m_type, m_type_id):
       2. Case-insensitive substring match on measurementType free text.
     Returns None when nothing matches. Temperature/salinity disambiguate
     between surface and subsurface based on whether 'surface' appears in
-    the free text.
+    the free text. Atmospheric/air temperature is suppressed.
     """
+    # Flow-cytometry "per cell" metrics describe phytoplankton carbon
+    # content per individual, not bulk particulates. Suppress before any
+    # mapping attempt so both the P01 and text paths skip these.
+    p01_code = None
     if m_type_id:
         match = _P01_CODE_RE.search(m_type_id)
         if match:
-            eov = MEASUREMENT_P01_TO_EOV.get(match.group(1))
-            if eov:
-                return eov
+            p01_code = match.group(1)
+    is_per_cell = (p01_code in _PER_CELL_P01) or (
+        bool(m_type) and bool(_PER_CELL_RE.search(m_type))
+    )
+    if is_per_cell:
+        return None
+
+    if p01_code:
+        eov = MEASUREMENT_P01_TO_EOV.get(p01_code)
+        if eov:
+            return eov
 
     if not m_type:
         return None
 
     text = m_type.lower()
     has_surface = "surface" in text
+    is_atmospheric = bool(_ATMOSPHERIC_RE.search(text))
     for key, eov in MEASUREMENT_TEXT_TO_EOV.items():
         # Word-boundary match — "ph" must not match "chlorophyll", "doc" must
         # not match "doctor", etc. Multi-word keys like "dissolved oxygen"
         # also need boundaries on either end of the phrase.
         if re.search(rf"\b{re.escape(key)}\b", text):
+            if is_atmospheric and eov in _TEMPERATURE_EOVS:
+                # Air temperature — skip; no matching CIOOS EOV.
+                continue
             if has_surface and eov == "subSurfaceTemperature":
                 return "seaSurfaceTemperature"
             if has_surface and eov == "subSurfaceSalinity":
@@ -506,12 +582,78 @@ OBIS_TO_CIOOS_ROLE = {
 }
 
 
+# "Cover" EOVs describe a habitat-type survey (hard coral reef, seagrass
+# bed, kelp forest), not incidental by-catch. A few Anthozoa records in a
+# 500k-row bottom-trawl dataset shouldn't flag hardCoralCoverAndComposition.
+# We require the contributing class to account for at least this fraction
+# of the dataset's records before emitting a cover EOV.
+COVER_EOVS = {
+    "hardCoralCoverAndComposition",
+    "seagrassCoverAndComposition",
+    "macroalgalCanopyCoverAndComposition",
+}
+COVER_EOV_MIN_FRACTION = 0.05
+
+# "Core" zooplankton classes — planktonic crustaceans, chaetognaths, and
+# pelagic tunicates. These practically never appear as trawl bycatch at
+# meaningful fractions, so their combined presence is a reliable signal
+# that a dataset is actually a zooplankton survey.
+#
+# Excluded deliberately: Scyphozoa, Hydrozoa, Tentaculata, Nuda (jellyfish
+# and ctenophores). These routinely show up at 10–20% in bottom-trawl
+# datasets as gelatinous bycatch without the dataset being a zooplankton
+# study. They still map to zooplanktonBiomassAndDiversity via
+# TAXON_CLASS_TO_EOV — but only count toward the EOV when paired with
+# a core class that clears ZOO_MIN_CORE_FRACTION.
+CORE_ZOOPLANKTON_CLASSES = {
+    "Copepoda",
+    "Hexanauplia",
+    "Maxillopoda",
+    "Branchiopoda",
+    "Ostracoda",
+    "Sagittoidea",
+    "Appendicularia",
+    "Thaliacea",
+}
+ZOO_MIN_CORE_FRACTION = 0.05
+
+# "Benthic indicator" classes — unambiguous markers of a benthic
+# invertebrate community (echinoderms, sponges, ascidians, barnacles,
+# bryozoans, sessile cnidarians, chitons, scaphopods). When a dataset is
+# already emitting zooplanktonBiomassAndDiversity, the presence of one of
+# these classes is what distinguishes "zooplankton net that also sampled
+# benthic epifauna" from "zooplankton net with larval inverts in it."
+# Without any benthic indicator, Malacostraca / Gastropoda / Polychaeta /
+# Bivalvia / Cephalopoda are more likely planktonic (krill, mysids,
+# pteropods, larval polychaetes, pelagic squid) than benthic bycatch.
+BENTHIC_INDICATOR_CLASSES = {
+    "Asteroidea",
+    "Ophiuroidea",
+    "Holothuroidea",
+    "Crinoidea",
+    "Echinoidea",
+    "Demospongiae",
+    "Calcarea",
+    "Hexactinellida",
+    "Ascidiacea",
+    "Thecostraca",
+    "Polyplacophora",
+    "Scaphopoda",
+    "Gymnolaemata",
+    "Stenolaemata",
+    "Anthozoa",
+    "Hexacorallia",
+    "Octocorallia",
+}
+
+
 def fetch_eovs_from_taxonomy(dataset_id):
     """Fetch taxonomic classes for an OBIS dataset and map them to CIOOS EOVs.
 
     Calls the OBIS facet API to get class-level taxonomy, then maps each class
     to a CIOOS Essential Ocean Variable using TAXON_CLASS_TO_EOV.
-    Returns a deduplicated list of EOV codes.
+    Returns a deduplicated list of EOV codes. Cover-type EOVs are subject to
+    a record-fraction threshold to suppress by-catch false positives.
     """
     if not dataset_id:
         return []
@@ -533,20 +675,77 @@ def fetch_eovs_from_taxonomy(dataset_id):
         logger.info(f"No taxonomic classes found for dataset {dataset_id}")
         return []
 
+    total_records = sum(entry.get("records", 0) or 0 for entry in classes)
     eovs = set()
     unmapped = []
     for entry in classes:
         taxon_class = entry.get("key", "")
         eov = TAXON_CLASS_TO_EOV.get(taxon_class)
-        if eov:
-            eovs.add(eov)
-        else:
+        if not eov:
             unmapped.append(taxon_class)
+            continue
+        records = entry.get("records", 0) or 0
+        if (
+            eov in COVER_EOVS
+            and total_records > 0
+            and records / total_records < COVER_EOV_MIN_FRACTION
+        ):
+            logger.debug(
+                f"Dataset {dataset_id}: class {taxon_class} "
+                f"({records}/{total_records} = {records / total_records:.2%}) "
+                f"below cover-EOV threshold {COVER_EOV_MIN_FRACTION:.0%}; "
+                f"skipping {eov}"
+            )
+            continue
+        eovs.add(eov)
 
     if unmapped:
         logger.info(
             f"Dataset {dataset_id}: unmapped taxonomic classes: {unmapped}"
         )
+
+    # Zooplankton gate: require core planktonic classes (Copepoda, Ostracoda,
+    # Sagittoidea, etc.) to clear ZOO_MIN_CORE_FRACTION. Gelatinous bycatch
+    # alone (Scyphozoa, Hydrozoa) is not enough.
+    if "zooplanktonBiomassAndDiversity" in eovs and total_records > 0:
+        core_records = sum(
+            (entry.get("records", 0) or 0)
+            for entry in classes
+            if entry.get("key") in CORE_ZOOPLANKTON_CLASSES
+        )
+        if core_records / total_records < ZOO_MIN_CORE_FRACTION:
+            logger.debug(
+                f"Dataset {dataset_id}: core zooplankton classes "
+                f"({core_records}/{total_records} = "
+                f"{core_records / total_records:.2%}) below threshold "
+                f"{ZOO_MIN_CORE_FRACTION:.0%}; dropping "
+                f"zooplanktonBiomassAndDiversity"
+            )
+            eovs.discard("zooplanktonBiomassAndDiversity")
+
+    # Invertebrate gate (plankton-net refinement): if zooplankton is emitted,
+    # require a benthic-indicator class for invertebrate to also emit. In a
+    # plankton net, Malacostraca/Gastropoda/Polychaeta/Bivalvia/Cephalopoda
+    # are usually larval or pelagic forms already captured under zooplankton,
+    # not a separate benthic community. A visible benthic-sessile class
+    # (echinoderm, sponge, ascidian, barnacle, etc.) is what lifts the
+    # dataset into "also sampled epifauna" territory.
+    if (
+        "zooplanktonBiomassAndDiversity" in eovs
+        and "invertebrateAbundanceAndDistribution" in eovs
+    ):
+        has_benthic = any(
+            entry.get("key") in BENTHIC_INDICATOR_CLASSES
+            and (entry.get("records", 0) or 0) > 0
+            for entry in classes
+        )
+        if not has_benthic:
+            logger.debug(
+                f"Dataset {dataset_id}: zooplankton emitted but no benthic "
+                f"indicator class present; dropping "
+                f"invertebrateAbundanceAndDistribution"
+            )
+            eovs.discard("invertebrateAbundanceAndDistribution")
 
     # CIOOS requires at least one EOV; if we can't map any taxonomy classes
     # (or if a dataset only contains odd/terrestrial classes), fall back to "other".
@@ -628,12 +827,24 @@ def fetch_eovs_from_measurements(dataset_id, extensions=None, sample_size=100):
 
     eovs = set()
     unmapped = []
+    has_strong_inorganic_carbon = False
     for m_type, m_type_id in pairs:
         eov = _map_measurement_pair(m_type, m_type_id)
         if eov:
             eovs.add(eov)
         elif m_type or m_type_id:
             unmapped.append((m_type, m_type_id))
+        if _is_strong_inorganic_carbon(m_type, m_type_id):
+            has_strong_inorganic_carbon = True
+
+    # Drop inorganicCarbon when only pH was measured — CIOOS curator
+    # convention treats lone pH as water quality, not carbonate chemistry.
+    if "inorganicCarbon" in eovs and not has_strong_inorganic_carbon:
+        eovs.discard("inorganicCarbon")
+        logger.debug(
+            f"Dataset {dataset_id}: dropping inorganicCarbon (pH-only, no "
+            f"alkalinity/DIC/pCO2)"
+        )
 
     if unmapped:
         logger.debug(
@@ -901,8 +1112,11 @@ def map_obis_to_cioos(obis_data):
         "datePublished"
     ]  # Use same as datePublished
     # Derive EOVs from OBIS taxonomy (biology) and eMoF measurements
-    # (physical/biogeochemical). The measurement path short-circuits on
-    # datasets that don't declare a MeasurementOrFact extension.
+    # (physical/biogeochemical). Both paths use controlled-vocabulary
+    # signals only — taxonomy class names and eMoF P01 codes / parameter
+    # labels. Abstract / title / keyword NLP is intentionally out of
+    # scope here; a separate AI-backed tool handles abstract-based EOV
+    # inference, and mixing the two produces inconsistent tagging.
     dataset_id = obis_data.get("id")
     extensions = obis_data.get("extensions") or []
     taxonomy_eovs = fetch_eovs_from_taxonomy(dataset_id)
