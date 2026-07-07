@@ -4,10 +4,179 @@ from pathlib import Path
 
 import requests
 from loguru import logger
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+try:
+    import duckdb
+except ImportError:  # pragma: no cover - duckdb is a declared dependency
+    duckdb = None
 
 OBIS_API_BASE = "https://api.obis.org/v3/dataset"
 OBIS_FACET_URL = "https://api.obis.org/v3/facet"
 OBIS_OCCURRENCE_URL = "https://api.obis.org/v3/occurrence"
+
+# OBIS publishes one anonymous GeoParquet file per dataset. Reading the class /
+# samplingProtocol / eMoF signals directly from this file is much faster and
+# more accurate (full-dataset, not a sample) than the live API, which we keep
+# as a fallback for datasets not yet present in the parquet store.
+OBIS_PARQUET_URL_TEMPLATE = (
+    "https://obis-open-data.s3.amazonaws.com/occurrence/{dataset_id}.parquet"
+)
+# Key of the ExtendedMeasurementOrFact extension inside the per-dataset
+# occurrence parquet's `extensions` struct (a list of eMoF structs).
+OBIS_EMOF_PARQUET_KEY = "http://rs.iobis.org/obis/terms/ExtendedMeasurementOrFact"
+
+# Shared HTTP settings for every live OBIS API call (fallbacks + metadata).
+_HTTP_USER_AGENT = "CIOOS-OBIS-Harvester/1.0 (+https://cioos.ca)"
+_HTTP_TIMEOUT = 30
+
+_SESSION = None
+_DUCKDB_CON = None
+
+
+def _get_session():
+    """Return a shared requests.Session with retry/backoff and a User-Agent.
+
+    Retries transient connection errors and 5xx responses so a momentary OBIS
+    hiccup doesn't fail the harvest. A single session is reused across calls to
+    benefit from connection pooling.
+    """
+    global _SESSION
+    if _SESSION is None:
+        session = requests.Session()
+        retry = Retry(
+            total=3,
+            connect=3,
+            read=3,
+            backoff_factor=1.0,
+            status_forcelist=(500, 502, 503, 504),
+            allowed_methods=frozenset(["GET"]),
+            raise_on_status=False,
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+        session.headers.update({"User-Agent": _HTTP_USER_AGENT})
+        _SESSION = session
+    return _SESSION
+
+
+def _get_duckdb_connection():
+    """Return a lazily-created duckdb connection with httpfs loaded, or None.
+
+    Returns None when duckdb is unavailable so callers cleanly fall back to the
+    OBIS API.
+    """
+    global _DUCKDB_CON
+    if duckdb is None:
+        return None
+    if _DUCKDB_CON is None:
+        try:
+            con = duckdb.connect()
+            con.execute("INSTALL httpfs; LOAD httpfs;")
+            _DUCKDB_CON = con
+        except Exception as e:  # pragma: no cover - environment/setup failure
+            logger.debug(f"duckdb/httpfs unavailable: {e}; using OBIS API")
+            return None
+    return _DUCKDB_CON
+
+
+def _obis_parquet_url(dataset_id):
+    return OBIS_PARQUET_URL_TEMPLATE.format(dataset_id=dataset_id)
+
+
+def _read_parquet_class_counts(dataset_id):
+    """Read class-level record counts from the per-dataset OBIS parquet.
+
+    Returns a list of {"key": <class>, "records": <count>} dicts mirroring the
+    /v3/facet?facets=class response shape, or None to signal the caller to fall
+    back to the API (parquet missing/404, network error, missing column, or
+    duckdb unavailable).
+    """
+    con = _get_duckdb_connection()
+    if con is None:
+        return None
+    url = _obis_parquet_url(dataset_id)
+    try:
+        rows = con.execute(
+            'SELECT interpreted."class" AS key, count(*) AS records '
+            "FROM read_parquet(?) "
+            'WHERE interpreted."class" IS NOT NULL '
+            'GROUP BY interpreted."class"',
+            [url],
+        ).fetchall()
+    except Exception as e:
+        logger.debug(
+            f"Parquet class read failed for {dataset_id}: {e}; falling back to API"
+        )
+        return None
+    return [{"key": key, "records": records} for key, records in rows]
+
+
+def _read_parquet_sampling_protocols(dataset_id):
+    """Read the distinct samplingProtocol strings from the per-dataset parquet.
+
+    Returns a set of samplingProtocol strings (full dataset, unioning the
+    interpreted and source values), or None to signal a fall back to the API.
+    """
+    con = _get_duckdb_connection()
+    if con is None:
+        return None
+    url = _obis_parquet_url(dataset_id)
+    try:
+        rows = con.execute(
+            "SELECT DISTINCT interpreted.samplingProtocol AS ip, "
+            "source.samplingProtocol AS sp "
+            "FROM read_parquet(?)",
+            [url],
+        ).fetchall()
+    except Exception as e:
+        logger.debug(
+            f"Parquet samplingProtocol read failed for {dataset_id}: {e}; "
+            f"falling back to API"
+        )
+        return None
+    protocols = set()
+    for interpreted_proto, source_proto in rows:
+        for proto in (interpreted_proto, source_proto):
+            if proto:
+                protocols.add(proto)
+    return protocols
+
+
+def _read_parquet_measurement_pairs(dataset_id):
+    """Read distinct eMoF (measurementType, measurementTypeID) pairs.
+
+    Extracts the pairs from the nested ExtendedMeasurementOrFact extension in
+    the per-dataset parquet. Returns a set of (measurementType,
+    measurementTypeID) string tuples (missing values normalised to "" to match
+    the API path), or None to signal a fall back to the API.
+    """
+    con = _get_duckdb_connection()
+    if con is None:
+        return None
+    url = _obis_parquet_url(dataset_id)
+    try:
+        rows = con.execute(
+            "WITH e AS ("
+            '  SELECT unnest(extensions."' + OBIS_EMOF_PARQUET_KEY + '") AS m '
+            "  FROM read_parquet(?) "
+            '  WHERE extensions."' + OBIS_EMOF_PARQUET_KEY + '" IS NOT NULL '
+            '    AND len(extensions."' + OBIS_EMOF_PARQUET_KEY + '") > 0'
+            ") "
+            "SELECT DISTINCT "
+            "  COALESCE(m.source.measurementType, '') AS mtype, "
+            "  COALESCE(m.source.measurementTypeID, '') AS mtypeid "
+            "FROM e",
+            [url],
+        ).fetchall()
+    except Exception as e:
+        logger.debug(
+            f"Parquet eMoF read failed for {dataset_id}: {e}; falling back to API"
+        )
+        return None
+    return {(mtype, mtypeid) for mtype, mtypeid in rows}
 
 # Mapping from OBIS taxonomic class names to CIOOS Essential Ocean Variables.
 # Built from the OBIS /v3/facet?facets=class endpoint values and the CIOOS
@@ -660,19 +829,24 @@ def fetch_eovs_from_taxonomy(dataset_id):
     if not dataset_id:
         return []
 
-    try:
-        response = requests.get(
-            OBIS_FACET_URL,
-            params={"datasetid": dataset_id, "facets": "class"},
-            timeout=30,
-        )
-        response.raise_for_status()
-        data = response.json()
-    except (requests.RequestException, ValueError) as e:
-        logger.warning(f"Failed to fetch taxonomy facets for {dataset_id}: {e}")
-        return []
+    # Parquet-first: read full-dataset class counts locally. On any miss/error
+    # fall back to the live OBIS facet API. The mapping/gating below is
+    # identical regardless of the acquisition source.
+    classes = _read_parquet_class_counts(dataset_id)
+    if classes is None:
+        try:
+            response = _get_session().get(
+                OBIS_FACET_URL,
+                params={"datasetid": dataset_id, "facets": "class"},
+                timeout=_HTTP_TIMEOUT,
+            )
+            response.raise_for_status()
+            data = response.json()
+        except (requests.RequestException, ValueError) as e:
+            logger.warning(f"Failed to fetch taxonomy facets for {dataset_id}: {e}")
+            return []
+        classes = data.get("results", {}).get("class", [])
 
-    classes = data.get("results", {}).get("class", [])
     if not classes:
         logger.info(f"No taxonomic classes found for dataset {dataset_id}")
         return []
@@ -803,29 +977,35 @@ def fetch_eovs_from_measurements(dataset_id, extensions=None, sample_size=100):
         )
         return []
 
-    try:
-        response = requests.get(
-            OBIS_OCCURRENCE_URL,
-            params={
-                "datasetid": dataset_id,
-                "mof": "true",
-                "size": sample_size,
-                "fields": "measurementType,measurementTypeID",
-            },
-            timeout=30,
-        )
-        response.raise_for_status()
-        data = response.json()
-    except (requests.RequestException, ValueError) as e:
-        logger.warning(
-            f"Failed to fetch eMoF measurements for {dataset_id}: {e}"
-        )
-        return []
+    # Parquet-first: the eMoF extension is present in the per-dataset parquet,
+    # so extract distinct (measurementType, measurementTypeID) pairs locally.
+    # On any miss/error fall back to the live occurrence API. The mapping below
+    # is identical regardless of the acquisition source.
+    pairs = _read_parquet_measurement_pairs(dataset_id)
+    if pairs is None:
+        try:
+            response = _get_session().get(
+                OBIS_OCCURRENCE_URL,
+                params={
+                    "datasetid": dataset_id,
+                    "mof": "true",
+                    "size": sample_size,
+                    "fields": "measurementType,measurementTypeID",
+                },
+                timeout=_HTTP_TIMEOUT,
+            )
+            response.raise_for_status()
+            data = response.json()
+        except (requests.RequestException, ValueError) as e:
+            logger.warning(
+                f"Failed to fetch eMoF measurements for {dataset_id}: {e}"
+            )
+            return []
 
-    pairs = set()
-    for occ in data.get("results", []) or []:
-        for mof in occ.get("mof", []) or []:
-            pairs.add((mof.get("measurementType", ""), mof.get("measurementTypeID", "")))
+        pairs = set()
+        for occ in data.get("results", []) or []:
+            for mof in occ.get("mof", []) or []:
+                pairs.add((mof.get("measurementType", ""), mof.get("measurementTypeID", "")))
 
     eovs = set()
     unmapped = []
@@ -1009,29 +1189,34 @@ def fetch_platforms_from_obis(dataset_id, sample_size=100):
     if not dataset_id:
         return []
 
-    try:
-        response = requests.get(
-            OBIS_OCCURRENCE_URL,
-            params={
-                "datasetid": dataset_id,
-                "size": sample_size,
-                "fields": "samplingProtocol,basisOfRecord",
-            },
-            timeout=30,
-        )
-        response.raise_for_status()
-        data = response.json()
-    except (requests.RequestException, ValueError) as e:
-        logger.warning(
-            f"Failed to fetch occurrences for platform inference {dataset_id}: {e}"
-        )
-        return []
+    # Parquet-first: read the distinct samplingProtocol strings from the full
+    # dataset. On any miss/error fall back to the live occurrence API sample.
+    # The keyword matching below is identical regardless of the source.
+    protocols = _read_parquet_sampling_protocols(dataset_id)
+    if protocols is None:
+        try:
+            response = _get_session().get(
+                OBIS_OCCURRENCE_URL,
+                params={
+                    "datasetid": dataset_id,
+                    "size": sample_size,
+                    "fields": "samplingProtocol,basisOfRecord",
+                },
+                timeout=_HTTP_TIMEOUT,
+            )
+            response.raise_for_status()
+            data = response.json()
+        except (requests.RequestException, ValueError) as e:
+            logger.warning(
+                f"Failed to fetch occurrences for platform inference {dataset_id}: {e}"
+            )
+            return []
 
-    protocols = set()
-    for occ in data.get("results", []) or []:
-        proto = occ.get("samplingProtocol")
-        if proto:
-            protocols.add(proto)
+        protocols = set()
+        for occ in data.get("results", []) or []:
+            proto = occ.get("samplingProtocol")
+            if proto:
+                protocols.add(proto)
 
     matched_labels = []
     for proto in protocols:
@@ -1354,7 +1539,7 @@ def retrieve_obis_metadata(dataset_id: str):
     url = f"{OBIS_API_BASE}/{dataset_id}"
     logger.info(f"Retrieving OBIS metadata from: {url}")
 
-    response = requests.get(url)
+    response = _get_session().get(url, timeout=_HTTP_TIMEOUT)
     response.raise_for_status()
 
     obis_data = response.json()
