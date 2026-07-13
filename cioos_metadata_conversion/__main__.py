@@ -99,7 +99,8 @@ def convert(
     """Convert metadata records to different metadata formats or standards."""
 
     logger.info("Loading input {}", input)
-    if input.startswith("http"):
+    if input.startswith(("http", "10.", "doi:", "DOI:")) or input.isdigit():
+        # URLs, DOIs and PDC CCIN reference numbers are passed through as-is
         files = [input]
     else:
         files = glob(input, recursive=recursive)

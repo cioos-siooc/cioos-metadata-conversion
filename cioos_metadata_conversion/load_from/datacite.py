@@ -9,8 +9,6 @@ This module provides utilities to:
 DataCite API Documentation: https://developer.datacite.org/
 """
 
-from attr import attributes
-import requests
 from typing import Dict, Any, Optional, List
 from loguru import logger
 from datetime import datetime, timezone
@@ -22,7 +20,9 @@ datacite_client = DataCiteRESTClient(
     username=os.getenv("DATACITE_ACCOUNT_ID"),
     password=os.getenv("DATACITE_PASSWORD"),
     prefix=os.getenv("DATACITE_PREFIX"),
-    test_mode=os.getenv("DATACITE_TEST_MODE", "true").lower() == "true",
+    # Reading public DOI metadata requires no credentials and normally targets
+    # the production API. Set DATACITE_TEST_MODE=true to use api.test.datacite.org.
+    test_mode=os.getenv("DATACITE_TEST_MODE", "false").lower() == "true",
 )
 
 
@@ -30,6 +30,18 @@ class DOIRetrievalError(Exception):
     """Raised when DOI retrieval or mapping fails."""
 
     pass
+
+
+def normalize_doi(doi: str) -> str:
+    """Strip URL and doi: prefixes from a DOI string.
+
+    e.g. "https://doi.org/10.26071/mxtr-gp72" -> "10.26071/mxtr-gp72"
+    """
+    doi = doi.strip()
+    for prefix in ("https://doi.org/", "http://doi.org/", "doi:", "DOI:"):
+        if doi.startswith(prefix):
+            return doi[len(prefix) :]
+    return doi
 
 
 def fetch_doi_metadata(doi: str) -> Dict[str, Any]:
@@ -40,26 +52,29 @@ def fetch_doi_metadata(doi: str) -> Dict[str, Any]:
         doi: DOI string (e.g., "10.26071/mxtr-gp72" or "https://doi.org/10.26071/mxtr-gp72")
 
     Returns:
-        Dictionary containing the DataCite metadata
+        Dictionary containing the DataCite metadata attributes
 
     Raises:
         DOIRetrievalError: If the DOI is not found or the API request fails
     """
     try:
-        return datacite_client.metadata_get(doi)  # Test if DOI exists
+        return datacite_client.get_metadata(normalize_doi(doi))
     except Exception as e:
         raise DOIRetrievalError(f"Failed to retrieve DOI {doi} from DataCite: {str(e)}")
 
 
-def map_datacite_to_firebase(datacite_data: Dict[str, Any]) -> Dict[str, Any]:
+def map_datacite_to_firebase(
+    datacite_data: Dict[str, Any], doi: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Map DataCite API response to CIOOS Firebase metadata structure.
+    Map DataCite metadata attributes to CIOOS Firebase metadata structure.
 
     This function transforms the DataCite metadata into the Firebase format used by
     the CIOOS metadata form, focusing on essential fields while preserving the structure.
 
     Args:
-        datacite_data: DataCite metadata dictionary
+        datacite_data: DataCite metadata attributes dictionary
+        doi: DOI string, defaults to the doi listed in the metadata
 
     Returns:
         Dictionary with Firebase metadata structure
@@ -67,16 +82,19 @@ def map_datacite_to_firebase(datacite_data: Dict[str, Any]) -> Dict[str, Any]:
     Raises:
         DOIRetrievalError: If mapping fails due to invalid data
     """
+    doi = normalize_doi(doi or datacite_data.get("doi") or "")
 
     return {
         # Basic identification
-        "datasetIdentifier": datacite_data.get("doi"),
+        "datasetIdentifier": f"https://doi.org/{doi}" if doi else "",
         "identifier": _extract_identifier(datacite_data),
         # Title and description
         "title": _map_title(datacite_data.get("titles", [])),
         "abstract": _map_abstract(datacite_data.get("descriptions", [])),
         # Keywords
-        "keywords": _map_keywords(datacite_data.get("keywords", [])),
+        "keywords": _map_keywords(
+            datacite_data.get("subjects") or datacite_data.get("keywords") or []
+        ),
         # Dates
         "dateStart": _map_date(datacite_data.get("publicationYear")),
         "dateEnd": None,
@@ -156,19 +174,30 @@ def _map_abstract(descriptions: List[Dict[str, Any]]) -> Dict[str, str]:
     return result if result else {"en": ""}
 
 
-def _map_keywords(keywords: List[str]) -> Dict[str, List[str]]:
+def _map_keywords(keywords: List[Any]) -> Dict[str, List[str]]:
     """
     Map keywords from DataCite to Firebase format.
 
-    Returns keywords as English by default, can be enhanced with language detection.
+    DataCite format: [{"subject": "...", "lang": "en", "subjectScheme": "..."}]
+    (flat lists of strings are also accepted and assumed to be English)
+    Firebase format: {"en": [...], "fr": [...]}
     """
     if not keywords:
         return {}
 
-    # DataCite returns flat list, Firebase expects language-keyed structure
-    return {
-        "en": keywords,
-    }
+    result = {}
+    for keyword in keywords:
+        if isinstance(keyword, dict):
+            text = keyword.get("subject", "")
+            lang = (keyword.get("lang") or "en").lower().split("-")[0]
+        else:
+            text = keyword
+            lang = "en"
+
+        if text and lang in ("en", "fr"):
+            result.setdefault(lang, []).append(text)
+
+    return result
 
 
 def _map_date(publication_year: Optional[int]) -> Optional[str]:
@@ -197,7 +226,9 @@ def _map_contacts(
                 "givenNames": creator.get("givenName", ""),
                 "lastName": creator.get("familyName", ""),
                 "indEmail": "",
-                "indOrcid": _extract_orcid(creator.get("nameIdentifier")),
+                "indOrcid": _extract_orcid(
+                    creator.get("nameIdentifier") or creator.get("nameIdentifiers")
+                ),
                 "indPosition": "",
                 "orgName": _extract_org_name(creator.get("affiliation", [])),
                 "orgCity": "",
@@ -233,7 +264,16 @@ def _map_contacts(
 
 
 def _extract_orcid(name_identifier: Any) -> str:
-    """Extract ORCID from nameIdentifier field."""
+    """Extract ORCID from a nameIdentifier field or nameIdentifiers list."""
+    if isinstance(name_identifier, list):
+        # DataCite attributes list all name identifiers, keep the ORCID one
+        orcids = [
+            item
+            for item in name_identifier
+            if (item.get("nameIdentifierScheme") or "").lower() == "orcid"
+            or "orcid.org" in (item.get("nameIdentifier") or "")
+        ]
+        return _extract_orcid(orcids[0]) if orcids else ""
     if isinstance(name_identifier, dict):
         orcid = name_identifier.get("nameIdentifier", "")
         if orcid and not orcid.startswith("https://"):
