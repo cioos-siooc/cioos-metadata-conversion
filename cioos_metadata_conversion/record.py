@@ -15,8 +15,9 @@ from cioos_metadata_conversion import (
 )
 from cioos_metadata_conversion.load_from import datacite as load_from_datacite
 from cioos_metadata_conversion.load_from import obis as load_from_obis
+from cioos_metadata_conversion.load_from import pdc as load_from_pdc
 
-SOURCE_FILE_EXTENSIONS = (".json", ".yaml", ".yml")
+SOURCE_FILE_EXTENSIONS = (".json", ".yaml", ".yml", ".xml")
 
 OUTPUT_FORMATS = {
     "json": lambda x: json.dumps(x, indent=2),
@@ -42,6 +43,7 @@ class InputSchemas(Enum):
     firebase = "firebase"
     doi = "doi"
     obis = "obis"
+    pdc = "pdc"
 
 
 class Record:
@@ -77,6 +79,9 @@ class Record:
         """
         if isinstance(self.source, dict):
             self.metadata = self.source
+        elif self.schema == InputSchemas.pdc:
+            # Load from the Polar Data Catalogue (CCIN number, URL or ISO XML file)
+            self.load_from_pdc(self.source)
         elif isinstance(self.source, str) and (
             self.source.startswith("http://") or self.source.startswith("https://")
         ):
@@ -93,6 +98,8 @@ class Record:
                     self.load_from_obis(dataset_id)
                 else:
                     self.load_from_url(self.source)
+            elif "polardata.ca/" in self.source:
+                self.load_from_pdc(self.source)
             else:
                 # Load from URL
                 self.load_from_url(self.source)
@@ -170,6 +177,22 @@ class Record:
             logger.error(f"Failed to load metadata from OBIS: {e}")
             raise
 
+    def load_from_pdc(self, source):
+        """
+        Load metadata from the Polar Data Catalogue.
+
+        Args:
+            source: A CCIN reference number (e.g., "13172"), a polardata.ca
+                ISO XML URL, or a path to a local PDC ISO XML file.
+        """
+        try:
+            self.metadata = load_from_pdc.retrieve_pdc_as_firebase_record(source)
+            self.schema = InputSchemas.firebase
+            logger.info(f"Successfully loaded metadata from PDC: {source}")
+        except load_from_pdc.PDCRetrievalError as e:
+            logger.error(f"Failed to load metadata from PDC: {e}")
+            raise
+
     def _is_valid_doi(self, source):
         """
         Check if the source string is a valid DOI format.
@@ -196,8 +219,8 @@ class Record:
         elif self.schema == InputSchemas.firebase:
             self.metadata = firebase_to_cioos.record_json_to_yaml(self.metadata)
             self.schema = InputSchemas.CIOOS
-        elif self.schema == InputSchemas.doi:
-            # DOI metadata is loaded as Firebase, then convert to CIOOS
+        elif self.schema in (InputSchemas.doi, InputSchemas.pdc):
+            # DOI and PDC metadata are loaded as Firebase, then convert to CIOOS
             self.metadata = firebase_to_cioos.record_json_to_yaml(self.metadata)
             self.schema = InputSchemas.CIOOS
         elif self.schema == InputSchemas.obis:

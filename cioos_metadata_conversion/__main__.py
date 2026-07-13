@@ -99,7 +99,13 @@ def convert(
     """Convert metadata records to different metadata formats or standards."""
 
     logger.info("Loading input {}", input)
-    if input.startswith("http") or input_schema in ["doi", "obis"]:
+    if (
+        input.startswith(("http", "10.", "doi:", "DOI:"))
+        or input.isdigit()
+        or input_schema in ["doi", "obis"]
+    ):
+        # URLs, DOIs, PDC CCIN reference numbers, and OBIS/DOI schemas are
+        # passed through as-is
         files = [input]
     else:
         files = glob(input, recursive=recursive)
