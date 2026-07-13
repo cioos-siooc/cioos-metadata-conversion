@@ -872,12 +872,22 @@ _PLATFORM_RESOURCE_PATH = (
 
 
 def _load_platform_vocab():
-    """Return the set of valid CIOOS platform label_en strings."""
-    with open(_PLATFORM_RESOURCE_PATH, encoding="utf-8") as f:
-        return {entry["label_en"] for entry in json.load(f)}
+    """Return the set of valid CIOOS platform label_en strings.
 
-
-VALID_PLATFORM_LABELS = _load_platform_vocab()
+    Falls back to the labels emitted by _PLATFORM_KEYWORD_TABLE if the
+    vendored vocabulary file is missing or unreadable, so importing this
+    module never hard-fails on a resource-packaging issue.
+    """
+    try:
+        with open(_PLATFORM_RESOURCE_PATH, encoding="utf-8") as f:
+            return {entry["label_en"] for entry in json.load(f)}
+    except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
+        logger.warning(
+            f"Could not load platform vocabulary from "
+            f"{_PLATFORM_RESOURCE_PATH} ({e}); falling back to keyword-table "
+            f"labels. Platform validation will be limited."
+        )
+        return {label for _pattern, label in _PLATFORM_KEYWORD_TABLE}
 
 
 # Ordered keyword table. Each entry is (pattern, label_en). Patterns are
@@ -951,6 +961,10 @@ _PLATFORM_KEYWORDS_COMPILED = [
     (re.compile(pat, re.IGNORECASE), label)
     for pat, label in _PLATFORM_KEYWORD_TABLE
 ]
+
+# Loaded after _PLATFORM_KEYWORD_TABLE so the file-missing fallback in
+# _load_platform_vocab() can reference the table's labels.
+VALID_PLATFORM_LABELS = _load_platform_vocab()
 
 # When the LHS label is matched, drop any RHS labels from the result set.
 # Lets generic patterns like \bvessel\b stay in the table without producing
