@@ -1337,7 +1337,14 @@ def map_obis_to_cioos(obis_data):
     # The metadata-xml template emits a bare cit:identifier (no mcc:authority)
     # and the CKAN harvester defaults unqualified identifiers to doi.org,
     # producing broken links like doi.org/<UUID> for datasets without DOIs.
-    cioos_data["datasetIdentifier"] = obis_data.get("doi", "") or ""
+    # OBIS frequently exposes the DOI only under citation_id, so fall back to it
+    # — but only when it is itself a DOI, never a non-DOI value.
+    _doi = obis_data.get("doi") or ""
+    if not _doi:
+        _citation_id = obis_data.get("citation_id") or ""
+        if "doi.org/" in _citation_id or _citation_id.startswith("10."):
+            _doi = _citation_id
+    cioos_data["datasetIdentifier"] = _doi
     cioos_data["title"] = add_fr(obis_data.get("title", ""))
     cioos_data["license"] = obis_data.get("intellectualrights", "")
     cioos_data["category"] = "dataset"
