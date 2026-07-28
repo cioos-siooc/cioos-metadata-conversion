@@ -5,11 +5,19 @@ fetch_eovs_from_taxonomy — _map_measurement_pair,
 fetch_eovs_from_measurements, and the merge in map_obis_to_cioos.
 """
 
+from contextlib import contextmanager
+from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+import json
+import re
+import unicodedata
 
 import pytest
 import requests
+import yaml
 
+from cioos_metadata_conversion.load_from import obis as obis_module
 from cioos_metadata_conversion.load_from.obis import (
     VALID_PLATFORM_LABELS,
     _map_measurement_pair,
@@ -19,6 +27,74 @@ from cioos_metadata_conversion.load_from.obis import (
     fetch_platforms_from_obis,
     map_obis_to_cioos,
 )
+
+_MODULE = "cioos_metadata_conversion.load_from.obis"
+
+
+# Frozen from the pre-refactor module. First match wins in
+# _map_measurement_pair, so this order is output-affecting.
+EXPECTED_TEXT_TERM_ORDER = [
+    'temperature', 'température', 'temp_eau', 'salinity', 'salinité',
+    'salinite_psu', 'dissolved oxygen', 'oxygène dissous', 'oxygen', 'oxygène',
+    'nitrate', 'nitrite', 'ammonium', 'phosphate', 'silicate', 'total nitrogen',
+    'total phosphorus', 'ph', 'pco2', 'alkalinity', 'alcalinité', 'dic',
+    'dissolved organic carbon', 'doc', 'particulate organic carbon', 'poc',
+    'chlorophyll', 'turbidity', 'suspended', 'current velocity', 'current speed',
+    'current direction', 'current strength', 'tidal current', 'sea state',
+    'wave height', 'wave observation', 'wave exposure', 'tide height',
+    'hauteur de la marée', 'water level', "niveau d'eau", 'sea level', 'sea ice',
+    'ice cover', 'ice observation', 'hydrophone', 'acoustic detection',
+    'vocalization', 'call detected', 'marine debris', 'microplastic',
+    'plastic debris', 'delta 13c', 'delta13c', 'd13c', 'δ13c', 'nitrous oxide',
+    'n2o', 'cfc-11', 'cfc-12', 'sf6', 'tritium',
+]
+
+# Frozen from the pre-refactor module. Emitted obis-platform-N ids
+# are numbered in this order.
+EXPECTED_PLATFORM_LABEL_ORDER = [
+    'subsurface mooring', 'moored surface buoy', 'mooring',
+    'drifting subsurface profiling float', 'drifting surface float',
+    'surface gliders', 'sub-surface gliders', 'autonomous underwater vehicle',
+    'propelled unmanned submersible', 'research vessel', 'fishing vessel', 'ship',
+    'diver', 'unmanned aerial vehicle', 'helicopter', 'aeroplane', 'satellite',
+    'beach/intertidal zone structure', 'land/onshore structure',
+    'fixed benthic node', 'offshore structure', 'coastal structure',
+    'river station',
+]
+
+
+
+@pytest.fixture(autouse=True)
+def stub_parquet(request, monkeypatch):
+    """Force the live-API fallback path in every test.
+
+    The three fetchers try the per-dataset OBIS parquet first and only fall back
+    to the API when it returns None.  Without this the tests reach out to S3 with
+    whatever fake dataset id they pass.  Tests marked `live` opt out so they keep
+    exercising the real parquet-first path.
+    """
+    if "live" in request.keywords:
+        return
+    for name in (
+        "_read_parquet_class_counts",
+        "_read_parquet_sampling_protocols",
+        "_read_parquet_measurement_pairs",
+    ):
+        monkeypatch.setattr(f"{_MODULE}.{name}", lambda *_args, **_kwargs: None)
+
+
+@contextmanager
+def patch_obis_get(**kwargs):
+    """Patch the OBIS HTTP GET and yield the mock standing in for it.
+
+    The module calls `_get_session().get(...)`, so patching `requests.get` has no
+    effect — the session's bound method is what runs.  Accepts the same kwargs as
+    `patch` (`return_value`, `side_effect`).
+    """
+    with patch(f"{_MODULE}._get_session") as mock_session:
+        mock_get = MagicMock(**kwargs)
+        mock_session.return_value.get = mock_get
+        yield mock_get
 
 
 class TestMeasurementMapping:
@@ -255,9 +331,7 @@ class TestFetchEovsFromMeasurements:
         assert fetch_eovs_from_measurements(None) == []
 
     def test_short_circuits_when_no_emof_extension(self):
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get"
-        ) as mock_get:
+        with patch_obis_get() as mock_get:
             result = fetch_eovs_from_measurements(
                 "abc-123", extensions=["Occurrence"]
             )
@@ -265,9 +339,7 @@ class TestFetchEovsFromMeasurements:
             assert result == []
 
     def test_short_circuits_on_empty_extensions_list(self):
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get"
-        ) as mock_get:
+        with patch_obis_get() as mock_get:
             result = fetch_eovs_from_measurements("abc-123", extensions=[])
             mock_get.assert_not_called()
             assert result == []
@@ -277,8 +349,7 @@ class TestFetchEovsFromMeasurements:
         mock_response = MagicMock()
         mock_response.json.return_value = {"results": []}
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ) as mock_get:
             result = fetch_eovs_from_measurements("abc-123", extensions=None)
@@ -314,8 +385,7 @@ class TestFetchEovsFromMeasurements:
             ]
         }
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             result = fetch_eovs_from_measurements(
@@ -333,8 +403,7 @@ class TestFetchEovsFromMeasurements:
             ]
         }
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             result = fetch_eovs_from_measurements(
@@ -343,8 +412,7 @@ class TestFetchEovsFromMeasurements:
         assert result == ["subSurfaceSalinity", "subSurfaceTemperature"]
 
     def test_api_error_returns_empty(self):
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             side_effect=requests.ConnectionError("boom"),
         ):
             result = fetch_eovs_from_measurements(
@@ -356,8 +424,7 @@ class TestFetchEovsFromMeasurements:
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.side_effect = ValueError("not json")
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             result = fetch_eovs_from_measurements(
@@ -378,8 +445,7 @@ class TestFetchEovsFromMeasurements:
             ]
         }
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             result = fetch_eovs_from_measurements(
@@ -404,8 +470,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Sagittoidea", "records": 100},
             {"key": "Teleostei", "records": 50},
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("plankton-net")
@@ -418,8 +483,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Scyphozoa", "records": 200},
             {"key": "Hydrozoa", "records": 50},
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("trawl-bycatch")
@@ -432,8 +496,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Teleostei", "records": 1000},
             {"key": "Copepoda", "records": 10},  # 1% — below threshold
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("fish-with-trace-copepods")
@@ -445,8 +508,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Teleostei", "records": 950},
             {"key": "Copepoda", "records": 50},  # 5% exactly
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("at-threshold")
@@ -461,8 +523,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Gastropoda", "records": 150},    # pteropods
             {"key": "Polychaeta", "records": 80},     # larval
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("plankton-net")
@@ -477,8 +538,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Malacostraca", "records": 200},
             {"key": "Echinoidea", "records": 30},  # benthic indicator
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("plankton-plus-epifauna")
@@ -491,8 +551,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Malacostraca", "records": 500},
             {"key": "Gastropoda", "records": 200},
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("benthic-survey")
@@ -511,8 +570,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Labyrinthulea", "records": 30},     # slime nets
             {"key": "Teleostei", "records": 100},        # anchor: keeps result non-empty
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("mixed-shoreline")
@@ -524,8 +582,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Gammaproteobacteria", "records": 500},
             {"key": "Flavobacteria", "records": 200},
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("microbial-survey")
@@ -540,8 +597,7 @@ class TestFetchEovsFromTaxonomy:
             {"key": "Hexacorallia", "records": 50},
             {"key": "Anthozoa", "records": 25},
         ]
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=self._mock_facet(buckets),
         ):
             result = fetch_eovs_from_taxonomy("sea-pen-dataset")
@@ -644,6 +700,7 @@ class TestMapObisToCioosEovMerging:
 # Integration test — hits the live OBIS API. Follows the pattern of
 # test_real_doi in test_load_from_datacite.py. Pick a dataset that carries
 # eMoF measurements (any OBIS landing page listing ExtendedMeasurementOrFact).
+@pytest.mark.live
 @pytest.mark.parametrize(
     "dataset_id",
     [
@@ -794,15 +851,13 @@ class TestFetchPlatformsFromObis:
         mock_response = MagicMock()
         mock_response.json.return_value = {"results": []}
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             assert fetch_platforms_from_obis("abc-123") == []
 
     def test_api_error_returns_empty(self):
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             side_effect=requests.ConnectionError("boom"),
         ):
             assert fetch_platforms_from_obis("abc-123") == []
@@ -816,8 +871,7 @@ class TestFetchPlatformsFromObis:
             ]
         }
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             assert fetch_platforms_from_obis("abc-123") == []
@@ -830,8 +884,7 @@ class TestFetchPlatformsFromObis:
             ]
         }
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             result = fetch_platforms_from_obis("abc-123")
@@ -854,8 +907,7 @@ class TestFetchPlatformsFromObis:
             ]
         }
         mock_response.raise_for_status.return_value = None
-        with patch(
-            "cioos_metadata_conversion.load_from.obis.requests.get",
+        with patch_obis_get(
             return_value=mock_response,
         ):
             result = fetch_platforms_from_obis("abc-123")
@@ -906,3 +958,297 @@ class TestMapObisToCioosPlatforms:
             result = map_obis_to_cioos({"id": "x"})
         assert result["platforms"] == platforms
         assert result["noPlatform"] is False
+
+
+class TestMappingFile:
+    """Guardrails on resources/obis_mapping.yaml.
+
+    The mapping file is hand-editable data that drives real conversion output,
+    so these lock the invariants the matching code relies on but cannot enforce
+    for itself.  Every assertion here held at the time the file was extracted
+    from obis.py.
+    """
+
+    RESOURCES = (
+        Path(obis_module.__file__).parent.parent / "resources"
+    )
+
+    # ── the file ships and parses ───────────────────────────────────────────
+
+    def test_mapping_file_is_present(self):
+        assert obis_module._MAPPING_PATH.is_file(), (
+            f"{obis_module._MAPPING_PATH} is missing — it is required at import "
+            f"and must be committed alongside obis.py"
+        )
+
+    def test_missing_file_fails_loudly_with_the_resolved_path(self, monkeypatch):
+        monkeypatch.setattr(
+            obis_module, "_MAPPING_PATH", self.RESOURCES / "does_not_exist.yaml"
+        )
+        with pytest.raises(obis_module.ObisMappingError) as excinfo:
+            obis_module._load_obis_mapping()
+        assert "does_not_exist.yaml" in str(excinfo.value)
+
+    def test_duplicate_keys_are_rejected(self):
+        # PyYAML silently keeps the last of a repeated key; the taxon table is
+        # 190 hand-edited lines, which is exactly where that would hide.
+        with pytest.raises(yaml.constructor.ConstructorError, match="duplicate key"):
+            yaml.load(
+                "from_taxon_class:\n  Aves: a\n  Aves: OOPS\n",
+                Loader=obis_module._UniqueKeyLoader,
+            )
+
+    # ── cross-vocabulary agreement ──────────────────────────────────────────
+
+    def test_every_eov_exists_in_the_cioos_vocabulary(self):
+        vocabulary = {
+            entry["value"]
+            for entry in json.loads(
+                (self.RESOURCES / "eov.json").read_text(encoding="utf-8")
+            )
+        }
+        emitted = (
+            set(obis_module.TAXON_CLASS_TO_EOV.values())
+            | set(obis_module.MEASUREMENT_P01_TO_EOV.values())
+            | set(obis_module.MEASUREMENT_TEXT_TO_EOV.values())
+            | set(obis_module._SURFACE_UPGRADES.values())
+            | obis_module.COVER_EOVS
+            | obis_module._TEMPERATURE_EOVS
+        )
+        assert emitted <= vocabulary, (
+            f"EOVs not in resources/eov.json: {sorted(emitted - vocabulary)}"
+        )
+
+    def test_every_platform_label_exists_in_the_cioos_vocabulary(self):
+        # Loaded DIRECTLY rather than through VALID_PLATFORM_LABELS: validating
+        # the table against a set derived from that same table would be
+        # vacuously true, which is how the old version of this test could pass
+        # while platforms.json was missing entirely.
+        vocabulary = {
+            entry["label_en"]
+            for entry in json.loads(
+                (self.RESOURCES / "platforms.json").read_text(encoding="utf-8")
+            )
+        }
+        labels = {label for _pattern, label in obis_module._PLATFORM_KEYWORD_TABLE}
+        for specific, generics in obis_module._PLATFORM_SPECIFICITY.items():
+            labels.add(specific)
+            labels |= generics
+        assert labels <= vocabulary, (
+            f"platform labels not in resources/platforms.json: "
+            f"{sorted(labels - vocabulary)}"
+        )
+
+    def test_platform_vocabulary_is_fully_loaded(self):
+        assert obis_module._PLATFORM_RESOURCE_PATH.is_file()
+        assert len(VALID_PLATFORM_LABELS) == 81
+
+    def test_specificity_labels_appear_in_the_keyword_table(self):
+        table = {label for _pattern, label in obis_module._PLATFORM_KEYWORD_TABLE}
+        for specific, generics in obis_module._PLATFORM_SPECIFICITY.items():
+            assert specific in table, f"{specific!r} can never match"
+            assert generics <= table, f"{specific!r} drops labels nothing emits"
+
+    # ── the order-sensitive tables ──────────────────────────────────────────
+
+    def test_measurement_text_order_is_preserved(self):
+        # obis.py returns on the FIRST word-boundary match, so this order is
+        # output-affecting.  Grouping by target EOV breaks it: particulateMatter
+        # occupies two runs separated by chlorophyll.
+        assert list(obis_module.MEASUREMENT_TEXT_TO_EOV) == EXPECTED_TEXT_TERM_ORDER
+
+    def test_platform_table_order_is_preserved(self):
+        # Emitted obis-platform-N ids are assigned in this order.
+        assert [
+            label for _pattern, label in obis_module._PLATFORM_KEYWORD_TABLE
+        ] == EXPECTED_PLATFORM_LABEL_ORDER
+
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            # The atmospheric guard `continue`s rather than returning, so a
+            # later term still applies.
+            ("Air temperature and salinity", "subSurfaceSalinity"),
+            ("Air temperature", None),
+            ("Température atmosphérique", None),
+            ("temp_air", None),
+            # These three pin the particulateMatter/oceanColour interleave that
+            # makes the table non-groupable.
+            ("Chlorophyll a in suspended particulate matter", "oceanColour"),
+            ("Turbidity and chlorophyll fluorescence", "oceanColour"),
+            ("Chlorophyll and turbidity profile", "oceanColour"),
+            ("Tidal current direction", "subSurfaceCurrents"),
+        ],
+    )
+    def test_order_sensitive_semantics(self, text, expected):
+        assert _map_measurement_pair(text, "") == expected
+
+    # ── regex fidelity ──────────────────────────────────────────────────────
+
+    def test_patterns_survived_the_round_trip(self):
+        # `\b` in a double-quoted YAML scalar silently becomes U+0008; \s and \d
+        # would fail loudly, so this is a mixed failure mode worth pinning.
+        patterns = [p.pattern for p, _label in obis_module._PLATFORM_KEYWORDS_COMPILED]
+        patterns += [
+            obis_module._ATMOSPHERIC_RE.pattern,
+            obis_module._PER_CELL_RE.pattern,
+            obis_module._STRONG_IC_TEXT_RE.pattern,
+            obis_module._P01_CODE_RE.pattern,
+        ]
+        for pattern in patterns:
+            assert "\x08" not in pattern, f"{pattern!r} contains a BACKSPACE"
+            assert "\x0c" not in pattern, f"{pattern!r} contains a FORM FEED"
+
+    def test_surface_glider_pattern_keeps_its_missing_word_boundary(self):
+        # r"\bsurface\s+glider" has NO trailing \b on purpose so it also matches
+        # "gliders".  Normalising one in during an edit would break it.
+        assert _match_platform_keywords("surface glider") == ["surface gliders"]
+        assert _match_platform_keywords("surface gliders") == ["surface gliders"]
+
+    def test_compiled_patterns_mirror_the_table(self):
+        # Runtime matching reads the compiled list; this test and the guardrail
+        # above read the table.  They must not be able to drift.
+        assert [
+            (p.pattern, label) for p, label in obis_module._PLATFORM_KEYWORDS_COMPILED
+        ] == list(obis_module._PLATFORM_KEYWORD_TABLE)
+
+    def test_guard_flags_are_explicit_and_case_insensitive(self):
+        # _PER_CELL_RE and _STRONG_IC_TEXT_RE match RAW un-lowered text.
+        assert obis_module._is_strong_inorganic_carbon("Total Alkalinity", "") is True
+        assert _map_measurement_pair("Particulate Organic Carbon Per Cell", "") is None
+        assert obis_module._ATMOSPHERIC_RE.search("température atmosphérique")
+        # _P01_CODE_RE is deliberately upper-case-only and flagless.
+        assert obis_module._P01_CODE_RE.flags & re.IGNORECASE == 0
+
+    # ── encoding ────────────────────────────────────────────────────────────
+
+    def test_accented_terms_survive_encoding_and_normalisation(self):
+        # Seven terms and two patterns are non-ASCII and load-bearing.  UTF-8
+        # bytes read as cp1252 parse without raising, and an NFD-normalising
+        # editor breaks French-only labels while bilingual ones keep working.
+        for term in [
+            "température",
+            "salinité",
+            "oxygène dissous",
+            "oxygène",
+            "alcalinité",
+            "hauteur de la marée",
+            "δ13c",
+        ]:
+            assert term in obis_module.MEASUREMENT_TEXT_TO_EOV
+            assert unicodedata.normalize("NFC", term) == term
+        assert "atmosph[eé]rique" in obis_module._ATMOSPHERIC_RE.pattern
+        assert "pco₂" in obis_module._STRONG_IC_TEXT_RE.pattern
+
+    def test_mapping_file_is_utf8_without_escapes(self):
+        raw = obis_module._MAPPING_PATH.read_text(encoding="utf-8")
+        assert "température" in raw
+        assert "\\u00e9" not in raw, "accents were escaped rather than written as UTF-8"
+        assert unicodedata.normalize("NFC", raw) == raw
+
+    # ── load-time validation actually fires ─────────────────────────────────
+
+    @pytest.mark.parametrize(
+        "mutate,message",
+        [
+            (lambda m: m["eov"]["from_taxon_class"].update({"lowercase": "other"}),
+             "capitalisation"),
+            (lambda m: m["eov"]["from_p01_code"].update({"TOOLONGCODE": "oxygen"}),
+             "8 upper-case"),
+            (lambda m: m["eov"]["from_measurement_text"].append(
+                {"term": "Uppercase", "eov": "oxygen"}), "lower-case"),
+            (lambda m: m["eov"]["from_measurement_text"].append(
+                {"term": r"\bregex\b", "eov": "oxygen"}), "plain text"),
+            (lambda m: m["eov"]["gates"]["benthic_indicator_classes"].append("Nonexistent"),
+             "absent from from_taxon_class"),
+            (lambda m: m["eov"]["gates"]["zooplankton"]["core_classes"].append("Teleostei"),
+             "do not map to"),
+            (lambda m: m["eov"]["gates"]["cover"].update({"min_fraction": 5}),
+             "fraction between 0 and 1"),
+            (lambda m: m["roles"]["valid_cioos_codes"].append("AUTHOR"),
+             "case-duplicates"),
+            (lambda m: m.pop("templates"), "missing required section"),
+        ],
+    )
+    def test_validation_rejects_broken_mappings(self, mutate, message):
+        mapping = yaml.load(
+            obis_module._MAPPING_PATH.read_text(encoding="utf-8"),
+            Loader=obis_module._UniqueKeyLoader,
+        )
+        mutate(mapping)
+        with pytest.raises(obis_module.ObisMappingError, match=message):
+            obis_module._validate_obis_mapping(mapping)
+
+    def test_unmapped_transform_and_handler_names_are_rejected(self):
+        for key, value, message in [
+            ("transform", "no_such_transform", "unknown transform"),
+            ("handler", "no_such_handler", "unknown handler"),
+        ]:
+            original = obis_module._MAPPING["fields"]["abstract"].copy()
+            try:
+                obis_module._MAPPING["fields"]["abstract"][key] = value
+                with pytest.raises(obis_module.ObisMappingError, match=message):
+                    obis_module._validate_field_specs()
+            finally:
+                obis_module._MAPPING["fields"]["abstract"] = original
+
+    # ── the field map matches what is actually emitted ───────────────────────
+
+    def test_field_entries_match_the_emitted_record_exactly(self):
+        with patch(f"{_MODULE}.fetch_eovs_from_taxonomy", return_value=["other"]), patch(
+            f"{_MODULE}.fetch_eovs_from_measurements", return_value=[]
+        ), patch(f"{_MODULE}.fetch_platforms_from_obis", return_value=[]):
+            record = map_obis_to_cioos({"id": "x"})
+        # Both directions: a field documented but not emitted is as bad as a
+        # field emitted but undocumented.
+        assert list(record) == list(obis_module._MAPPING["fields"])
+        assert len(record) == 38
+
+    def test_placeholder_types_are_preserved(self):
+        # scrub_dict strips ""/None/{}, and firebase_to_cioos interpolates some
+        # of these into an f-string URL before that runs, so "" is not
+        # interchangeable with None.
+        with patch(f"{_MODULE}.fetch_eovs_from_taxonomy", return_value=["other"]), patch(
+            f"{_MODULE}.fetch_eovs_from_measurements", return_value=[]
+        ), patch(f"{_MODULE}.fetch_platforms_from_obis", return_value=[]):
+            record = map_obis_to_cioos({"id": "x"})
+        assert record["noTaxa"] is True
+        assert record["noVerticalExtent"] is True
+        assert record["noPlatform"] is True
+        for key in ["region", "userID", "recordID", "status", "dateStart", "dateEnd"]:
+            assert record[key] == "", f"{key} must stay an empty string, not None"
+        # add_fr("") is NOT "": the French placeholder is what lets it survive.
+        assert record["limitations"]["fr"]
+        assert record["projects"] == []
+
+    def test_constant_containers_are_not_shared_between_records(self):
+        with patch(f"{_MODULE}.fetch_eovs_from_taxonomy", return_value=["other"]), patch(
+            f"{_MODULE}.fetch_eovs_from_measurements", return_value=[]
+        ), patch(f"{_MODULE}.fetch_platforms_from_obis", return_value=[]):
+            first = map_obis_to_cioos({"id": "a"})
+            first["projects"].append("leaked")
+            first["lastEditedBy"]["email"] = "leaked@example.org"
+            second = map_obis_to_cioos({"id": "b"})
+        assert second["projects"] == []
+        assert second["lastEditedBy"] == {"displayName": "", "email": ""}
+
+    # ── date handling ───────────────────────────────────────────────────────
+
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("", ""),  # never the bare string "Z"
+            ("2026-04-21T14:55:55.003Z", "2026-04-21T14:55:55Z"),
+            ("2025-12-18T18:27:56Z", "2025-12-18T18:27:56ZZ"),  # documents today's double-Z
+            ("2023-05-01", "2023-05-01Z"),
+            ("2023-05-01T10:20:30+00:00", "2023-05-01T10:20:30+00:00Z"),
+        ],
+    )
+    def test_trim_date(self, value, expected):
+        assert obis_module._trim_date(value) == expected
+
+    def test_get_path_handles_missing_hops(self):
+        assert obis_module._get_path({"feed": {"url": "u"}}, "feed.url") == "u"
+        assert obis_module._get_path({"feed": {}}, "feed.url") is None
+        assert obis_module._get_path({}, "feed.url") is None
+        assert obis_module._get_path({"feed": "not-a-dict"}, "feed.url") is None

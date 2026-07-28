@@ -1,8 +1,10 @@
+import copy
 import json
 import re
 from pathlib import Path
 
 import requests
+import yaml
 from loguru import logger
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -178,422 +180,309 @@ def _read_parquet_measurement_pairs(dataset_id):
         return None
     return {(mtype, mtypeid) for mtype, mtypeid in rows}
 
-# Mapping from OBIS taxonomic class names to CIOOS Essential Ocean Variables.
-# Built from the OBIS /v3/facet?facets=class endpoint values and the CIOOS
-# EOV choices in cioos-siooc_schema.json.
-TAXON_CLASS_TO_EOV = {
-    # ── Fish — fishAbundanceAndDistribution ──
-    "Actinopterygii": "fishAbundanceAndDistribution",
-    "Teleostei": "fishAbundanceAndDistribution",
-    "Elasmobranchii": "fishAbundanceAndDistribution",
-    "Chondrichthyes": "fishAbundanceAndDistribution",
-    "Myxini": "fishAbundanceAndDistribution",
-    "Petromyzonti": "fishAbundanceAndDistribution",
-    "Holocephali": "fishAbundanceAndDistribution",
-    "Chondrostei": "fishAbundanceAndDistribution",
-    "Ichthyostraca": "fishAbundanceAndDistribution",
-    "Holostei": "fishAbundanceAndDistribution",
-    "Coelacanthi": "fishAbundanceAndDistribution",
-    "Dipneusti": "fishAbundanceAndDistribution",
-    # ── Marine turtles, birds, mammals ──
-    "Mammalia": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
-    "Aves": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
-    "Reptilia": "marineTurtlesBirdsMammalsAbundanceAndDistribution",
-    # ── Phytoplankton — photosynthetic algae & cyanobacteria ──
-    "Bacillariophyceae": "phytoplanktonBiomassAndDiversity",
-    "Dinophyceae": "phytoplanktonBiomassAndDiversity",
-    "Coscinodiscophyceae": "phytoplanktonBiomassAndDiversity",
-    "Mediophyceae": "phytoplanktonBiomassAndDiversity",
-    "Fragilariophyceae": "phytoplanktonBiomassAndDiversity",
-    "Cyanophyceae": "phytoplanktonBiomassAndDiversity",
-    "Prymnesiophyceae": "phytoplanktonBiomassAndDiversity",
-    "Coccolithophyceae": "phytoplanktonBiomassAndDiversity",
-    "Chrysophyceae": "phytoplanktonBiomassAndDiversity",
-    "Cryptophyceae": "phytoplanktonBiomassAndDiversity",
-    "Prasinophyceae": "phytoplanktonBiomassAndDiversity",
-    "Raphidophyceae": "phytoplanktonBiomassAndDiversity",
-    "Dictyochophyceae": "phytoplanktonBiomassAndDiversity",
-    "Euglenoidea": "phytoplanktonBiomassAndDiversity",
-    "Euglenophyceae": "phytoplanktonBiomassAndDiversity",
-    "Xanthophyceae": "phytoplanktonBiomassAndDiversity",
-    "Chlorophyceae": "phytoplanktonBiomassAndDiversity",
-    "Chlorodendrophyceae": "phytoplanktonBiomassAndDiversity",
-    "Trebouxiophyceae": "phytoplanktonBiomassAndDiversity",
-    "Zygnematophyceae": "phytoplanktonBiomassAndDiversity",
-    # New phytoplankton additions (from OBIS facet data)
-    "Pyramimonadophyceae": "phytoplanktonBiomassAndDiversity",
-    "Mamiellophyceae": "phytoplanktonBiomassAndDiversity",
-    "Cryptophyta incertae sedis": "phytoplanktonBiomassAndDiversity",
-    "Pelagophyceae": "phytoplanktonBiomassAndDiversity",
-    "Eustigmatophyceae": "phytoplanktonBiomassAndDiversity",
-    "Bolidophyceae": "phytoplanktonBiomassAndDiversity",
-    "Pavlovophyceae": "phytoplanktonBiomassAndDiversity",
-    "Prasinodermatophyceae": "phytoplanktonBiomassAndDiversity",
-    "Nephroselmidophyceae": "phytoplanktonBiomassAndDiversity",
-    "Pinguiophyceae": "phytoplanktonBiomassAndDiversity",
-    "Synurophyceae": "phytoplanktonBiomassAndDiversity",
-    "Haptophyta incertae sedis": "phytoplanktonBiomassAndDiversity",
-    "Dinoflagellata incertae sedis": "phytoplanktonBiomassAndDiversity",
-    "Chlorarachnea": "phytoplanktonBiomassAndDiversity",
-    "Chlorarachniophyceae": "phytoplanktonBiomassAndDiversity",
-    "Glaucophyceae": "phytoplanktonBiomassAndDiversity",
-    "Charophyceae": "phytoplanktonBiomassAndDiversity",
-    # ── Zooplankton — planktonic heterotrophs, ciliates, rotifers, jellyfish ──
-    "Hexanauplia": "zooplanktonBiomassAndDiversity",
-    "Copepoda": "zooplanktonBiomassAndDiversity",
-    "Branchiopoda": "zooplanktonBiomassAndDiversity",
-    "Ostracoda": "zooplanktonBiomassAndDiversity",
-    "Scyphozoa": "zooplanktonBiomassAndDiversity",
-    "Hydrozoa": "zooplanktonBiomassAndDiversity",
-    "Appendicularia": "zooplanktonBiomassAndDiversity",
-    "Thaliacea": "zooplanktonBiomassAndDiversity",
-    "Sagittoidea": "zooplanktonBiomassAndDiversity",
-    "Choanoflagellatea": "zooplanktonBiomassAndDiversity",
-    "Oligotrichea": "zooplanktonBiomassAndDiversity",
-    "Heterotrichea": "zooplanktonBiomassAndDiversity",
-    "Prostomatea": "zooplanktonBiomassAndDiversity",
-    "Oligohymenophorea": "zooplanktonBiomassAndDiversity",
-    "Globothalamea": "zooplanktonBiomassAndDiversity",
-    "Tubothalamea": "zooplanktonBiomassAndDiversity",
-    "Nodosariata": "zooplanktonBiomassAndDiversity",
-    "Monothalamea": "zooplanktonBiomassAndDiversity",
-    "Tubulinea": "zooplanktonBiomassAndDiversity",
-    "Foraminifera incertae sedis": "zooplanktonBiomassAndDiversity",
-    # New zooplankton additions (from OBIS facet data)
-    "Polycystina": "zooplanktonBiomassAndDiversity",     # Radiolaria
-    "Litostomatea": "zooplanktonBiomassAndDiversity",     # Ciliates
-    "Spirotrichea": "zooplanktonBiomassAndDiversity",     # Ciliates (tintinnids etc.)
-    "Acantharia": "zooplanktonBiomassAndDiversity",       # Planktonic protists
-    "Eurotatoria": "zooplanktonBiomassAndDiversity",      # Rotifers
-    "Phyllopharyngea": "zooplanktonBiomassAndDiversity",  # Ciliates
-    "Nassophorea": "zooplanktonBiomassAndDiversity",      # Ciliates
-    "Telonemea": "zooplanktonBiomassAndDiversity",        # Heterotrophic flagellates
-    "Maxillopoda": "zooplanktonBiomassAndDiversity",      # Crustaceans (planktonic)
-    "Colpodea": "zooplanktonBiomassAndDiversity",         # Ciliates
-    "Karyorelictea": "zooplanktonBiomassAndDiversity",    # Ciliates
-    "Nuda": "zooplanktonBiomassAndDiversity",             # Ctenophores (comb jellies)
-    "Cubozoa": "zooplanktonBiomassAndDiversity",          # Box jellyfish
-    "Staurozoa": "zooplanktonBiomassAndDiversity",        # Stalked jellyfish
-    "Thecofilosea": "zooplanktonBiomassAndDiversity",     # Amoeboid protists (protozooplankton)
-    "Discosea": "zooplanktonBiomassAndDiversity",         # Amoebae (protozooplankton)
-    "Sarcomonadea": "zooplanktonBiomassAndDiversity",     # Heterotrophic flagellates
-    "Plagiopylea": "zooplanktonBiomassAndDiversity",      # Ciliates
-    "Imbricatea": "zooplanktonBiomassAndDiversity",       # Cercozoan protists
-    # ── Microbes — bacteria, archaea, fungi, parasitic & heterotrophic protists ──
-    "Alphaproteobacteria": "microbeBiomassAndDiversity",
-    "Betaproteobacteria": "microbeBiomassAndDiversity",
-    "Gammaproteobacteria": "microbeBiomassAndDiversity",
-    "Deltaproteobacteria": "microbeBiomassAndDiversity",
-    "Epsilonproteobacteria": "microbeBiomassAndDiversity",
-    "Flavobacteria": "microbeBiomassAndDiversity",
-    "Actinobacteria": "microbeBiomassAndDiversity",
-    "Bacilli": "microbeBiomassAndDiversity",
-    "Bacili": "microbeBiomassAndDiversity",
-    "Cytophagia": "microbeBiomassAndDiversity",
-    "Sphingobacteria": "microbeBiomassAndDiversity",
-    "Gemmatimonadetes(class)": "microbeBiomassAndDiversity",
-    "Aquificae": "microbeBiomassAndDiversity",
-    "Methanomicrobia": "microbeBiomassAndDiversity",
-    # New bacteria additions
-    "Verrucomicrobiae": "microbeBiomassAndDiversity",
-    "Opitutae": "microbeBiomassAndDiversity",
-    "Planctomycetacia": "microbeBiomassAndDiversity",
-    "Phycisphaerae": "microbeBiomassAndDiversity",
-    "Clostridia": "microbeBiomassAndDiversity",
-    "Bacteroidia": "microbeBiomassAndDiversity",
-    "Anaerolineae": "microbeBiomassAndDiversity",
-    "Planctomycetia": "microbeBiomassAndDiversity",
-    "Holophagae": "microbeBiomassAndDiversity",
-    "Deinococci": "microbeBiomassAndDiversity",
-    "Caldilineae": "microbeBiomassAndDiversity",
-    "Negativicutes": "microbeBiomassAndDiversity",
-    "Erysipelotrichi": "microbeBiomassAndDiversity",
-    "Nitrospira": "microbeBiomassAndDiversity",
-    "Zetaproteobacteria": "microbeBiomassAndDiversity",
-    "Synergistia": "microbeBiomassAndDiversity",
-    "Chloroflexi": "microbeBiomassAndDiversity",
-    "Mollicutes": "microbeBiomassAndDiversity",
-    "Chlamydiia": "microbeBiomassAndDiversity",
-    "Fusobacteria": "microbeBiomassAndDiversity",
-    "Acidobacteria": "microbeBiomassAndDiversity",
-    "Fibrobacteres(class)": "microbeBiomassAndDiversity",
-    "Spirochaetes(Class)": "microbeBiomassAndDiversity",
-    "Thermomicrobia": "microbeBiomassAndDiversity",
-    "Bacteroidetes incertae sedis": "microbeBiomassAndDiversity",
-    # New archaea additions
-    "Thermoplasmata": "microbeBiomassAndDiversity",
-    "Thaumarchaeota incertae sedis": "microbeBiomassAndDiversity",
-    "Halobacteria": "microbeBiomassAndDiversity",
-    "Thermococci": "microbeBiomassAndDiversity",
-    "Thermoprotei": "microbeBiomassAndDiversity",
-    "Methanobacteria": "microbeBiomassAndDiversity",
-    "Nanoarchaeia": "microbeBiomassAndDiversity",
-    "Archaeoglobi": "microbeBiomassAndDiversity",
-    "Methanococci": "microbeBiomassAndDiversity",
-    # Deliberately *not* mapped to microbeBiomassAndDiversity:
-    #   - Fungal classes (Dothideomycetes, Agaricomycetes, Sordariomycetes,
-    #     Eurotiomycetes, Saccharomycetes, Lecanoromycetes, etc.). OBIS is a
-    #     biodiversity catalogue; these classes include many terrestrial
-    #     fungi (mushrooms, lichens, yeasts) that surface as incidental
-    #     shoreline records and do not indicate a microbe-focused dataset.
-    #   - Host-bound parasites (Conoidasida apicomplexans, Perkinsea mollusc
-    #     pathogens) and ambiguous heterotrophic protists (Labyrinthulea,
-    #     Kinetoplastea, Diplonemea, Peronosporea). GOOS microbe scope is
-    #     free-living marine microbes; these classes appear in occurrence
-    #     data without matching that scope and curators don't tag them.
-    # ── Macroalgae ──
-    "Phaeophyceae": "macroalgalCanopyCoverAndComposition",
-    "Florideophyceae": "macroalgalCanopyCoverAndComposition",
-    "Ulvophyceae": "macroalgalCanopyCoverAndComposition",
-    "Bangiophyceae": "macroalgalCanopyCoverAndComposition",
-    "Compsopogonophyceae": "macroalgalCanopyCoverAndComposition",
-    # ── Cnidarian classes → invertebrateAbundanceAndDistribution ──
-    # GOOS hardCoralCoverAndComposition scopes reef-building Scleractinia
-    # (an *order* within Hexacorallia), not classes. Octocorallia (sea pens,
-    # gorgonians, soft corals), Hexacorallia (which also contains anemones
-    # and black corals), and the phylum-level Anthozoa all carry too much
-    # non-hard-coral content to map directly to the cover EOV. CIOOS
-    # curators reflect this — across the audit corpus, 0 datasets were
-    # hand-tagged with hardCoralCoverAndComposition.
-    "Anthozoa": "invertebrateAbundanceAndDistribution",
-    "Hexacorallia": "invertebrateAbundanceAndDistribution",
-    "Octocorallia": "invertebrateAbundanceAndDistribution",
-    # ── Invertebrates — benthic & other marine invertebrates ──
-    "Gastropoda": "invertebrateAbundanceAndDistribution",
-    "Bivalvia": "invertebrateAbundanceAndDistribution",
-    "Cephalopoda": "invertebrateAbundanceAndDistribution",
-    "Polychaeta": "invertebrateAbundanceAndDistribution",
-    "Clitellata": "invertebrateAbundanceAndDistribution",
-    "Echinoidea": "invertebrateAbundanceAndDistribution",
-    "Asteroidea": "invertebrateAbundanceAndDistribution",
-    "Ophiuroidea": "invertebrateAbundanceAndDistribution",
-    "Holothuroidea": "invertebrateAbundanceAndDistribution",
-    "Crinoidea": "invertebrateAbundanceAndDistribution",
-    "Malacostraca": "invertebrateAbundanceAndDistribution",
-    "Thecostraca": "invertebrateAbundanceAndDistribution",
-    "Demospongiae": "invertebrateAbundanceAndDistribution",
-    "Calcarea": "invertebrateAbundanceAndDistribution",
-    "Hexactinellida": "invertebrateAbundanceAndDistribution",
-    "Ascidiacea": "invertebrateAbundanceAndDistribution",
-    "Tentaculata": "invertebrateAbundanceAndDistribution",
-    "Gymnolaemata": "invertebrateAbundanceAndDistribution",
-    "Stenolaemata": "invertebrateAbundanceAndDistribution",
-    "Polyplacophora": "invertebrateAbundanceAndDistribution",
-    "Scaphopoda": "invertebrateAbundanceAndDistribution",
-    "Sipunculidea": "invertebrateAbundanceAndDistribution",
-    "Pycnogonida": "invertebrateAbundanceAndDistribution",
-    "Hexapoda": "invertebrateAbundanceAndDistribution",
-    "Arachnida": "invertebrateAbundanceAndDistribution",
-    "Turbellaria": "invertebrateAbundanceAndDistribution",
-    "Chromadorea": "invertebrateAbundanceAndDistribution",
-    "Monogenea": "invertebrateAbundanceAndDistribution",
-    "Hoplonemertea": "invertebrateAbundanceAndDistribution",
-    # New invertebrate additions
-    "Enoplea": "invertebrateAbundanceAndDistribution",         # Nematodes
-    "Caudofoveata": "invertebrateAbundanceAndDistribution",    # Shell-less molluscs
-    "Pilidiophora": "invertebrateAbundanceAndDistribution",    # Nemerteans (ribbon worms)
-    "Palaeonemertea": "invertebrateAbundanceAndDistribution",  # Nemerteans
-    "Leptocardii": "invertebrateAbundanceAndDistribution",     # Lancelets
-    "Enteropneusta": "invertebrateAbundanceAndDistribution",   # Acorn worms
-    "Merostomata": "invertebrateAbundanceAndDistribution",     # Horseshoe crabs
-    "Solenogastres": "invertebrateAbundanceAndDistribution",   # Shell-less molluscs
-    "Homoscleromorpha": "invertebrateAbundanceAndDistribution",# Sponges
-    "Trematoda": "invertebrateAbundanceAndDistribution",       # Flukes
-    # ── Seagrass ──
-    "Magnoliopsida": "seagrassCoverAndComposition",
-    "Liliopsida": "seagrassCoverAndComposition",
-    # ── Other — organisms not fitting any current GOOS EOV ──
-    "Amphibia": "other",
-    "Crocodylia": "other",  # Not covered by any GOOS EOV (sea turtles EOV is turtles only)
+# ── Mapping data ────────────────────────────────────────────────────────────
+# Every value this loader emits — the EOV vocabularies, the platform keyword
+# table, the guard patterns, the audit-derived thresholds, the per-field record
+# map and every literal string — lives in resources/obis_mapping.yaml. Only
+# control flow lives in this module. See that file's header for editing rules.
+#
+# The derived names below are defined in ONE contiguous block on purpose. They
+# have statement-order dependencies (the compiled platform patterns must come
+# from the same expression as the table they mirror, and the keyword table is
+# read further down at import time), and splitting them invites a stale half.
+
+_MAPPING_PATH = Path(__file__).parent.parent / "resources" / "obis_mapping.yaml"
+
+# Use libyaml where it is available: this module is imported on every CLI
+# invocation and at pytest collection, and the pure-Python parser is an order of
+# magnitude slower on a file this size. Our pyyaml pin does not guarantee the C
+# extension on source-built platforms, hence the getattr.
+_YamlBase = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
+class ObisMappingError(RuntimeError):
+    """resources/obis_mapping.yaml is missing, unparseable or inconsistent."""
+
+
+class _UniqueKeyLoader(_YamlBase):
+    """SafeLoader that rejects duplicate mapping keys.
+
+    PyYAML silently keeps the last of a repeated key. The taxon table is 190
+    hand-editable lines, which is exactly where a duplicated class name would
+    hide, and there is no ruff step in CI to catch the equivalent in Python.
+    """
+
+    def construct_mapping(self, node, deep=False):
+        seen = set()
+        for key_node, _value_node in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if key in seen:
+                raise yaml.constructor.ConstructorError(
+                    None, None, f"duplicate key {key!r}", key_node.start_mark
+                )
+            seen.add(key)
+        return super().construct_mapping(node, deep=deep)
+
+
+def _mapping_error(message):
+    return ObisMappingError(f"{_MAPPING_PATH.resolve()}: {message}")
+
+
+_REGEX_METACHARACTERS = set(r"\.^$*+?()[]{}|")
+
+_RE_FLAGS = {
+    "IGNORECASE": re.IGNORECASE,
+    "MULTILINE": re.MULTILINE,
+    "DOTALL": re.DOTALL,
+    "VERBOSE": re.VERBOSE,
 }
 
 
-# Mapping from BODC NERC P01 parameter codes to CIOOS Essential Ocean Variables.
-# measurementTypeID in OBIS eMoF records is typically a URI like
-# http://vocab.nerc.ac.uk/collection/P01/current/TEMPPR01/ — the 8-char tail
-# is the P01 code we match on. Reference: https://vocab.nerc.ac.uk/collection/P01/current/
-MEASUREMENT_P01_TO_EOV = {
-    # Temperature
-    "TEMPPR01": "subSurfaceTemperature",   # Sea water temperature (CTD)
-    "TEMPST01": "seaSurfaceTemperature",   # Sea surface temperature
-    "TEMPET01": "subSurfaceTemperature",   # Temperature of water by electronic thermometer
-    # Salinity
-    "PSALST01": "seaSurfaceSalinity",      # Practical salinity at surface
-    "PSALPR01": "subSurfaceSalinity",      # Practical salinity (CTD)
-    "PSLTZZ01": "subSurfaceSalinity",      # Practical salinity of water body
-    # Oxygen
-    "DOXYZZXX": "oxygen",
-    "DOXMZZXX": "oxygen",
-    "OXYSZZ01": "oxygen",
-    # Nutrients
-    "NTRAZZXX": "nutrients",               # Nitrate
-    "NTRIZZXX": "nutrients",               # Nitrite
-    "NTRZAAZX": "nutrients",               # Nitrate+nitrite
-    "AMONAAZX": "nutrients",               # Ammonium
-    "PHOSZZXX": "nutrients",               # Phosphate
-    "SLCAAAZX": "nutrients",               # Silicate
-    # Inorganic carbon chemistry
-    "PHXXZZXX": "inorganicCarbon",         # pH
-    "PCO2XXXX": "inorganicCarbon",         # pCO2
-    "ALKYAAZX": "inorganicCarbon",         # Total alkalinity
-    "TCO2AAZX": "inorganicCarbon",         # Dissolved inorganic carbon
-    # Organic carbon
-    "CORGZZZX": "dissolvedOrganicCarbon",
-    "CORGPM01": "particulateMatter",       # Particulate organic carbon
-    # Chlorophyll → ocean colour proxy (no separate chlorophyll EOV)
-    "CPHLZZXX": "oceanColour",
-    "CPHLPR01": "oceanColour",
-    "CPHLMOD2": "oceanColour",             # Chlorophyll fluorescence (modelled)
-    # Turbidity / suspended matter
-    "TURBXXXX": "particulateMatter",
-    "TSEDZZ01": "particulateMatter",
-    # Wind P01 codes (EWSBZZ01 wind speed, EWDAZZ01 wind direction) are
-    # deliberately *not* mapped to oceanSurfaceStress. Wind is an input to
-    # the stress product (τ = ρ·Cd·|U|·U), not the EOV itself, and zero
-    # curators tagged oceanSurfaceStress across the audit corpus even on
-    # datasets where the codes could apply. If a platform publishes a
-    # derived stress parameter directly, add that P01 code here.
-    # Sea state — Beaufort wind force is the classic sea-state proxy
-    "WMOCWFBF": "seaState",                # Beaufort wind force
-    "WMOCSSXX": "seaState",                # Beaufort wind force / sea state
-    # Sea surface height — tide-gauge / bottom-pressure surface-elevation codes.
-    "ASLVZZ01": "seaSurfaceHeight",        # Surface elevation, unspecified datum
-    "ASLVTD01": "seaSurfaceHeight",        # Surface elevation by fixed in-situ pressure sensor
-}
+def _validate_obis_mapping(mapping):
+    """Check the invariants the matching code relies on but cannot enforce.
+
+    Cross-*file* vocabulary checks (every EOV present in eov.json, every
+    platform label in platforms.json) deliberately live in the test suite
+    instead: this module is imported at pytest collection, so raising here
+    would turn a vocabulary drift into a collection error for every test file.
+    """
+    for path in (
+        ("version",),
+        ("fields",),
+        ("templates", "associated_resources"),
+        ("templates", "distribution"),
+        ("contacts", "field_map"),
+        ("eov", "from_taxon_class"),
+        ("eov", "from_p01_code"),
+        ("eov", "from_measurement_text"),
+        ("eov", "guards"),
+        ("eov", "gates"),
+        ("platforms", "keywords"),
+        ("roles", "obis_to_cioos"),
+        ("roles", "valid_cioos_codes"),
+    ):
+        node = mapping
+        for key in path:
+            if not isinstance(node, dict) or key not in node:
+                raise _mapping_error(f"missing required section {'.'.join(path)}")
+            node = node[key]
+
+    eov = mapping["eov"]
+
+    # Taxon classes are matched exact-case against the OBIS facet values.
+    for taxon_class in eov["from_taxon_class"]:
+        if not taxon_class[:1].isupper():
+            raise _mapping_error(
+                f"taxon class {taxon_class!r} must keep its original capitalisation "
+                f"— lookup is exact-case against the OBIS facet values"
+            )
+
+    # P01 codes are the 8-character upper-case tail of a NERC vocabulary URI.
+    for code in eov["from_p01_code"]:
+        if len(code) != 8 or not code.isupper():
+            raise _mapping_error(
+                f"P01 code {code!r} must be exactly 8 upper-case characters"
+            )
+
+    # Terms are lower-cased plain text: the matcher lowers the input and
+    # re.escape()s the term, so an upper-case letter can never match and a
+    # backslash would be escaped into a literal rather than acting as a regex.
+    for entry in eov["from_measurement_text"]:
+        term = entry["term"]
+        if term != term.lower():
+            raise _mapping_error(
+                f"measurement term {term!r} must be lower-case — the matcher "
+                f"lowers the input before comparing"
+            )
+        if _REGEX_METACHARACTERS & set(term):
+            raise _mapping_error(
+                f"measurement term {term!r} must be plain text, not a regex — "
+                f"the matcher re.escape()s it and wraps it in word boundaries"
+            )
+
+    # Both gates index the taxon table, so a class named in one and missing
+    # from the other silently disables that gate.
+    gates = eov["gates"]
+    taxon = eov["from_taxon_class"]
+    missing = sorted(set(gates["benthic_indicator_classes"]) - set(taxon))
+    if missing:
+        raise _mapping_error(
+            f"benthic indicator classes absent from from_taxon_class: {missing}"
+        )
+    mistyped = sorted(
+        c
+        for c in gates["zooplankton"]["core_classes"]
+        if taxon.get(c) != "zooplanktonBiomassAndDiversity"
+    )
+    if mistyped:
+        raise _mapping_error(
+            f"core zooplankton classes that do not map to "
+            f"zooplanktonBiomassAndDiversity: {mistyped}"
+        )
+    for name in ("cover", "zooplankton"):
+        key = "min_fraction" if name == "cover" else "min_core_fraction"
+        fraction = gates[name][key]
+        if not isinstance(fraction, float) or not 0 < fraction < 1:
+            raise _mapping_error(
+                f"gates.{name}.{key} must be a fraction between 0 and 1, got {fraction!r}"
+            )
+
+    # map_obis_role_to_cioos iterates the codes for a case-insensitive retry
+    # and returns the first hit, so two codes differing only by case would make
+    # the result depend on set ordering.
+    codes = mapping["roles"]["valid_cioos_codes"]
+    if len({c.lower() for c in codes}) != len(codes):
+        raise _mapping_error("roles.valid_cioos_codes contains case-duplicates")
+
+    return mapping
 
 
-# Fallback mapping by free-text measurementType, case-insensitive substring match.
-# Used when measurementTypeID is blank (common in older OBIS records). Order
-# matters: more specific keys should precede broader ones. Surface-vs-subsurface
-# for temperature/salinity is handled separately in _map_measurement_pair.
+def _load_obis_mapping():
+    """Parse and validate resources/obis_mapping.yaml.
+
+    Hard-fails rather than degrading. Without this file the loader cannot
+    produce correct records, and a silent fallback would publish wrong metadata
+    for every OBIS dataset. This matches the other resource loaders
+    (pdc.py, firebase_to_cioos.py), which also raise.
+    """
+    try:
+        with open(_MAPPING_PATH, encoding="utf-8") as fh:
+            mapping = yaml.load(fh, Loader=_UniqueKeyLoader)
+    except (OSError, yaml.YAMLError) as e:
+        raise ObisMappingError(
+            f"Could not load the OBIS mapping from {_MAPPING_PATH.resolve()}: {e}"
+        ) from e
+    if not isinstance(mapping, dict):
+        raise _mapping_error("expected a mapping at the top level")
+    return _validate_obis_mapping(mapping)
+
+
+_MAPPING = _load_obis_mapping()
+
+_EOV = _MAPPING["eov"]
+
+# OBIS taxonomic class name -> CIOOS EOV. Exact-key, exact-case lookup, so the
+# order of the file's entries does not matter here.
+TAXON_CLASS_TO_EOV = _EOV["from_taxon_class"]
+
+# BODC NERC P01 parameter code -> CIOOS EOV.
+MEASUREMENT_P01_TO_EOV = _EOV["from_p01_code"]
+
+# Free-text measurementType -> CIOOS EOV, used when measurementTypeID is blank.
+# ORDER IS SEMANTIC: _map_measurement_pair scans in insertion order and returns
+# on the first word-boundary match, which is why this is built from the file's
+# ordered sequence and must never be sourced from a mapping.
 MEASUREMENT_TEXT_TO_EOV = {
-    # Temperature / salinity — surface vs subsurface disambiguation below.
-    # French variants included: many DFO Quebec / St. Lawrence OBIS datasets
-    # ship eMoF with French-only or bilingual "label | label" measurementType
-    # strings and no P01 ID. The atmospheric-vs-water-temperature guard in
-    # _map_measurement_pair keeps "Température atmosphérique" from matching.
-    # ASCII snake_case variants (`temp_eau`, `salinite_psu`) appear in some
-    # Comité ZIP Rive Nord de l'Estuaire datasets; underscore is a word
-    # character, so regex word boundaries don't let "temperature"/"salinity"
-    # bleed into these — they need explicit keys.
-    "temperature": "subSurfaceTemperature",
-    "température": "subSurfaceTemperature",
-    "temp_eau": "subSurfaceTemperature",
-    "salinity": "subSurfaceSalinity",
-    "salinité": "subSurfaceSalinity",
-    "salinite_psu": "subSurfaceSalinity",
-    # Oxygen
-    "dissolved oxygen": "oxygen",
-    "oxygène dissous": "oxygen",
-    "oxygen": "oxygen",
-    "oxygène": "oxygen",
-    # Nutrients
-    "nitrate": "nutrients",
-    "nitrite": "nutrients",
-    "ammonium": "nutrients",
-    "phosphate": "nutrients",
-    "silicate": "nutrients",
-    "total nitrogen": "nutrients",
-    "total phosphorus": "nutrients",
-    # Inorganic carbon chemistry. A lone pH doesn't emit inorganicCarbon at
-    # the dataset level — see the carbonate-system aggregation in
-    # fetch_eovs_from_measurements. pH still maps here so it contributes
-    # when paired with a "strong" carbonate parameter.
-    "ph": "inorganicCarbon",
-    "pco2": "inorganicCarbon",
-    "alkalinity": "inorganicCarbon",
-    "alcalinité": "inorganicCarbon",
-    "dic": "inorganicCarbon",
-    # Organic carbon
-    "dissolved organic carbon": "dissolvedOrganicCarbon",
-    "doc": "dissolvedOrganicCarbon",
-    "particulate organic carbon": "particulateMatter",
-    "poc": "particulateMatter",
-    # Chlorophyll / ocean colour
-    "chlorophyll": "oceanColour",
-    # Particulates / turbidity
-    "turbidity": "particulateMatter",
-    "suspended": "particulateMatter",
-    # Currents — default subsurface, surface rule below upgrades "surface current"
-    "current velocity": "subSurfaceCurrents",
-    "current speed": "subSurfaceCurrents",
-    "current direction": "subSurfaceCurrents",
-    "current strength": "subSurfaceCurrents",
-    "tidal current": "surfaceCurrents",
-    # Sea state — GOOS scope is wave height, period, direction, steepness.
-    # Bare "Beaufort" / "wind" free-text is deliberately *not* mapped: OBIS
-    # eMoF "Beaufort Scale" / "Vent (Beaufort)" / "Wind speed" labels are
-    # usually ancillary wind observations recorded at biological sampling
-    # stations, not wave/stress measurements, and curator tagging is
-    # inconsistent when these are the only signal. The WMOCWFBF / WMOCSSXX
-    # (seaState) and EWSBZZ01 / EWDAZZ01 (oceanSurfaceStress) P01 codes
-    # remain mapped below as authoritative signals.
-    "sea state": "seaState",
-    "wave height": "seaState",
-    "wave observation": "seaState",
-    "wave exposure": "seaState",
-    # Sea surface height — tide-gauge-style numeric height above datum. Phase
-    # labels ("tide level", "tide stage", "stade de la marée") are categorical
-    # ebb/flood markers, not heights, and are deliberately not mapped.
-    "tide height": "seaSurfaceHeight",
-    "hauteur de la marée": "seaSurfaceHeight",  # French, DFO-Quebec
-    "water level": "seaSurfaceHeight",
-    "niveau d'eau": "seaSurfaceHeight",
-    "sea level": "seaSurfaceHeight",
-    # Sea ice
-    "sea ice": "seaIce",
-    "ice cover": "seaIce",
-    "ice observation": "seaIce",
-    # Ocean sound — acoustic detection / hydrophone data
-    "hydrophone": "oceanSound",
-    "acoustic detection": "oceanSound",
-    "vocalization": "oceanSound",
-    "call detected": "oceanSound",
-    # Marine debris
-    "marine debris": "marineDebris",
-    "microplastic": "marineDebris",
-    "plastic debris": "marineDebris",
-    # Stable carbon isotopes
-    "delta 13c": "stableCarbonIsotopes",
-    "delta13c": "stableCarbonIsotopes",
-    "d13c": "stableCarbonIsotopes",
-    "δ13c": "stableCarbonIsotopes",
-    # Nitrous oxide
-    "nitrous oxide": "nitrousOxide",
-    "n2o": "nitrousOxide",
-    # Transient tracers
-    "cfc-11": "transientTracers",
-    "cfc-12": "transientTracers",
-    "sf6": "transientTracers",
-    "tritium": "transientTracers",
+    entry["term"]: entry["eov"] for entry in _EOV["from_measurement_text"]
 }
 
+_GUARDS = _EOV["guards"]
 
+
+def _compile_guard(name):
+    """Compile a guard pattern with only the flags the file asks for.
+
+    Flags are explicit per pattern and default to none so that an omission
+    fails closed rather than silently widening a match.
+    """
+    spec = _GUARDS[name]
+    flags = 0
+    for flag in spec.get("flags") or []:
+        if flag not in _RE_FLAGS:
+            raise _mapping_error(f"unknown regex flag {flag!r} on guard {name!r}")
+        flags |= _RE_FLAGS[flag]
+    try:
+        return re.compile(spec["pattern"], flags)
+    except re.error as e:
+        raise _mapping_error(f"guard {name!r} has an invalid pattern: {e}") from e
+
+
+# Air/atmospheric temperature has no CIOOS EOV; these tokens suppress the
+# temperature terms. Note _map_measurement_pair skips the hit and KEEPS
+# SCANNING, so "Air temperature and salinity" still yields subSurfaceSalinity.
+_ATMOSPHERIC_RE = _compile_guard("atmospheric")
+_TEMPERATURE_EOVS = set(_GUARDS["atmospheric"]["suppresses"])
+
+# Flow-cytometry "per cell" carbon metrics, not bulk water-column particulates.
+_PER_CELL_RE = _compile_guard("per_cell")
+_PER_CELL_P01 = set(_GUARDS["per_cell"]["p01_codes"])
+
+# A non-pH carbonate parameter, which is what lifts a dataset into
+# inorganicCarbon; see the aggregation in fetch_eovs_from_measurements.
+_STRONG_IC_TEXT_RE = _compile_guard("strong_inorganic_carbon")
+_STRONG_IC_P01 = set(_GUARDS["strong_inorganic_carbon"]["p01_codes"])
+
+# Promotes the default subsurface mapping when the free text says "surface".
+_SURFACE_UPGRADES = _GUARDS["surface_upgrades"]
+
+# Parses the 8-char code out of a measurementTypeID URI. Stays in code because
+# it is a parser rather than a mapping, and it is deliberately upper-case-only
+# and flagless — a blanket IGNORECASE would let lower-case tails through.
 _P01_CODE_RE = re.compile(r"/([A-Z0-9]{8})/?$")
 
-# Air/atmospheric temperature has no CIOOS EOV; these tokens must suppress
-# the "temperature" keys from firing. Without this guard, "Température
-# atmosphérique" matches "température" and emits subSurfaceTemperature.
-_ATMOSPHERIC_RE = re.compile(r"\b(air|atmospheric|atmosph[eé]rique)\b", re.IGNORECASE)
-_TEMPERATURE_EOVS = {"subSurfaceTemperature", "seaSurfaceTemperature"}
+# False-positive gates. Applied in fetch_eovs_from_taxonomy in this order:
+# per-class cover fraction, then the zooplankton core gate, then the
+# benthic-indicator gate — which can retract an EOV an earlier gate added.
+_GATES = _EOV["gates"]
+COVER_EOVS = set(_GATES["cover"]["eovs"])
+COVER_EOV_MIN_FRACTION = _GATES["cover"]["min_fraction"]
+CORE_ZOOPLANKTON_CLASSES = set(_GATES["zooplankton"]["core_classes"])
+ZOO_MIN_CORE_FRACTION = _GATES["zooplankton"]["min_core_fraction"]
+BENTHIC_INDICATOR_CLASSES = set(_GATES["benthic_indicator_classes"])
 
-# "Per cell" labels are flow-cytometry phytoplankton carbon metrics, not
-# bulk water-column particulate measurements. e.g. the P01 code MAOCCB11
-# ("Organic carbon content per cell") and free-text "Particulate Organic
-# Carbon per cell". These should inform phytoplankton biomass (captured
-# via taxonomy classes) rather than emit particulateMatter.
-_PER_CELL_RE = re.compile(r"\bper\s+cell\b", re.IGNORECASE)
-_PER_CELL_P01 = {"MAOCCB11"}
+_ROLES = _MAPPING["roles"]
+CIOOS_ROLE_CODES = set(_ROLES["valid_cioos_codes"])
+OBIS_TO_CIOOS_ROLE = _ROLES["obis_to_cioos"]
+_ROLE_FALLBACK = _ROLES["fallback"]
 
-# Inorganic-carbon EOV requires more than a lone pH to flag at the dataset
-# level. GOOS defines the EOV as the ocean carbonate system (pH, total
-# alkalinity, DIC, pCO2); CIOOS curators in practice only tag it when a
-# non-pH carbonate parameter is present. pH alone is treated as incidental
-# water quality. See fetch_eovs_from_measurements for the aggregation.
-_STRONG_IC_P01 = {"ALKYAAZX", "TCO2AAZX", "PCO2XXXX"}
-_STRONG_IC_TEXT_RE = re.compile(
-    r"\b(alkalinity|alcalinit[eé]|dic|pco2|pco₂)\b", re.IGNORECASE
+_PLATFORMS = _MAPPING["platforms"]
+
+# ORDER IS SEMANTIC: _match_platform_keywords collects hits in table order and
+# fetch_platforms_from_obis numbers them obis-platform-1, -2, … so reordering
+# the file renames the emitted platform ids. Overlap between a generic and a
+# specific pattern is resolved by _PLATFORM_SPECIFICITY, not by order.
+_PLATFORM_KEYWORD_TABLE = [
+    (entry["pattern"], entry["label"]) for entry in _PLATFORMS["keywords"]
+]
+
+# Derived from the same expression as the table above so the two cannot drift:
+# this is what runtime matching reads, while the guardrail test reads the table.
+_PLATFORM_KEYWORDS_COMPILED = [
+    (re.compile(pattern, re.IGNORECASE), label)
+    for pattern, label in _PLATFORM_KEYWORD_TABLE
+]
+
+# When the key label is matched, drop these labels from the result set.
+_PLATFORM_SPECIFICITY = {
+    label: set(drops) for label, drops in _PLATFORMS["specificity"].items()
+}
+
+_PLATFORM_RESOURCE_PATH = (
+    Path(__file__).parent.parent / "resources" / _PLATFORMS["vocabulary_file"]
 )
+
+
+def _load_platform_vocab():
+    """Return the set of valid CIOOS platform label_en strings.
+
+    Hard-fails, like every other resource loader in the package. The previous
+    soft fallback rebuilt the labels from _PLATFORM_KEYWORD_TABLE, which now
+    comes from the mapping file — so on a packaging failure it would have
+    validated the table against itself (vacuously true) while silently
+    narrowing the vocabulary from 81 labels to 23, and that set filters real
+    output in fetch_platforms_from_obis.
+    """
+    try:
+        with open(_PLATFORM_RESOURCE_PATH, encoding="utf-8") as fh:
+            return {entry["label_en"] for entry in json.load(fh)}
+    except (OSError, json.JSONDecodeError, KeyError) as e:
+        raise ObisMappingError(
+            f"Could not load the CIOOS platform vocabulary from "
+            f"{_PLATFORM_RESOURCE_PATH.resolve()}: {e}"
+        ) from e
+
+
+VALID_PLATFORM_LABELS = _load_platform_vocab()
 
 
 def _is_strong_inorganic_carbon(m_type, m_type_id):
@@ -642,20 +531,20 @@ def _map_measurement_pair(m_type, m_type_id):
     text = m_type.lower()
     has_surface = "surface" in text
     is_atmospheric = bool(_ATMOSPHERIC_RE.search(text))
-    for key, eov in MEASUREMENT_TEXT_TO_EOV.items():
+    # Insertion order is the file's order and it is semantic: first match wins,
+    # so specific terms precede broader ones.
+    for term, eov in MEASUREMENT_TEXT_TO_EOV.items():
         # Word-boundary match — "ph" must not match "chlorophyll", "doc" must
-        # not match "doctor", etc. Multi-word keys like "dissolved oxygen"
+        # not match "doctor", etc. Multi-word terms like "dissolved oxygen"
         # also need boundaries on either end of the phrase.
-        if re.search(rf"\b{re.escape(key)}\b", text):
+        if re.search(rf"\b{re.escape(term)}\b", text):
             if is_atmospheric and eov in _TEMPERATURE_EOVS:
-                # Air temperature — skip; no matching CIOOS EOV.
+                # Air temperature — no matching CIOOS EOV. `continue`, not
+                # `return`: a later term may still apply, which is why
+                # "Air temperature and salinity" yields subSurfaceSalinity.
                 continue
-            if has_surface and eov == "subSurfaceTemperature":
-                return "seaSurfaceTemperature"
-            if has_surface and eov == "subSurfaceSalinity":
-                return "seaSurfaceSalinity"
-            if has_surface and eov == "subSurfaceCurrents":
-                return "surfaceCurrents"
+            if has_surface and eov in _SURFACE_UPGRADES:
+                return _SURFACE_UPGRADES[eov]
             return eov
     return None
 
@@ -726,96 +615,6 @@ def parse_extent_to_map(extent_wkt):
             "description": {"en": ""},
         }
 
-
-# Valid CIOOS/ISO 19115 role codes (from cioos-siooc_schema.json)
-CIOOS_ROLE_CODES = {
-    "author", "custodian", "distributor", "originator", "owner",
-    "pointOfContact", "principalInvestigator", "processor", "publisher",
-    "resourceProvider", "user", "sponsor", "coAuthor", "collaborator",
-    "editor", "mediator", "rightsHolder", "contributor", "funder",
-    "stakeholder",
-}
-
-# Mapping from OBIS EML construct types to CIOOS role codes.
-# OBIS uses EML element names (creator, contact, metadataProvider, etc.)
-# as the contact "type" field. These don't exist in the ISO role codelist
-# that CIOOS uses, so we map them to the closest CIOOS equivalent.
-# See: https://manual.obis.org/eml.html
-# See: https://github.com/cioos-siooc/metadata-xml
-OBIS_TO_CIOOS_ROLE = {
-    "creator": "author",
-    "contact": "pointOfContact",
-    "metadataProvider": "custodian",
-    "metadataprovider": "custodian",
-    "associatedParty": "contributor",
-    "associatedparty": "contributor",
-    "personnel": "contributor",
-}
-
-
-# "Cover" EOVs describe a habitat-type survey (hard coral reef, seagrass
-# bed, kelp forest), not incidental by-catch. A few Anthozoa records in a
-# 500k-row bottom-trawl dataset shouldn't flag hardCoralCoverAndComposition.
-# We require the contributing class to account for at least this fraction
-# of the dataset's records before emitting a cover EOV.
-COVER_EOVS = {
-    "hardCoralCoverAndComposition",
-    "seagrassCoverAndComposition",
-    "macroalgalCanopyCoverAndComposition",
-}
-COVER_EOV_MIN_FRACTION = 0.05
-
-# "Core" zooplankton classes — planktonic crustaceans, chaetognaths, and
-# pelagic tunicates. These practically never appear as trawl bycatch at
-# meaningful fractions, so their combined presence is a reliable signal
-# that a dataset is actually a zooplankton survey.
-#
-# Excluded deliberately: Scyphozoa, Hydrozoa, Tentaculata, Nuda (jellyfish
-# and ctenophores). These routinely show up at 10–20% in bottom-trawl
-# datasets as gelatinous bycatch without the dataset being a zooplankton
-# study. They still map to zooplanktonBiomassAndDiversity via
-# TAXON_CLASS_TO_EOV — but only count toward the EOV when paired with
-# a core class that clears ZOO_MIN_CORE_FRACTION.
-CORE_ZOOPLANKTON_CLASSES = {
-    "Copepoda",
-    "Hexanauplia",
-    "Maxillopoda",
-    "Branchiopoda",
-    "Ostracoda",
-    "Sagittoidea",
-    "Appendicularia",
-    "Thaliacea",
-}
-ZOO_MIN_CORE_FRACTION = 0.05
-
-# "Benthic indicator" classes — unambiguous markers of a benthic
-# invertebrate community (echinoderms, sponges, ascidians, barnacles,
-# bryozoans, sessile cnidarians, chitons, scaphopods). When a dataset is
-# already emitting zooplanktonBiomassAndDiversity, the presence of one of
-# these classes is what distinguishes "zooplankton net that also sampled
-# benthic epifauna" from "zooplankton net with larval inverts in it."
-# Without any benthic indicator, Malacostraca / Gastropoda / Polychaeta /
-# Bivalvia / Cephalopoda are more likely planktonic (krill, mysids,
-# pteropods, larval polychaetes, pelagic squid) than benthic bycatch.
-BENTHIC_INDICATOR_CLASSES = {
-    "Asteroidea",
-    "Ophiuroidea",
-    "Holothuroidea",
-    "Crinoidea",
-    "Echinoidea",
-    "Demospongiae",
-    "Calcarea",
-    "Hexactinellida",
-    "Ascidiacea",
-    "Thecostraca",
-    "Polyplacophora",
-    "Scaphopoda",
-    "Gymnolaemata",
-    "Stenolaemata",
-    "Anthozoa",
-    "Hexacorallia",
-    "Octocorallia",
-}
 
 
 def fetch_eovs_from_taxonomy(dataset_id):
@@ -1037,129 +836,11 @@ def fetch_eovs_from_measurements(dataset_id, extensions=None, sample_size=100):
 
 
 # ── Platform inference ──────────────────────────────────────────────────────
-# OBIS exposes no structured platform field; DwC samplingProtocol (free text
-# on occurrence records) is the only reliable signal. We sample occurrences,
-# match samplingProtocol against the controlled keyword table below, and emit
-# values from the CIOOS form vocabulary (cioos_metadata_conversion/resources/
-# platforms.json — mirrors cioos-siooc/metadata-entry-form/src/platforms.json).
-# Conservative on purpose: when nothing matches we emit no platform and the
-# loader sets noPlatform=True. Mixing free-text NLP with controlled-vocab
-# signals is the same trap the EOV mapping deliberately avoids (see line ~1117).
-
-_PLATFORM_RESOURCE_PATH = (
-    Path(__file__).parent.parent / "resources" / "platforms.json"
-)
-
-
-def _load_platform_vocab():
-    """Return the set of valid CIOOS platform label_en strings.
-
-    Falls back to the labels emitted by _PLATFORM_KEYWORD_TABLE if the
-    vendored vocabulary file is missing or unreadable, so importing this
-    module never hard-fails on a resource-packaging issue.
-    """
-    try:
-        with open(_PLATFORM_RESOURCE_PATH, encoding="utf-8") as f:
-            return {entry["label_en"] for entry in json.load(f)}
-    except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-        logger.warning(
-            f"Could not load platform vocabulary from "
-            f"{_PLATFORM_RESOURCE_PATH} ({e}); falling back to keyword-table "
-            f"labels. Platform validation will be limited."
-        )
-        return {label for _pattern, label in _PLATFORM_KEYWORD_TABLE}
-
-
-# Ordered keyword table. Each entry is (pattern, label_en). Patterns are
-# case-insensitive substring/word matches over samplingProtocol text. Order
-# does not matter for correctness — overlap is resolved post-match via
-# _PLATFORM_SPECIFICITY below — but specific patterns are listed first to
-# make the intent readable.
-_PLATFORM_KEYWORD_TABLE = [
-    # Moorings / floats / buoys
-    (r"\b(?:subsurface|sub-surface|bottom)\s+mooring\b", "subsurface mooring"),
-    (
-        r"\b(?:moored\s+(?:surface\s+)?buoy|surface\s+buoy|wave\s+buoy)\b",
-        "moored surface buoy",
-    ),
-    (r"\b(?:mooring|moored)\b", "mooring"),
-    (
-        r"\b(?:argo\s+float|profiling\s+float)\b",
-        "drifting subsurface profiling float",
-    ),
-    (
-        r"\b(?:drifting\s+buoy|drifter|argos\s+drifter)\b",
-        "drifting surface float",
-    ),
-    # Gliders
-    (r"\bsurface\s+glider", "surface gliders"),
-    (r"\bglider\b", "sub-surface gliders"),
-    # Submersibles
-    (
-        r"\b(?:auv|autonomous\s+underwater\s+vehicle)\b",
-        "autonomous underwater vehicle",
-    ),
-    (
-        r"\b(?:rov|remotely\s+operated\s+vehicle)\b",
-        "propelled unmanned submersible",
-    ),
-    # Vessels — specific first, generic last; specificity table strips
-    # the generic "ship" hit when a more-specific vessel label is present.
-    (
-        r"\b(?:research\s+vessel|r/v|research\s+cruise|ccgs|expedition)\b",
-        "research vessel",
-    ),
-    (r"\b(?:fishing\s+vessel|trawler|seiner)\b", "fishing vessel"),
-    (r"\b(?:vessel|ship|boat)\b", "ship"),
-    # Divers / humans in water
-    (r"\b(?:diver|scuba|snorkel|free\s+dive)\b", "diver"),
-    # Aircraft / aerial
-    (r"\b(?:drone|uav|unmanned\s+aerial)\b", "unmanned aerial vehicle"),
-    (r"\bhelicopter\b", "helicopter"),
-    (r"\b(?:aircraft|airplane|aeroplane|aerial)\b", "aeroplane"),
-    # Remote sensing
-    (r"\bsatellite\b", "satellite"),
-    # Land / coastal / seafloor
-    (
-        r"\b(?:shore|beach|intertidal|marsh|tidepool|tide\s+pool|shoreline)\b",
-        "beach/intertidal zone structure",
-    ),
-    (r"\b(?:onshore|terrestrial)\b", "land/onshore structure"),
-    (
-        r"\b(?:seafloor|seabed|benthic\s+lander|lander)\b",
-        "fixed benthic node",
-    ),
-    (
-        r"\b(?:offshore\s+platform|oil\s+platform|wind\s+farm|drilling\s+rig)\b",
-        "offshore structure",
-    ),
-    (r"\b(?:coastal\s+station|pier|wharf|jetty)\b", "coastal structure"),
-    (r"\b(?:river\s+station|stream\s+gauge)\b", "river station"),
-]
-
-_PLATFORM_KEYWORDS_COMPILED = [
-    (re.compile(pat, re.IGNORECASE), label)
-    for pat, label in _PLATFORM_KEYWORD_TABLE
-]
-
-# Loaded after _PLATFORM_KEYWORD_TABLE so the file-missing fallback in
-# _load_platform_vocab() can reference the table's labels.
-VALID_PLATFORM_LABELS = _load_platform_vocab()
-
-# When the LHS label is matched, drop any RHS labels from the result set.
-# Lets generic patterns like \bvessel\b stay in the table without producing
-# duplicate hits when a more specific phrase (e.g. "research vessel") also
-# matched. Same trick for moorings, drifters, aircraft.
-_PLATFORM_SPECIFICITY = {
-    "research vessel": {"ship"},
-    "fishing vessel": {"ship"},
-    "moored surface buoy": {"mooring"},
-    "subsurface mooring": {"mooring"},
-    "drifting subsurface profiling float": {"drifting surface float"},
-    "surface gliders": {"sub-surface gliders"},
-    "unmanned aerial vehicle": {"aeroplane"},
-    "helicopter": {"aeroplane"},
-}
+# OBIS exposes no structured platform field; DwC samplingProtocol (free text on
+# occurrence records) is the only reliable signal. We read the distinct protocol
+# strings, match them against the keyword table in obis_mapping.yaml, and emit
+# values from the CIOOS form vocabulary. Conservative on purpose: when nothing
+# matches we emit no platform and the loader sets noPlatform=True.
 
 
 def _match_platform_keywords(text):
@@ -1263,10 +944,10 @@ def map_obis_role_to_cioos(obis_role):
     Checks in order:
     1. If the role is already a valid CIOOS role code, use it as-is.
     2. If it matches a known OBIS EML construct, map it.
-    3. Otherwise fall back to 'contributor'.
+    3. Otherwise fall back to the configured default.
     """
     if not obis_role:
-        return "contributor"
+        return _ROLE_FALLBACK
 
     # Already a valid CIOOS role code (e.g. from associatedParty/role)
     if obis_role in CIOOS_ROLE_CODES:
@@ -1287,14 +968,21 @@ def map_obis_role_to_cioos(obis_role):
     if mapped:
         return mapped
 
-    logger.warning(f"Unknown OBIS role '{obis_role}', falling back to 'contributor'")
-    return "contributor"
+    logger.warning(
+        f"Unknown OBIS role '{obis_role}', falling back to '{_ROLE_FALLBACK}'"
+    )
+    return _ROLE_FALLBACK
 
 
 def convert_contacts(obis_contacts):
+    """Map OBIS contact entries to CIOOS contacts using the `contacts` section."""
     cioos_contacts = []
     if not obis_contacts:
         return cioos_contacts
+
+    spec = _MAPPING["contacts"]
+    field_map = spec["field_map"]
+    optional_field_map = spec.get("optional_field_map") or {}
 
     for contact in obis_contacts:
         given_name = contact.get("givenname", "")
@@ -1317,216 +1005,195 @@ def convert_contacts(obis_contacts):
         elif last_name:
             full_name = last_name
 
+        # Assembled in the emitted key order rather than by iterating field_map,
+        # because several downstream consumers read the record positionally when
+        # serialising it.
         cioos_contact = {
-            "givenNames": given_name,
-            "lastName": last_name,
+            field_map["givenname"]: given_name,
+            field_map["surname"]: last_name,
             "indName": full_name,
-            "indOrcid": "",
-            "inCitation": True,  # Default to true for creators/authors
+            "indOrcid": spec["constants"]["indOrcid"],
+            "inCitation": spec["constants"]["inCitation"],
             "role": [map_obis_role_to_cioos(contact.get("type", ""))],
-            "orgName": org_name,
-            "orgAddress": "",
-            "orgCity": "",
-            "orgCountry": "",
-            "orgRor": "",
-            "orgURL": contact.get("url", ""),
+            field_map["organization"]: org_name,
+            "orgAddress": spec["constants"]["orgAddress"],
+            "orgCity": spec["constants"]["orgCity"],
+            "orgCountry": spec["constants"]["orgCountry"],
+            "orgRor": spec["constants"]["orgRor"],
+            field_map["url"]: contact.get("url", ""),
         }
 
-        if contact.get("email"):
-            cioos_contact["indEmail"] = contact.get("email")
-
-        # indPosition is the field name firebase_to_cioos expects
-        if contact.get("position"):
-            cioos_contact["indPosition"] = contact.get("position")
+        # Emitted only when OBIS actually supplied them, so scrub_dict does not
+        # have to strip an empty key back out.
+        for obis_field, cioos_field in optional_field_map.items():
+            if contact.get(obis_field):
+                cioos_contact[cioos_field] = contact.get(obis_field)
 
         cioos_contacts.append(cioos_contact)
 
     return cioos_contacts
 
 
-def map_obis_to_cioos(obis_data):
-    cioos_data = {}
-    cioos_data["abstract"] = add_fr(obis_data.get("abstract", ""))
-    # Only set datasetIdentifier when the dataset has a real DOI.
-    # The metadata-xml template emits a bare cit:identifier (no mcc:authority)
-    # and the CKAN harvester defaults unqualified identifiers to doi.org,
-    # producing broken links like doi.org/<UUID> for datasets without DOIs.
-    # OBIS frequently exposes the DOI only under citation_id, so fall back to it
-    # — but only when it is itself a DOI, never a non-DOI value.
-    _doi = obis_data.get("doi") or ""
-    if not _doi:
-        _citation_id = obis_data.get("citation_id") or ""
-        if "doi.org/" in _citation_id or _citation_id.startswith("10."):
-            _doi = _citation_id
-    cioos_data["datasetIdentifier"] = _doi
-    cioos_data["title"] = add_fr(obis_data.get("title", ""))
-    cioos_data["license"] = obis_data.get("intellectualrights", "")
-    cioos_data["category"] = "dataset"
-    cioos_data["comment"] = ""
+# ── Record assembly ─────────────────────────────────────────────────────────
+# map_obis_to_cioos walks the `fields` section of obis_mapping.yaml in file
+# order — which is also the emitted key order — and dispatches each entry to
+# one of three kinds: a constant, a `source` read (optionally through a named
+# transform), or a named handler that owns some real control flow.
+#
+# The handlers below hold the conditionals, fallback chains and network calls.
+# They take their literal strings from the file's `templates` section, so the
+# file stays the single place to look for "where does this value come from"
+# without pretending to be executable logic.
 
-    # Keywords
+
+def _trim_date(value):
+    """OBIS timestamp -> `…Z`, dropping fractional seconds.
+
+    Empty in, empty out: without the guard an absent date would become the
+    literal string "Z", which survives scrub_dict and reaches the XML.
+    """
+    return value.split(".")[0] + "Z" if value else ""
+
+
+def _get_path(data, path):
+    """Read a dotted path (`feed.url`), returning None if any hop is missing."""
+    node = data
+    for key in path.split("."):
+        if not isinstance(node, dict):
+            return None
+        node = node.get(key)
+    return node
+
+
+_TRANSFORMS = {
+    "add_fr": add_fr,
+    "iso_date": _trim_date,
+}
+
+
+def _h_dataset_identifier(obis_data, spec, record):
+    """`doi`, falling back to `citation_id` only when that is itself a DOI."""
+    doi = obis_data.get("doi") or ""
+    if not doi:
+        citation_id = obis_data.get("citation_id") or ""
+        if "doi.org/" in citation_id or citation_id.startswith("10."):
+            doi = citation_id
+    return doi
+
+
+def _h_first_present(obis_data, spec, record):
+    """First non-empty of `source`, through the transform if one is named."""
+    transform = _TRANSFORMS[spec["transform"]] if spec.get("transform") else None
+    value = ""
+    for key in spec["source"]:
+        value = obis_data.get(key) or ""
+        if value:
+            break
+    return transform(value) if transform else value
+
+
+def _h_keywords(obis_data, spec, record):
+    """OBIS keywords may be dicts with a `keyword` key, or bare strings."""
     keywords = []
-    if obis_data.get("keywords"):
-        for keyword in obis_data["keywords"]:
-            if isinstance(keyword, dict):
-                keywords.append(keyword.get("keyword"))
-            elif isinstance(keyword, str):
-                keywords.append(keyword)
+    for keyword in obis_data.get(spec["source"]) or []:
+        if isinstance(keyword, dict):
+            keywords.append(keyword.get("keyword"))
+        elif isinstance(keyword, str):
+            keywords.append(keyword)
+    # OBIS only provides English keywords. Reused as the French placeholders
+    # since most are scientific terms or proper nouns that don't change.
+    return {"en": keywords, "fr": keywords}
 
-    # OBIS only provides English keywords. Use them as French placeholders
-    # since many are scientific terms or proper nouns that don't change.
-    cioos_data["keywords"] = {"en": keywords, "fr": keywords}
 
-    # Associated resources
-    associated_resources = []
+def _template_values(obis_data, entry):
+    """Resolve one template entry's `when` condition to the values it emits."""
+    when = entry["when"]
+    if when == "url":
+        return [obis_data["url"]] if obis_data.get("url") else []
+    if when == "archive_differs_from_url":
+        archive = obis_data.get("archive")
+        return [archive] if archive and archive != obis_data.get("url") else []
+    if when == "url_differs_from_archive":
+        url = obis_data.get("url")
+        return [url] if url and url != obis_data.get("archive") else []
+    if when == "archive":
+        return [obis_data["archive"]] if obis_data.get("archive") else []
+    if when == "feed_url":
+        feed_url = _get_path(obis_data, entry["source"])
+        return [feed_url] if feed_url else []
+    if when == "each_tag":
+        return list(obis_data.get(entry["source"]) or [])
+    raise _mapping_error(f"unknown template condition {when!r}")
 
-    # Primary dataset URL
-    if obis_data.get("url"):
-        associated_resources.append(
-            {
-                "association_type": "IsIdenticalTo",
-                "association_type_iso": "crossReference",
-                "authority": "URL",
-                "code": obis_data["url"],
-                "title": "Primary dataset URL",
-            }
-        )
 
-    # Archive URL
-    if obis_data.get("archive") and obis_data["archive"] != obis_data.get("url"):
-        associated_resources.append(
-            {
-                "association_type": "IsIdenticalTo",
-                "association_type_iso": "crossReference",
-                "authority": "URL",
-                "code": obis_data["archive"],
-                "title": "Dataset archive",
-            }
-        )
-
-    # Metadata feed
-    if obis_data.get("feed") and obis_data["feed"].get("url"):
-        associated_resources.append(
-            {
-                "association_type": "IsIdenticalTo",
-                "association_type_iso": "crossReference",
-                "authority": "URL",
-                "code": obis_data["feed"]["url"],
-                "title": "Metadata feed source",
-            }
-        )
-
-    # Tags (e.g., vocabulary terms)
-    if obis_data.get("tags"):
-        for tag in obis_data["tags"]:
-            associated_resources.append(
+def _h_associated_resources(obis_data, spec, record):
+    template = _MAPPING["templates"]["associated_resources"]
+    defaults = template["defaults"]
+    resources = []
+    for entry in template["entries"]:
+        for value in _template_values(obis_data, entry):
+            resources.append(
                 {
-                    "association_type": "IsDescribedBy",
-                    "association_type_iso": "crossReference",
-                    "authority": "URL",
-                    "code": tag,
-                    "title": "OBIS Dataset Type vocabulary term",
+                    "association_type": entry["association_type"],
+                    "association_type_iso": defaults["association_type_iso"],
+                    "authority": defaults["authority"],
+                    "code": value,
+                    "title": entry["title"],
                 }
             )
+    return resources
 
-    cioos_data["associated_resources"] = associated_resources
-    cioos_data["contacts"] = convert_contacts(obis_data.get("contacts"))
+
+def _h_distribution(obis_data, spec, record):
+    template = _MAPPING["templates"]["distribution"]
+    wrapped = set(template.get("add_fr_fields") or [])
+    distribution = []
+    for entry in template["entries"]:
+        for value in _template_values(obis_data, entry):
+            distribution.append(
+                {
+                    "name": add_fr(entry["name"]) if "name" in wrapped else entry["name"],
+                    "url": value,
+                    "description": (
+                        add_fr(entry["description"])
+                        if "description" in wrapped
+                        else entry["description"]
+                    ),
+                }
+            )
+    return distribution
+
+
+def _h_contacts(obis_data, spec, record):
+    contacts = convert_contacts(obis_data.get(spec["source"]))
 
     # The metadata-xml template only emits mdb:contact (required by ISO 19115-3)
     # for contacts with the "custodian" role.  When the OBIS metadataProvider
     # entry has no name/org it gets dropped by convert_contacts(), leaving no
     # custodian.  Promote the first available contact so the XML stays valid.
-    has_custodian = any(
-        "custodian" in c.get("role", []) for c in cioos_data["contacts"]
-    )
-    if not has_custodian and cioos_data["contacts"]:
-        cioos_data["contacts"][0]["role"].append("custodian")
-        logger.info(
-            "No custodian contact found; promoted first contact to custodian"
-        )
+    if _MAPPING["contacts"].get("promote_custodian"):
+        has_custodian = any("custodian" in c.get("role", []) for c in contacts)
+        if not has_custodian and contacts:
+            contacts[0]["role"].append("custodian")
+            logger.info(
+                "No custodian contact found; promoted first contact to custodian"
+            )
+    return contacts
 
-    # Dates — the metadata-xml template requires metadata.dates to survive
-    # scrub_dict (which strips empty values).  When created or published are
-    # missing we fall back to updated so at least one date is always present.
-    updated_date = obis_data.get("updated", "")
-    updated_clean = updated_date.split(".")[0] + "Z" if updated_date else ""
 
-    created_date = obis_data.get("created") or updated_date
-    if created_date:
-        cioos_data["created"] = created_date.split(".")[0] + "Z"
-    else:
-        cioos_data["created"] = ""
+def _h_extent_to_map(obis_data, spec, record):
+    return parse_extent_to_map(obis_data.get(spec["source"]))
 
-    # Temporal extent of data collection (not available in OBIS metadata)
-    cioos_data["dateStart"] = ""
-    cioos_data["dateEnd"] = ""
 
-    # Dataset publication
-    published_date = obis_data.get("published", "") or updated_date
-    if published_date:
-        cioos_data["datePublished"] = published_date.split(".")[0] + "Z"
-    else:
-        cioos_data["datePublished"] = ""
+def _h_eov_from_signals(obis_data, spec, record):
+    """Merge the taxonomy and eMoF EOV signals.
 
-    # Last revision / update
-    cioos_data["dateRevised"] = updated_clean
-
-    # Spatial extent
-    cioos_data["map"] = parse_extent_to_map(obis_data.get("extent"))
-
-    # Distribution - data access information
-    distribution = []
-    if obis_data.get("archive"):
-        distribution.append(
-            {
-                "name": add_fr("Darwin Core Archive"),
-                "url": obis_data["archive"],
-                "description": add_fr(
-                    "Download the complete Darwin Core Archive dataset"
-                ),
-            }
-        )
-    if obis_data.get("url") and obis_data.get("url") != obis_data.get("archive"):
-        distribution.append(
-            {
-                "name": add_fr("IPT Resource Page"),
-                "url": obis_data["url"],
-                "description": add_fr(
-                    "View dataset metadata and access options via the Integrated Publishing Toolkit"
-                ),
-            }
-        )
-    cioos_data["distribution"] = distribution
-
-    # Constant fields - all OBIS records are datasets
-    cioos_data["metadataScope"] = "Dataset"
-    cioos_data["resourceType"] = "Dataset"
-    cioos_data["doiCreationStatus"] = ""
-    cioos_data["edition"] = ""
-    cioos_data["filename"] = ""
-    cioos_data["identifier"] = ""
-    # noPlatform is set after platform inference below.
-    cioos_data["progress"] = ""
-    cioos_data["recordID"] = ""
-    cioos_data["status"] = ""
-    cioos_data["userID"] = ""
-    cioos_data["lastEditedBy"] = {"displayName": "", "email": ""}
-    cioos_data["language"] = "en"
-
-    # Additional CIOOS fields not available in OBIS
-    cioos_data["limitations"] = add_fr("")  # Usage limitations/constraints
-    cioos_data["noTaxa"] = True  # OBIS metadata doesn't include taxon lists
-    cioos_data["noVerticalExtent"] = True  # Vertical extent not in OBIS metadata
-    cioos_data["verticalExtentDirection"] = ""  # e.g., "depthPositive"
-    cioos_data["timeFirstPublished"] = cioos_data[
-        "datePublished"
-    ]  # Use same as datePublished
-    # Derive EOVs from OBIS taxonomy (biology) and eMoF measurements
-    # (physical/biogeochemical). Both paths use controlled-vocabulary
-    # signals only — taxonomy class names and eMoF P01 codes / parameter
-    # labels. Abstract / title / keyword NLP is intentionally out of
-    # scope here; a separate AI-backed tool handles abstract-based EOV
-    # inference, and mixing the two produces inconsistent tagging.
+    Both paths use controlled-vocabulary signals only — taxonomy class names and
+    eMoF P01 codes / parameter labels.  Abstract / title / keyword NLP is
+    intentionally out of scope here; a separate AI-backed tool handles
+    abstract-based EOV inference, and mixing the two produces inconsistent
+    tagging.
+    """
     dataset_id = obis_data.get("id")
     extensions = obis_data.get("extensions") or []
     taxonomy_eovs = fetch_eovs_from_taxonomy(dataset_id)
@@ -1537,18 +1204,93 @@ def map_obis_to_cioos(obis_data):
     # we don't emit misleading pairs like ["other", "seaSurfaceTemperature"].
     if measurement_eovs:
         merged.discard("other")
-    cioos_data["eov"] = sorted(merged) if merged else ["other"]
+    return sorted(merged) if merged else ["other"]
 
-    # Infer platforms from DwC samplingProtocol on occurrence records. OBIS
-    # has no structured platform field, so a no-hit result is the common
-    # case; flip noPlatform=True so firebase_to_cioos.py:318 cleanly skips
-    # the platform path and the XML omits the section.
-    platforms = fetch_platforms_from_obis(dataset_id)
-    cioos_data["platforms"] = platforms
-    cioos_data["noPlatform"] = not platforms
 
-    cioos_data["projects"] = []  # Project information not available
-    cioos_data["region"] = ""  # Geographic region classification
+def _h_platforms(obis_data, spec, record):
+    return fetch_platforms_from_obis(obis_data.get(spec["source"]))
+
+
+def _h_no_platform(obis_data, spec, record):
+    """True when nothing matched, so firebase_to_cioos skips the platform path
+    and the XML omits the section.  Kept a real bool."""
+    return not record["platforms"]
+
+
+def _h_same_as_date_published(obis_data, spec, record):
+    return record["datePublished"]
+
+
+_HANDLERS = {
+    "dataset_identifier": _h_dataset_identifier,
+    "first_present": _h_first_present,
+    "keywords": _h_keywords,
+    "associated_resources": _h_associated_resources,
+    "distribution": _h_distribution,
+    "contacts": _h_contacts,
+    "extent_to_map": _h_extent_to_map,
+    "eov_from_signals": _h_eov_from_signals,
+    "platforms": _h_platforms,
+    "no_platform": _h_no_platform,
+    "same_as_date_published": _h_same_as_date_published,
+}
+
+
+def _validate_field_specs():
+    """Check every `fields` entry is well-formed and names something real.
+
+    Runs at import, once the registries above exist, so a renamed transform or
+    handler fails loudly at startup instead of silently emitting a wrong value.
+    """
+    for name, spec in _MAPPING["fields"].items():
+        if not isinstance(spec, dict):
+            raise _mapping_error(f"fields.{name} must be a mapping, got {spec!r}")
+        kinds = {"constant", "source", "handler"} & set(spec)
+        if not kinds:
+            raise _mapping_error(
+                f"fields.{name} needs one of constant / source / handler"
+            )
+        transform = spec.get("transform")
+        if transform is not None and transform not in _TRANSFORMS:
+            raise _mapping_error(
+                f"fields.{name} names unknown transform {transform!r}; "
+                f"known: {sorted(_TRANSFORMS)}"
+            )
+        handler = spec.get("handler")
+        if handler is not None and handler not in _HANDLERS:
+            raise _mapping_error(
+                f"fields.{name} names unknown handler {handler!r}; "
+                f"known: {sorted(_HANDLERS)}"
+            )
+
+
+_validate_field_specs()
+
+
+def map_obis_to_cioos(obis_data):
+    """Build a CIOOS (firebase-shaped) record from one OBIS dataset response.
+
+    Driven by the `fields` section of obis_mapping.yaml: that file is where the
+    provenance of every emitted key lives, and its order is the emitted key
+    order.  See the module comment above for the three entry kinds.
+    """
+    cioos_data = {}
+    for name, spec in _MAPPING["fields"].items():
+        if "handler" in spec:
+            cioos_data[name] = _HANDLERS[spec["handler"]](obis_data, spec, cioos_data)
+            continue
+
+        if "constant" in spec:
+            value = spec["constant"]
+            # Copy so a caller mutating a list/dict value can't corrupt the
+            # mapping for every subsequent record.
+            if isinstance(value, (list, dict)):
+                value = copy.deepcopy(value)
+        else:
+            value = obis_data.get(spec["source"], spec.get("default", ""))
+
+        transform = spec.get("transform")
+        cioos_data[name] = _TRANSFORMS[transform](value) if transform else value
 
     return cioos_data
 

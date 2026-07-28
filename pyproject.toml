@@ -25,6 +25,11 @@ dependencies = [
 [project.scripts]
 cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"
 
+[tool.pytest.ini_options]
+markers = [
+    "live: test reaches out to a live external API (OBIS, DataCite); not stubbed",
+]
+
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.2.2,<9",
@@ -42,9 +47,12 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["cioos_metadata_conversion"]
-# Ship the bundled JSON vocabularies as package data. `artifacts` guarantees
-# they are included even when untracked by git (e.g. platforms.json).
-artifacts = ["cioos_metadata_conversion/resources/*.json"]
+# `packages` already ships tracked non-Python files under the package directory,
+# which is what puts the resources/ vocabularies in the wheel today. `artifacts`
+# is purely additive on top of that: it force-includes files that would
+# otherwise be excluded because git IGNORES them. It never filters anything, so
+# the glob covers every extension rather than just *.json.
+artifacts = ["cioos_metadata_conversion/resources/*"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["cioos_metadata_conversion/resources/*.json"]
+artifacts = ["cioos_metadata_conversion/resources/*"]
