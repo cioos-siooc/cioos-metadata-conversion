@@ -1,9 +1,10 @@
-from cioos_metadata_conversion.record import Record, OUTPUT_FORMATS
-import pytest
-from pathlib import Path
 import os
+from pathlib import Path
 
+import pytest
 from dotenv import load_dotenv
+
+from cioos_metadata_conversion.record import OUTPUT_FORMATS, Record
 
 load_dotenv()
 LOCAL_RECORDS_PATH = os.getenv("LOCAL_RECORDS_PATH", "tests/records")

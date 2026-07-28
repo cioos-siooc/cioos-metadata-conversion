@@ -165,6 +165,47 @@ def format_taxa(taxa):
     return taxaKeywords
 
 
+def _build_spatial(record, polygon):
+    """Build the spatial section, tolerating missing map or vertical extent data."""
+    spatial = {}
+    map_data = record.get("map", {})
+    if map_data:
+        if not polygon and all(
+            map_data.get(k) is not None for k in ("west", "south", "east", "north")
+        ):
+            spatial["bbox"] = [
+                float(map_data["west"]),
+                float(map_data["south"]),
+                float(map_data["east"]),
+                float(map_data["north"]),
+            ]
+        if polygon:
+            spatial["polygon"] = fix_lat_long_polygon(polygon)
+        if map_data.get("description"):
+            spatial["description"] = map_data["description"]
+        if map_data.get("descriptionIdentifier"):
+            spatial["descriptionIdentifier"] = map_data["descriptionIdentifier"]
+
+    if record.get("noVerticalExtent"):
+        spatial["vertical"] = [0, 0]
+        spatial["vertical_positive"] = "heightPositive"
+        spatial["vertical_epsg"] = epsg.get("5829")
+    elif (
+        record.get("verticalExtentMin") is not None
+        and record.get("verticalExtentMax") is not None
+    ):
+        spatial["vertical"] = [
+            float(record["verticalExtentMin"]),
+            float(record["verticalExtentMax"]),
+        ]
+        if record.get("verticalExtentDirection"):
+            spatial["vertical_positive"] = record["verticalExtentDirection"]
+        if record.get("verticalExtentEPSG"):
+            spatial["vertical_epsg"] = epsg.get(record["verticalExtentEPSG"])
+
+    return spatial
+
+
 def record_json_to_yaml(record):
     "Generate dictinary expected by metadata-xml"
 
@@ -200,33 +241,7 @@ def record_json_to_yaml(record):
             },
             "scope": record.get("metadataScopeIso"),
         },
-        "spatial": {
-            "bbox": [
-                float(record["map"].get("west")),
-                float(record["map"].get("south")),
-                float(record["map"].get("east")),
-                float(record["map"].get("north")),
-            ]
-            if not polygon
-            else "",
-            "polygon": fix_lat_long_polygon(polygon),
-            "vertical": [
-                0
-                if record.get("noVerticalExtent")
-                else float(record.get("verticalExtentMin")),
-                0
-                if record.get("noVerticalExtent")
-                else float(record.get("verticalExtentMax")),
-            ],
-            "vertical_positive": "heightPositive"
-            if record.get("noVerticalExtent")
-            else record.get("verticalExtentDirection"),
-            "vertical_epsg": epsg.get("5829")
-            if record.get("noVerticalExtent")
-            else epsg.get(record.get("verticalExtentEPSG")),
-            "description": record["map"].get("description"),
-            "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
-        },
+        "spatial": _build_spatial(record, polygon),
         "identification": {
             "title": record.get("title"),
             "identifier": record.get("datasetIdentifier"),

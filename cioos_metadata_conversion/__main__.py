@@ -5,7 +5,7 @@ import click
 from loguru import logger
 
 from cioos_metadata_conversion import erddap
-from cioos_metadata_conversion.record import OUTPUT_FORMATS, Record, InputSchemas
+from cioos_metadata_conversion.record import OUTPUT_FORMATS, InputSchemas, Record
 
 
 def load(file: str, schema: str = "CIOOS"):

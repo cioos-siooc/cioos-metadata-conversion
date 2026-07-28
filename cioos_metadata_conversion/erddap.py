@@ -7,112 +7,37 @@ import yaml
 from loguru import logger
 from lxml import etree
 
-from cioos_metadata_conversion.cioos import (
-    get_records_from_firebase,
-    cioos_firebase_to_cioos_schema,
-)
 from cioos_metadata_conversion.utils import drop_empty_values
-
-KEYWORDS_PREFIX_MAPPING = {
-    "default": {
-        "prefix": "",
-        "label": None,
-    },
-    "eov": {
-        "prefix": "CIOOS:",
-        "label": "CIOOS Essential Ocean Variables Vocabulary",
-    },
-    "taxa": {
-        "prefix": "GBIF:",
-        "label": "GBIF Taxonomy Vocabulary",
-    },
-}
+from cioos_metadata_conversion import acdd
+from cioos_metadata_conversion.cioos import (
+    cioos_firebase_to_cioos_schema,
+    get_records_from_firebase,
+)
 
 
-def generate_dataset_xml(global_attributes: dict):
+def _generate_dataset_xml(
+    global_attributes: dict, multilingual_fields: dict = None
+) -> str:
     output = ["<addAttributes>"]
     for key, value in global_attributes.items():
         output += [f"    <att name='{key}'>{value}</att>"]
+        if multilingual_fields and key in multilingual_fields:
+            for lang, lang_value in multilingual_fields[key].items():
+                if lang_value:
+                    output += [
+                        f"    <att name='{key}' xml:lang='{lang}'>{lang_value}</att>"
+                    ]
     output += ["</addAttributes>"]
     return "\n".join(output)
 
 
-def _get_contact(contact: dict, role: str) -> dict:
-    """Generate a CFF contact from a metadata contact."""
-    if "individual" in contact:
-        attrs = {
-            f"{role}_name": contact["individual"].get("name"),
-            f"{role}_email": contact["individual"].get("email"),
-            f"{role}_orcid": contact["individual"].get("orcid"),
-            f"{role}_type": "person",
-        }
-    else:
-        attrs = {
-            f"{role}_name": contact["organization"]["name"],
-            f"{role}_email": contact["organization"].get("email"),
-            f"{role}_type": "institution",
-        }
-
-    if not contact.get("organization"):
-        logger.warning(f"No organization found for {role} contact.")
-        return attrs
-
-    return {
-        **attrs,
-        f"{role}_institution": contact["organization"].get("name"),
-        f"{role}_address": contact["organization"].get("address"),
-        f"{role}_city": contact["organization"].get("city"),
-        f"{role}_country": contact["organization"].get("country"),
-        f"{role}_url": contact["organization"].get("url"),
-        f"{role}_ror": contact["organization"].get("ror"),
-    }
-
-
-def _get_contributors(contacts: list, separator=";") -> dict:
-    """Generate a list of CFF contributors from a list of metadata contacts."""
-    return {
-        "contributor_name": separator.join(
-            [
-                (
-                    contact["individual"]["name"]
-                    if ("individual" in contact and contact["individual"].get("name"))
-                    else contact["organization"]["name"]
-                )
-                for contact in contacts
-            ]
-        ),
-        "contributor_role": separator.join(
-            [",".join(contact["roles"]) for contact in contacts]
-        ),
-    }
-
-
-@logger.catch(default={})
-def _get_platform(record):
-    if not record.get("platform"):
-        return {}
-    platform = record["platform"]
-    return {
-        "platform": platform[0]["type"],
-        "platform_vocabulary": "http://vocab.nerc.ac.uk/collection/L06/current/",
-    }
-
-
-def generate_history(record, language="en"):
-    """Generate a history string from a metadata record."""
-    history = record["metadata"].get("history")
-    if not history:
-        return None
-    if isinstance(history, dict):
-        return record["metadata"]["history"][language]
-    elif isinstance(history, list):
-        return "Metadata record history:\n" + yaml.dump(history)
-    else:
-        logger.warning("Invalid history format.")
-
-
 def global_attributes(
-    record, output="xml", language="en", metadata_link=None, **kwargs
+    record,
+    output: str = "xml",
+    language: str = "en",
+    metadata_link: str = None,
+    multilingual: str = None,
+    **kwargs,
 ) -> str:
     """Generate an ERDDAP dataset.xml global attributes from a metadata record
     which follows the ACDD 1.3 conventions.
@@ -121,111 +46,50 @@ def global_attributes(
         record (dict): A metadata record.
         output (str, optional): The output format. Defaults to "xml".
         language (str, optional): The language to use. Defaults to "en".
+        multilingual (str, optional): The method to use for multilingual fields. Defaults to None
+            - "suffix": fieldname_en, fieldname_fr
+            - "nested": fieldname: "(en) {value}; (fr) {value}"
+            - "xml": fieldname: <addAttribute xml:lang="en">{value}</addAttribute>
+            - "dict": fieldname: {"multilingual_fields": {"fieldname": {"en": value, "fr": value}}}
         **kwargs: Additional attributes to add to the global attributes.
     """
-    creator = [contact for contact in record["contact"] if "owner" in contact["roles"]]
-    publisher = [
-        contact for contact in record["contact"] if "publisher" in contact["roles"]
-    ]
-
-    if len(creator) > 1:
-        logger.warning("Multiple creators found, using the first one.")
-
-    if len(publisher) > 1:
-        logger.warning("Multiple publishers found, using the first one.")
-
-    comment = []
-    if (
-        record["metadata"]
-        .get("use_constraints", {})
-        .get("limitations", {})
-        .get(language)
-    ):
-        comment += [
-            "##Limitations:\n"
-            + record["metadata"]["use_constraints"]["limitations"][language]
-        ]
-    translation_comment = (
-        record["metadata"]
-        .get("use_constraints", {})
-        .get("limitations", {})
-        .get("translations", {})
-        .get(language)
-    )
-    if not translation_comment:
-        pass
-    elif isinstance(translation_comment, str):
-        comment += [
-            "##Translation:\n"
-            + record["metadata"]
-            .get("use_constraints", {})
-            .get("limitations", {})
-            .get("translations", {})
-            .get(language)
-        ]
-    elif isinstance(translation_comment, dict) and "message" in translation_comment:
-        comment += ["##Translation:\n" + translation_comment["message"]]
-    else:
-        logger.warning("Invalid translation comment format: {}", translation_comment)
-
-    global_attributes = {
-        "institution": (
-            creator[0].get("organization", {}).get("name") if creator else ""
-        ),
-        "title": record["identification"]["title"][language],
-        "summary": record["identification"]["abstract"][language],
-        "project": ",".join(record["identification"].get("project", [])),
-        "comment": "\n\n".join(comment),
-        "progress": record["identification"][
-            "progress_code"
-        ],  # not a standard ACDD attribute
-        "keywords": ",".join(
-            [
-                KEYWORDS_PREFIX_MAPPING.get(group, {}).get("prefix", "") + keyword
-                for group, keywords in record["identification"]["keywords"].items()
-                for keyword in keywords.get(language, [])
-                if keyword
-            ]
-        ),
-        "keywords_vocabulary": ",".join(
-            [
-                KEYWORDS_PREFIX_MAPPING[group]["prefix"]
-                + " "
-                + KEYWORDS_PREFIX_MAPPING[group]["label"]
-                for group, keywords in record["identification"]["keywords"].items()
-                if keywords.get(language)
-                and group in KEYWORDS_PREFIX_MAPPING
-                and KEYWORDS_PREFIX_MAPPING[group]["label"]
-            ]
-        ),
-        "id": record["metadata"]["identifier"],
-        "naming_authority": record["metadata"]["naming_authority"],
-        "date_modified": record["metadata"]["dates"].get("revision"),
-        "date_created": record["metadata"]["dates"].get("publication"),
-        "product_version": record["identification"].get("edition"),
-        "history": generate_history(record, language),
-        "license": record["metadata"]
-        .get("use_constraints", {})
-        .get("licence", {})
-        .get("url"),
-        **(_get_contact(creator[0], "creator") if creator else {}),
-        **(_get_contact(publisher[0], "publisher") if publisher else {}),
-        **_get_contributors(record["contact"]),
-        "doi": record["identification"].get("identifier"),
-        "metadata_link": record["identification"].get("identifier") or metadata_link,
-        "metadata_form": record["metadata"]
-        .get("maintenance_note", "")
-        .replace("Generated from ", ""),
-        **_get_platform(record),
+    global_attributes = acdd.acdd(
+        record,
+        output=output if output != "xml" else None,
+        language=language,
+        metadata_link=metadata_link,
+        multilingual=multilingual if multilingual in ["suffix", "nested"] else None,
         **kwargs,
-    }
-    # Remove empty values
+    )
     global_attributes = drop_empty_values(global_attributes)
 
-    if not output:
+    if not output or output not in ("xml", "dict"):
+        logger.debug("Returning global attributes as dict")
         return global_attributes
+
+    multilingual_fields = {}
+    if multilingual in ("xml", "dict"):
+        multilingual_fields = {
+            "title": {
+                "en": record["identification"]["title"].get("en"),
+                "fr": record["identification"]["title"].get("fr"),
+            },
+            "summary": {
+                "en": record["identification"]["abstract"].get("en"),
+                "fr": record["identification"]["abstract"].get("fr"),
+            },
+            "comment": {
+                "en": acdd.generate_comment(record, "en"),
+                "fr": acdd.generate_comment(record, "fr"),
+            },
+        }
     if output == "xml":
-        return generate_dataset_xml(global_attributes)
+        logger.debug("Generating dataset XML")
+        return _generate_dataset_xml(global_attributes, multilingual_fields)
+    else:
+        logger.debug("Returning global attributes as dict with multilingual fields")
+        global_attributes.update({"multilingual_fields": multilingual_fields})
+        return global_attributes
 
 
 @logger.catch(reraise=True)
@@ -257,27 +121,6 @@ def update_dataset_id(tree, dataset_id: str, global_attributes: dict):
     return tree
 
 
-# Function to update XML
-@logger.catch(reraise=True)
-def _update_xml(xml_file, dataset_id, updates, encoding="utf-8") -> str:
-    # Parse the XML with comments
-    tree = etree.parse(xml_file)
-    tree = update_dataset_id(tree, dataset_id, updates)
-    # Write back to the same file (or use a different file name to save a new version.
-    return etree.tostring(tree, pretty_print=True).decode(encoding)
-
-
-def _get_dataset_id_from_record(record, erddap_url):
-    return [
-        (
-            ressource["url"].split("/")[-1].replace(".html", ""),
-            global_attributes(record, output=None),
-        )
-        for ressource in record["distribution"]
-        if erddap_url in ressource["url"]
-    ]
-
-
 class ERDDAP:
     def __init__(self, path) -> None:
         self.path = path
@@ -288,18 +131,32 @@ class ERDDAP:
     def read(self):
         self.tree = etree.parse(self.path)
 
-    def tostring(self, encoding="utf-8") -> str:
+    def tostring(self, encoding="utf-8", spaces=4) -> str:
+        etree.indent(self.tree.getroot(), space=" " * spaces)
         return etree.tostring(self.tree, pretty_print=True).decode(encoding)
 
-    def save(self, output_file=None, encoding="utf-8"):
+    def save(self, output_file=None, encoding="utf-8", spaces=4):
         with open(output_file or self.path, "w") as f:
-            f.write(self.tostring(encoding))
+            f.write(self.tostring(encoding, spaces))
 
     def has_dataset_id(self, dataset_id) -> bool:
         return bool(self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']"))
 
     def update(self, dataset_id: str, global_attributes: dict):
-        # Retrive dataset
+        def _get_attribute(name: str, value: str, lang: str = None):
+            new_attribute = etree.Element("att")
+            new_attribute.text = value
+            new_attribute.attrib["name"] = name
+            new_attribute.tail = "\n"
+            if lang:
+                # Use the XML namespace for the xml:lang attribute to avoid lxml errors
+                new_attribute.set("{http://www.w3.org/XML/1998/namespace}lang", lang)
+            return new_attribute
+
+        # Remove multilingual fields from global attributes
+        multilingual_fields = global_attributes.pop("multilingual_fields", {})
+
+        # Retrieve dataset
         matching_dataset = self.tree.xpath(f"//dataset[@datasetID='{dataset_id}']")
         if not matching_dataset:
             return
@@ -318,12 +175,65 @@ class ERDDAP:
             else:
                 # Create a new attribute
                 logger.debug(f"Adding new attribute {name} with value {value}")
-                new_attribute = etree.Element("att")
-                new_attribute.text = value
-                new_attribute.attrib["name"] = name
-                dataset.find(".//addAttributes").append(new_attribute)
+                dataset.find(".//addAttributes").append(_get_attribute(name, value))
 
-        return
+            for lang, text in multilingual_fields.get(name, {}).items():
+                # Find existing multilingual attribute
+                matching_lang_attribute = dataset.xpath(
+                    f".//addAttributes/att[@name='{name}' and @xml:lang='{lang}']"
+                )
+                if matching_lang_attribute:
+                    logger.debug(
+                        f"Updating multilingual attribute {name} with lang {lang} and value {text}"
+                    )
+                    matching_lang_attribute[0].text = text
+                    continue 
+                logger.debug(
+                    f"Adding new multilingual attribute {name} with lang {lang} and value {text}"
+                )
+                if not text:
+                    continue
+                dataset.find(".//addAttributes").append(
+                    _get_attribute(name, text, lang)
+                )
+
+        # Add multilingual fields that were not added yet
+        missing_multilingual_fields = (
+            set(multilingual_fields.keys()) - global_attributes.keys()
+        )
+        if missing_multilingual_fields:
+            logger.debug(f"Processing multilingual fields for dataset {dataset_id}")
+            for name in missing_multilingual_fields:
+                for lang, lang_value in multilingual_fields[name].items():
+                    if not lang_value:
+                        continue
+                    dataset.find(".//addAttributes").append(
+                        _get_attribute(name, lang_value, lang)
+                    )
+
+        # Update the tree with the modified dataset
+        self.tree = dataset.getroottree()
+        return self
+
+
+def _get_dataset_id_from_record(record, erddap_url, multilingual: bool = True):
+    """Get the dataset ID from a metadata record.
+
+    Ignore links to subsets of datasets.
+
+    """
+    dataset_ids = [
+        ressource["url"].split("/")[-1].replace(".html", "")
+        for ressource in record["distribution"]
+        if erddap_url in ressource["url"] and "?" not in ressource["url"]
+    ]
+
+    if not dataset_ids:
+        return []
+    attrs = global_attributes(
+        record, output="dict", multilingual="dict" if multilingual else None
+    )
+    return [(dataset_id, attrs) for dataset_id in dataset_ids]
 
 
 def update_dataset_xml(
@@ -331,6 +241,8 @@ def update_dataset_xml(
     records: Union[str, list],
     erddap_url: str,
     output_dir: str = None,
+    multilingual: bool = False,
+    spaces: int = 4,
 ):
     """Update an ERDDAP dataset.xml with new global attributes."""
 
@@ -341,16 +253,21 @@ def update_dataset_xml(
             yaml.safe_load(Path(record_file).read_text())
             for record_file in record_files
         ]
+        if not records:
+            raise ValueError(f"No records found in {records}")
+        logger.info(f"Found {len(records)} records to process.")
 
     # Find dataset xml
-    erddap_files = glob(datasets_xml, recursive=True)
+    erddap_files = glob(datasets_xml)
     if not erddap_files:
         assert ValueError(f"No files found in {datasets_xml}")
 
     datasets = [
         dataset
         for record in records
-        for dataset in _get_dataset_id_from_record(record, erddap_url)
+        for dataset in _get_dataset_id_from_record(
+            record, erddap_url, multilingual=multilingual
+        )
         if dataset
     ]
     dataset_ids = [dataset_id for dataset_id, _ in datasets]
@@ -366,7 +283,7 @@ def update_dataset_xml(
                 updated += [dataset_id]
         file_output = Path(output_dir) / Path(file).name if output_dir else file
         logger.debug("Writing updated XML to {}", file_output)
-        erddap.save(file_output or file)
+        erddap.save(file_output or file, spaces=spaces)
 
     if missing_datasets := [
         dataset_id for dataset_id in dataset_ids if dataset_id not in updated
@@ -386,6 +303,14 @@ def update_dataset_xml(
 @click.option("--firebase-auth-key", "-k", help="Firebase auth key.")
 @click.option("--region", "-r", help="Region to fetch records for.")
 @click.option("--database-url", "-b", help="Firebase database URL.")
+@click.option(
+    "--multilingual",
+    "-m",
+    is_flag=True,
+    help="Enable multilingual support.",
+    default=False,
+)
+@click.option("--spaces", default=4, help="Number of spaces for indentation.")
 def update(
     datasets_xml,
     records,
@@ -395,6 +320,8 @@ def update(
     firebase_auth_key,
     region,
     database_url,
+    multilingual,
+    spaces,
 ):
     """Update ERDDAP dataset xml with metadata records."""
 
@@ -423,5 +350,13 @@ def update(
             else record
             for record in records
         ]
-
-    update_dataset_xml(datasets_xml, records, erddap_url, output_dir)
+    logger.info("Updating ERDDAP dataset xml: {}", datasets_xml)
+    logger.info("Enable multilingual support: {}", multilingual)
+    update_dataset_xml(
+        datasets_xml,
+        records,
+        erddap_url,
+        output_dir,
+        multilingual=multilingual,
+        spaces=spaces,
+    )

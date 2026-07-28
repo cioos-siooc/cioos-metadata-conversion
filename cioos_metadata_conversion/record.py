@@ -5,7 +5,14 @@ import requests
 import yaml
 from loguru import logger
 
-from cioos_metadata_conversion import cioos, citation_cff, datacite, erddap, xml, firebase_to_cioos
+from cioos_metadata_conversion import (
+    acdd,
+    citation_cff,
+    datacite,
+    erddap,
+    firebase_to_cioos,
+    xml,
+)
 
 SOURCE_FILE_EXTENSIONS = (".json", ".yaml", ".yml")
 
@@ -19,6 +26,8 @@ OUTPUT_FORMATS = {
     "iso19115-3_xml": xml.xml,
     "datacite_json": datacite.to_json,
     "datacite_xml": datacite.to_xml,
+    "acdd_json": acdd.acdd_json,
+    "acdd_yaml": acdd.acdd_yaml,
 }
 
 
