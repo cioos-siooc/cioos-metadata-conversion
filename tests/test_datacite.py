@@ -4,13 +4,21 @@ from pathlib import Path
 
 import pytest
 import requests
-from datacite import schema45
+from datacite import DataCiteRESTClient, schema45
+from deepdiff import DeepDiff
 from dotenv import load_dotenv
 
 from cioos_metadata_conversion import datacite
+from cioos_metadata_conversion.load_from import datacite as datacite_loader
 from cioos_metadata_conversion.firebase_to_cioos import record_json_to_yaml
 
 load_dotenv()
+
+
+DATACITE_CREDENTIALS_AVAILABLE = all(
+    os.getenv(var)
+    for var in ["DATACITE_ACCOUNT_ID", "DATACITE_PASSWORD", "DATACITE_PREFIX"]
+)
 
 DATACITE_API_URL = "https://api.test.datacite.org/dois"
 DATACITE_REPOSITORY_ID = os.environ.get("DATACITE_REPOSITORY_ID") or os.environ.get("DATACITE_ACCOUNT_ID")
@@ -318,6 +326,82 @@ def test_empty_firebase_record_submit_datacite_api():
     finally:
         if doi:
             _delete_datacite_draft(doi)
+
+
+@pytest.fixture
+def datacite_client():
+    """
+    Fixture to create a DataCiteRESTClient instance.
+    """
+    client = DataCiteRESTClient(
+        username=os.getenv("DATACITE_ACCOUNT_ID"),
+        password=os.getenv("DATACITE_PASSWORD"),
+        prefix=os.getenv("DATACITE_PREFIX"),
+        test_mode=True,
+    )
+    return client
+
+
+@pytest.fixture
+def doi():
+    return f"{os.getenv('DATACITE_PREFIX')}/cioos-metadata-conversion-tests"
+
+
+@pytest.mark.skipif(
+    not DATACITE_CREDENTIALS_AVAILABLE,
+    reason="Datacite credentials not available in environment variables.",
+)
+class TestDataCiteSubmission:
+    """
+    Test class for DataCite submission and deletion.
+    """
+
+    @pytest.fixture
+    def datacite_record(self, record):
+        """
+        Generate a DataCite record from the given record.
+        """
+        return datacite.generate_datacite_record(record)
+
+    def test_datacite_draft_submission(self, datacite_record, datacite_client, doi):
+        """
+        Test the submission of a record to DataCite.
+        """
+        returned_doi = datacite_client.draft_doi(datacite_record, doi=doi)
+
+        assert doi == returned_doi, "The returned DOI does not match the expected DOI."
+
+    def test_datacite_retrieval(self, datacite_client, doi, record):
+        """
+        Test the retrieval of a record from DataCite.
+        """
+        retrieved_datacite_record = datacite_client.metadata_get(doi)
+        assert (
+            retrieved_datacite_record is not None
+        ), "The DOI was not found in DataCite: {}".format(retrieved_datacite_record)
+
+        firebase_record = datacite_loader.map_datacite_to_firebase(
+            retrieved_datacite_record
+        )
+
+        diff = DeepDiff(
+            record,
+            firebase_record,
+            ignore_order=True,
+            significant_digits=5,
+        )
+        assert (
+            diff == {}
+        ), "The retrieved record does not match the original record: {}".format(diff)
+
+    @pytest.mark.dependency(depends=["TestDataCiteSubmission::test_datacite_retrieval"])
+    def test_datacite_deletion(self, datacite_client, doi):
+        """
+        Test the deletion of a record from DataCite.
+        """
+        response = datacite_client.delete_doi(doi)
+
+        assert not response, "The DOI was not successfully deleted: {}".format(response)
 
 
 @pytest.mark.integration

@@ -1,0 +1,93 @@
+oceanSurfaceStress:
+  - "Air-water exchange"
+  - "Water-air gas exchange"
+airWaterExchange:
+  - "Air-water exchange"
+  - "Water-air gas exchange"
+seaIce:
+  - "Ice"
+  - "Iceberg"
+  - "Ice island"
+  - "Ice drift"
+  - "Sea ice"
+  - "Ice thickness"
+  - "Ice pack motion"
+  - "Cryosphere"
+seaSurfaceHeight:
+seaSurfaceTemperature:
+subSurfaceTemperature:
+  - "Temperature"
+  - "CTD profiles"
+surfaceCurrents:
+subSurfaceCurrents:
+  - "Ocean currents"
+seaSurfaceSalinity:
+subSurfaceSalinity:
+  - "Salinity"
+  - "CTD profiles"
+  - "Conductivity"
+oceanSurfaceHeatFlux:
+  - "Solar radiation"
+  - "Photosynthetically available radiation (PAR)"
+  - "Radiation"
+oceanBottomPressure:
+turbulentDiapycnalFluxes:
+oxygen:
+  - "Oxygen"
+nutrients:
+  - "Nitrogen"
+  - "Nutrients"
+inorganicCarbon:
+  - "Particulate organic carbon"
+  - "Carbon fluxes"
+  - "Carbon dioxide"
+transientTracers:
+  - "Contaminants"
+  - "Bromine oxide"
+  - "Mercury"
+  - "Methylmercury"
+  - "Organophosphate flame retardants"
+  - "DDT"
+  - "PCBs"
+  - "Bioaccumulation"
+  - "Perfluoro contaminants"
+particulateMatter:
+  - "Transmittance"
+  - "Sediment fluxes"
+  - "Sediments"
+nitrousOxide:
+stableCarbonIsotopes:
+dissolvedOrganicCarbon:
+  - "Dissolved organic carbon (DOC)"
+  - "Organic carbon"
+  - "Colored dissolved organic material (CDOM)"
+phytoplanktonBiomassAndDiversity:
+  - "Chlorophyll"
+  - "Phytoplankton"
+  - "Ice algae"
+zooplanktonBiomassAndDiversity:
+  - "Zooplankton"
+  - "Megazoobenthos"
+fishAbundanceAndDistribution:
+  - "Fishes"
+  - "Arctic Cod"
+  - "Arctic cod"
+  - "Fish larvae"
+marineTurtlesBirdsMammalsAbundanceAndDistribution:
+  - "Seals"
+  - "Marine mammals"
+hardCoralCoverAndComposition:
+  - "Corals"
+seagrassCoverAndComposition:
+macroalgalCanopyCoverAndComposition:
+mangroveCoverAndComposition:
+microbeBiomassAndDiversity:
+  - "Bateria"
+invertebrateAbundanceAndDistribution:
+  - "Invertebrates"
+oceanColour:
+  - "Fluorescence"
+  - "Chlorophyll"
+oceanSound:
+marineDebris:
+  - "Plastics"

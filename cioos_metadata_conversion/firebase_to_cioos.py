@@ -87,11 +87,54 @@ def verify_translation(verified, message):
     return ""
 
 
+def _sanitize_keyword_list(keyword_list):
+    """Split and clean a list of keywords.
+
+    Handles common issues that cause CKAN tag validation failures:
+    - Keywords joined by '|', '\n', or '>' are split into separate entries.
+    - HTML entities like '&gt;' are decoded before splitting.
+    - Only characters allowed by CKAN tags are kept:
+      alphanumeric, spaces, and the symbols  - _ . , ; ' ( )
+    """
+    import html
+    import re
+
+    cleaned = []
+    for keyword in keyword_list:
+        if not isinstance(keyword, str):
+            continue
+        # Decode HTML entities (e.g. &gt; -> >)
+        keyword = html.unescape(keyword)
+        # Split on common delimiters: |, >, and newlines
+        parts = re.split(r"[|>\n]+", keyword)
+        for part in parts:
+            # Strip whitespace
+            part = part.strip()
+            # Remove characters not allowed by CKAN tag validation
+            part = re.sub(r"[^\w\s\-_.,;'()/]", "", part, flags=re.UNICODE)
+            # Collapse multiple spaces
+            part = re.sub(r"\s+", " ", part).strip()
+            if part:
+                cleaned.append(part)
+    # Deduplicate while preserving order
+    seen = set()
+    deduped = []
+    for kw in cleaned:
+        if kw not in seen:
+            seen.add(kw)
+            deduped.append(kw)
+    return deduped
+
+
 def strip_keywords(keywords):
-    """Strips whitespace from each keyword in either language"""
+    """Strips whitespace and sanitizes each keyword in either language.
+
+    Splits keywords on '|', '>', and newlines, removes characters
+    not allowed by CKAN, and deduplicates.
+    """
     stripped = {
-        "en": [keyword.strip() for keyword in keywords.get("en", [])],
-        "fr": [keyword.strip() for keyword in keywords.get("fr", [])],
+        "en": _sanitize_keyword_list(keywords.get("en", [])),
+        "fr": _sanitize_keyword_list(keywords.get("fr", [])),
     }
 
     return scrub_keys(stripped)
