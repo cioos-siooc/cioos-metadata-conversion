@@ -3,6 +3,102 @@
     "en": "Zyxwvutsrqponmi kjihgfedcba hihrwefj\n\n- [**A 600-year marine record**](https://doi.org/10.1002/jqs.3531)",
     "fr": "Abcdefghijk lmnopqrstuvwxyz kaskkf\n\n- [**A 600-year marine record**](https://doi.org/10.1002/jqs.3531)"
   },
+  "history": [
+    {
+      "additionalDocumentation": [
+        {
+          "authority": "URL",
+          "code": "https://cioos.ca",
+          "title": {
+            "en": "Some lineage docs",
+            "fr": "Quelques documents sur le lignage",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        },
+        {
+          "authority": "URL",
+          "code": "https://test.com",
+          "title": {
+            "en": "Some more lineage docs",
+            "fr": "Quelques documents supplémentaires sur le lignage",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        }
+      ],
+      "processingStep": [
+        {
+          "authority": "URL",
+          "code": "https://process.com",
+          "description": {
+            "en": "Some processing method description",
+            "fr": "Description de certaines méthodes de traitement",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          },
+          "title": {
+            "en": "Some processing method title",
+            "fr": "Titre de certaines méthodes de traitement",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        }
+      ],
+      "scope": "Dataset",
+      "source": [
+        {
+          "authority": "URL",
+          "code": "https://source.com",
+          "description": {
+            "en": "Some source docs description",
+            "fr": "Description de certains documents sources",
+            "translations": {
+              "fr": {
+                "verified": true
+              }
+            }
+          },
+          "title": {
+            "en": "Some source title",
+            "fr": "Un titre de source",
+            "translations": {
+              "fr": {
+                "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+                "verified": false
+              }
+            }
+          }
+        }
+      ],
+      "statement": {
+        "en": "Lineage Title",
+        "fr": "Titre de la lignée",
+        "translations": {
+          "fr": {
+            "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
+            "verified": false
+          }
+        }
+      }
+    }
+  ],
   "associated_resources": [
     {
       "association_type": "IsReferencedBy",
@@ -26,8 +122,8 @@
       "authority": "URL",
       "code": "https://obis.org/dataset/06704bbe-f905-4b5e-b797-a216cb791eb8",
       "title": {
-        "en": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d’importance de la rive nord de l’estuaire maritime du Saint-Laurent",
-        "fr": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d’importance de la rive nord de l’estuaire maritime du Saint-Laurent",
+        "en": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d'importance de la rive nord de l'estuaire maritime du Saint-Laurent",
+        "fr": "Baie de Mille-Vaches marsh - Characterization of important coastal habitats on the north shore of the St.Lawrence maritime Estuary | Le marais de la baie de Mille-Vaches - Caractérisation des habitats littoraux d'importance de la rive nord de l'estuaire maritime du Saint-Laurent",
         "translations": {
           "fr": {
             "message": "text translated using the Amazon translate service / texte traduit à l'aide du service de traduction Amazon",
@@ -55,16 +151,17 @@
       "orgRor": "",
       "orgURL": "https://ogsl.ca/en/home-slgo/",
       "role": [
-        "owner"
+        "owner",
+        "funder"
       ]
     },
     {
-      "givenNames": "María-Emilia",
+      "givenNames": "Alex",
       "inCitation": true,
-      "indEmail": "rodriguezcme@ogsl.com",
-      "indOrcid": "https://orcid.org/0000-0003-0067-3670",
-      "indPosition": "Intégratrice de données",
-      "lastName": "Rodríguez-Cuicas",
+      "indEmail": "contact@example.com",
+      "indOrcid": "https://orcid.org/0000-0000-0000-0000",
+      "indPosition": "Data Integrator",
+      "lastName": "Doe",
       "orgAdress": "",
       "orgCity": "Rimouski",
       "orgCountry": "Canada",
@@ -78,12 +175,12 @@
       ]
     },
     {
-      "givenNames": "Omnain",
+      "givenNames": "Jordan",
       "inCitation": true,
       "indEmail": "",
       "indOrcid": "",
       "indPosition": "",
-      "lastName": "Kutos",
+      "lastName": "Smith",
       "orgAdress": "",
       "orgCity": "Rimouski",
       "orgCountry": "Canada",
@@ -150,8 +247,8 @@
   },
   "language": "fr",
   "lastEditedBy": {
-    "displayName": "Maria-Émilia Rodriguez-Cuicas",
-    "email": "rodriguezcme@ogsl.ca"
+    "displayName": "Alex Doe",
+    "email": "contact@example.com"
   },
   "license": "CC-BY-4.0",
   "limitations": "",

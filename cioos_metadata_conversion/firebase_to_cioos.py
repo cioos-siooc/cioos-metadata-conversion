@@ -87,11 +87,54 @@ def verify_translation(verified, message):
     return ""
 
 
+def _sanitize_keyword_list(keyword_list):
+    """Split and clean a list of keywords.
+
+    Handles common issues that cause CKAN tag validation failures:
+    - Keywords joined by '|', '\n', or '>' are split into separate entries.
+    - HTML entities like '&gt;' are decoded before splitting.
+    - Only characters allowed by CKAN tags are kept:
+      alphanumeric, spaces, and the symbols  - _ . , ; ' ( )
+    """
+    import html
+    import re
+
+    cleaned = []
+    for keyword in keyword_list:
+        if not isinstance(keyword, str):
+            continue
+        # Decode HTML entities (e.g. &gt; -> >)
+        keyword = html.unescape(keyword)
+        # Split on common delimiters: |, >, and newlines
+        parts = re.split(r"[|>\n]+", keyword)
+        for part in parts:
+            # Strip whitespace
+            part = part.strip()
+            # Remove characters not allowed by CKAN tag validation
+            part = re.sub(r"[^\w\s\-_.,;'()/]", "", part, flags=re.UNICODE)
+            # Collapse multiple spaces
+            part = re.sub(r"\s+", " ", part).strip()
+            if part:
+                cleaned.append(part)
+    # Deduplicate while preserving order
+    seen = set()
+    deduped = []
+    for kw in cleaned:
+        if kw not in seen:
+            seen.add(kw)
+            deduped.append(kw)
+    return deduped
+
+
 def strip_keywords(keywords):
-    """Strips whitespace from each keyword in either language"""
+    """Strips whitespace and sanitizes each keyword in either language.
+
+    Splits keywords on '|', '>', and newlines, removes characters
+    not allowed by CKAN, and deduplicates.
+    """
     stripped = {
-        "en": [keyword.strip() for keyword in keywords.get("en", [])],
-        "fr": [keyword.strip() for keyword in keywords.get("fr", [])],
+        "en": _sanitize_keyword_list(keywords.get("en", [])),
+        "fr": _sanitize_keyword_list(keywords.get("fr", [])),
     }
 
     return scrub_keys(stripped)
@@ -117,6 +160,31 @@ def fix_lat_long_polygon(polygon):
     return " ".join(fixed)
 
 
+# Maps legacy (pre-ISO) resourceType values to valid ISO 19115
+# MD_TopicCategoryCode values.
+LEGACY_TOPIC_CATEGORY = {
+    "oceanographic": "oceans",
+    "biological": "biota",
+}
+
+
+def normalize_topic_categories(record):
+    """Map the firebase resourceType field to ISO 19115 topic categories.
+
+    Reads the `resourceType` array, falling back to the deprecated `category`
+    string field when it is absent, and normalizes legacy values to their ISO
+    equivalents. Returns an empty list when nothing is set, in which case
+    metadata-xml applies its default ("oceans").
+    """
+    values = record.get("resourceType")
+    if not values:
+        category = record.get("category")
+        values = [category] if category else []
+    if isinstance(values, str):
+        values = [values]
+    return [LEGACY_TOPIC_CATEGORY.get(value, value) for value in values if value]
+
+
 def format_taxa(taxa):
     taxaKeywords = []
     if isinstance(taxa, str):
@@ -138,6 +206,47 @@ def format_taxa(taxa):
         ).split(",")
 
     return taxaKeywords
+
+
+def _build_spatial(record, polygon):
+    """Build the spatial section, tolerating missing map or vertical extent data."""
+    spatial = {}
+    map_data = record.get("map", {})
+    if map_data:
+        if not polygon and all(
+            map_data.get(k) is not None for k in ("west", "south", "east", "north")
+        ):
+            spatial["bbox"] = [
+                float(map_data["west"]),
+                float(map_data["south"]),
+                float(map_data["east"]),
+                float(map_data["north"]),
+            ]
+        if polygon:
+            spatial["polygon"] = fix_lat_long_polygon(polygon)
+        if map_data.get("description"):
+            spatial["description"] = map_data["description"]
+        if map_data.get("descriptionIdentifier"):
+            spatial["descriptionIdentifier"] = map_data["descriptionIdentifier"]
+
+    if record.get("noVerticalExtent"):
+        spatial["vertical"] = [0, 0]
+        spatial["vertical_positive"] = "heightPositive"
+        spatial["vertical_epsg"] = epsg.get("5829")
+    elif (
+        record.get("verticalExtentMin") is not None
+        and record.get("verticalExtentMax") is not None
+    ):
+        spatial["vertical"] = [
+            float(record["verticalExtentMin"]),
+            float(record["verticalExtentMax"]),
+        ]
+        if record.get("verticalExtentDirection"):
+            spatial["vertical_positive"] = record["verticalExtentDirection"]
+        if record.get("verticalExtentEPSG"):
+            spatial["vertical_epsg"] = epsg.get(record["verticalExtentEPSG"])
+
+    return spatial
 
 
 def record_json_to_yaml(record):
@@ -173,35 +282,11 @@ def record_json_to_yaml(record):
                 "revision": record.get("created"),
                 "publication": date_from_datetime_str(record.get("timeFirstPublished")),
             },
-            "scope": record.get("metadataScopeIso"),
+            "scope": record.get("metadataScopeIso") or record.get("metadataScope"),
+            "metadataScope": record.get("metadataScope", ""),
+            "resourceType": record.get("resourceType", []),
         },
-        "spatial": {
-            "bbox": [
-                float(record["map"].get("west")),
-                float(record["map"].get("south")),
-                float(record["map"].get("east")),
-                float(record["map"].get("north")),
-            ]
-            if not polygon
-            else "",
-            "polygon": fix_lat_long_polygon(polygon),
-            "vertical": [
-                0
-                if record.get("noVerticalExtent")
-                else float(record.get("verticalExtentMin")),
-                0
-                if record.get("noVerticalExtent")
-                else float(record.get("verticalExtentMax")),
-            ],
-            "vertical_positive": "heightPositive"
-            if record.get("noVerticalExtent")
-            else record.get("verticalExtentDirection"),
-            "vertical_epsg": epsg.get("5829")
-            if record.get("noVerticalExtent")
-            else epsg.get(record.get("verticalExtentEPSG")),
-            "description": record["map"].get("description"),
-            "descriptionIdentifier": record["map"].get("descriptionIdentifier"),
-        },
+        "spatial": _build_spatial(record, polygon),
         "identification": {
             "title": record.get("title"),
             "identifier": record.get("datasetIdentifier"),
@@ -223,6 +308,7 @@ def record_json_to_yaml(record):
                     "fr": format_taxa(record.get("taxa", [])),
                 },
             },
+            "topic_category": normalize_topic_categories(record),
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
             "status": record.get("status"),

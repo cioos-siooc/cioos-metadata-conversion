@@ -51,6 +51,21 @@ To use this tool, follow these steps:
    python cioos_metadata_conversion --help
    ```
 
+## Environment Variables
+
+Copy `.env.sample` to `.env` and fill in the values:
+
+| Variable | Description |
+|---|---|
+| `LOCAL_RECORDS_PATH` | Path to local metadata records |
+| `DATACITE_ACCOUNT_ID` | DataCite repository ID for API access |
+| `DATACITE_PASSWORD` | DataCite repository password |
+| `DATACITE_PREFIX` | DataCite DOI prefix (e.g. `10.xxxxx`) |
+
+The DataCite credentials are used by integration tests to submit records to the
+[DataCite test API](https://api.test.datacite.org). You can obtain test
+credentials at <https://doi.test.datacite.org/>.
+
 ## How to Contribute
 
 We welcome contributions! If you would like to add support for more metadata standards or improve the tool, please follow these steps:
