@@ -34,3 +34,36 @@ jobs:
 
       - name: Run pytest
         run: uv run pytest
+
+      # pytest runs against an editable install, so Path(__file__) always
+      # resolves into the source tree and hatchling's file-selection rules are
+      # never exercised. Without this step a resources/ file that is missing
+      # from the wheel — because it was never git-added, or because a glob
+      # stopped matching it — passes every test and only breaks on install.
+      - name: Check bundled resources are in the wheel
+        run: |
+          uv build --wheel
+          uv run python - <<'PY'
+          import glob
+          import sys
+          import zipfile
+
+          required = [
+              "obis_mapping.yaml",
+              "eov_to_keywords.yaml",
+              "eov.json",
+              "epsg.json",
+              "licenses.json",
+              "platforms.json",
+          ]
+          wheel = sorted(glob.glob("dist/*.whl"))[-1]
+          shipped = set(zipfile.ZipFile(wheel).namelist())
+          missing = [
+              name
+              for name in required
+              if f"cioos_metadata_conversion/resources/{name}" not in shipped
+          ]
+          if missing:
+              sys.exit(f"{wheel} is missing resources: {missing}")
+          print(f"{wheel}: all {len(required)} bundled resources present")
+          PY

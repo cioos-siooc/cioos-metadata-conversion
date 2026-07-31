@@ -3,7 +3,7 @@ name = "cioos-metadata-conversion"
 version = "0.1.0"
 description = ""
 authors = [{ name = "Jessy Barrette", email = "30420025+JessyBarrette@users.noreply.github.com" }]
-requires-python = "~=3.11"
+requires-python = ">=3.10"
 readme = "README.md"
 dependencies = [
     "loguru>=0.7.2,<0.8",
@@ -12,17 +12,23 @@ dependencies = [
     "pycountry>=24.6.1,<25",
     "pyyaml>=6.0.1,<7",
     "lxml>=5.2.2,<6",
-    "metadata-xml",
+    "metadata-xml @ git+https://github.com/cioos-siooc/metadata-xml.git",
     "click>=7,<9",
     "datacite>=1.2.0",
     "python-dotenv>=1.1.0",
     "google-auth>=2.40.3",
     "google-oauth>=1.0.1",
+    "duckdb>=1.0.0",
     "deepdiff>=8.6.1",
 ]
 
 [project.scripts]
 cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"
+
+[tool.pytest.ini_options]
+markers = [
+    "live: test reaches out to a live external API (OBIS, DataCite); not stubbed",
+]
 
 [tool.uv]
 dev-dependencies = [
@@ -31,9 +37,22 @@ dev-dependencies = [
     "pytest-xdist>=3.6.1,<4",
 ]
 
-[tool.uv.sources]
-metadata-xml = { git = "https://github.com/cioos-siooc/metadata-xml.git" }
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+# Allow the metadata-xml git direct reference in project.dependencies.
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["cioos_metadata_conversion"]
+# `packages` already ships tracked non-Python files under the package directory,
+# which is what puts the resources/ vocabularies in the wheel today. `artifacts`
+# is purely additive on top of that: it force-includes files that would
+# otherwise be excluded because git IGNORES them. It never filters anything, so
+# the glob covers every extension rather than just *.json.
+artifacts = ["cioos_metadata_conversion/resources/*"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["cioos_metadata_conversion/resources/*"]

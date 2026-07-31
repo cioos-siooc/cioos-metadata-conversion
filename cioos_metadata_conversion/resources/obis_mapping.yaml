@@ -1,0 +1,835 @@
+# ══════════════════════════════════════════════════════════════════════════
+# OBIS → CIOOS metadata mapping
+#
+# Single source of truth for every value the OBIS loader emits.  Consumed by
+# cioos_metadata_conversion/load_from/obis.py.  The rule is: every VALUE lives
+# here, all CONTROL FLOW lives in obis.py.  Nothing in this file is executed;
+# it is data, and the loader validates it at import.
+#
+# Editing notes:
+#   * UTF-8. Seven measurement terms and two guard patterns contain accented
+#     characters that are load-bearing — do not let an editor re-encode or
+#     NFD-normalise them.
+#   * Regex patterns are SINGLE-QUOTED so backslashes stay literal. In a
+#     double-quoted YAML scalar "\b" silently becomes U+0008 BACKSPACE.
+#   * Duplicate keys are rejected at load; PyYAML would otherwise last-win.
+#   * Sections marked `order_sensitive: true` are matched first-hit-wins.
+#     Reordering them changes output.
+# ══════════════════════════════════════════════════════════════════════════
+version: 1
+
+# ── 1. Record fields ──────────────────────────────────────────────────────
+# One entry per key emitted by map_obis_to_cioos. The order of this section IS
+# the emitted key order (observable: record.py:23 json.dumps has no sort_keys).
+# Entry kinds:
+#   source:   read this OBIS field (a list means try each in turn)
+#   constant: emit this literal
+#   handler:  named function in obis.py owns the control flow
+# `transform` names a function in obis.py's transform registry.
+fields:
+  abstract: {source: abstract, transform: add_fr, default: ""}
+
+  # Only set when the dataset has a real DOI. citation_id is used only when
+  # it is itself a DOI ("doi.org/" in it, or the "10." prefix). The
+  # metadata-xml template emits a bare cit:identifier with no mcc:authority
+  # and the CKAN harvester defaults unqualified identifiers to doi.org, so a
+  # bare UUID would produce a broken doi.org/<UUID> link.
+  datasetIdentifier: {source: [doi, citation_id], handler: dataset_identifier}
+  title: {source: title, transform: add_fr, default: ""}
+  license: {source: intellectualrights, default: ""}
+  category: {constant: "dataset"}
+  comment: {constant: ""}
+
+  # List items may be a dict with a `keyword` key or a bare string. OBIS only
+  # provides English keywords; they are reused as the French placeholders
+  # since most are scientific terms or proper nouns that don't change.
+  keywords: {source: keywords, handler: keywords}
+  associated_resources: {handler: associated_resources, reads: templates.associated_resources}
+  contacts: {source: contacts, handler: contacts, reads: contacts}
+
+  # Falls back to `updated` so metadata.dates always survives scrub_dict,
+  # which strips empty values and would otherwise leave the XML dateless.
+  created: {source: [created, updated], transform: iso_date, handler: first_present}
+  dateStart: {constant: ""}   # temporal extent of collection: not in OBIS metadata
+  dateEnd: {constant: ""}
+  datePublished: {source: [published, updated], transform: iso_date, handler: first_present}
+  dateRevised: {source: updated, transform: iso_date}
+
+  # OBIS extent is a WKT POLYGON.
+  map: {source: extent, handler: extent_to_map}
+  distribution: {handler: distribution, reads: templates.distribution}
+  metadataScope: {constant: "Dataset"}
+  resourceType: {constant: "Dataset"}
+  doiCreationStatus: {constant: ""}
+  edition: {constant: ""}
+  filename: {constant: ""}
+  identifier: {constant: ""}
+  progress: {constant: ""}
+  recordID: {constant: ""}
+  status: {constant: ""}
+  userID: {constant: ""}
+  lastEditedBy: {constant: {displayName: "", email: ""}}
+  language: {constant: "en"}
+
+  # NOT a bare "": add_fr's French placeholder is what lets this survive
+  # scrub_dict, and firebase_to_cioos.py:206 reads it.
+  limitations: {constant: "", transform: add_fr}
+  noTaxa: {constant: true}    # OBIS metadata doesn't include taxon lists
+  noVerticalExtent: {constant: true}    # vertical extent not in OBIS metadata
+  verticalExtentDirection: {constant: ""}   # e.g. "depthPositive"
+  timeFirstPublished: {handler: same_as_date_published}
+
+  # Derived, not copied. Merges the taxonomy signal (from_taxon_class, via
+  # the facet API or the per-dataset parquet) with the eMoF signal
+  # (from_p01_code + from_measurement_text). The taxonomy "other" fallback
+  # is dropped when measurement EOVs landed, so we never emit a misleading
+  # pair like ["other", "seaSurfaceTemperature"].
+  # The gates below run in sequence and a LATER GATE CAN RETRACT an EOV an
+  # earlier one added — the benthic-indicator gate discards
+  # invertebrateAbundanceAndDistribution. See eov.gates.
+  # Abstract / title / keyword NLP is deliberately out of scope: a separate
+  # AI-backed tool handles abstract-based inference and mixing the two
+  # produces inconsistent tagging.
+  eov: {handler: eov_from_signals}
+
+  # OBIS exposes no structured platform field; DwC samplingProtocol on
+  # occurrence records is the only reliable signal, so a no-hit result is
+  # the common case.
+  platforms: {source: id, handler: platforms, reads: platforms}
+
+  # True when platforms came back empty, which makes
+  # firebase_to_cioos.py:318 skip the platform path so the XML omits the
+  # section. Must stay a real bool.
+  noPlatform: {handler: no_platform}
+  projects: {constant: []}     # project information not available from OBIS
+  region: {constant: ""}     # geographic region classification
+
+# ── 2. Literal templates for list-valued fields ───────────────────────────
+# The strings live here; the conditions are named here and implemented in
+# obis.py. Note the two shapes differ: associated_resources carries the source
+# value in `code`, while distribution carries it in `url` and add_fr-wraps its
+# LITERAL name and description.
+templates:
+  associated_resources:
+    defaults: {association_type_iso: crossReference, authority: URL}
+    entries:
+      - {when: url, source: url,
+         title: 'Primary dataset URL', association_type: IsIdenticalTo}
+      - {when: archive_differs_from_url, source: archive,
+         title: 'Dataset archive', association_type: IsIdenticalTo}
+      - {when: feed_url, source: feed.url,
+         title: 'Metadata feed source', association_type: IsIdenticalTo}
+      - {when: each_tag, source: tags,
+         title: 'OBIS Dataset Type vocabulary term', association_type: IsDescribedBy}
+  distribution:
+    add_fr_fields: [name, description]
+    entries:
+      - when: archive
+        source: archive
+        name: 'Darwin Core Archive'
+        description: 'Download the complete Darwin Core Archive dataset'
+      - when: url_differs_from_archive
+        source: url
+        name: 'IPT Resource Page'
+        description: 'View dataset metadata and access options via the Integrated Publishing Toolkit'
+
+# ── 3. Contacts ───────────────────────────────────────────────────────────
+# A contact with no givenname/surname/organization is SKIPPED: it would produce
+# empty individual/organization dicts that crash the XML template once
+# scrub_dict has removed all the empty values.
+#
+# IMPORTANT when reading `roles` below: promote_custodian appends "custodian"
+# to contacts[0].role when no contact already has it, because metadata-xml only
+# emits mdb:contact for custodians and ISO 19115-3 requires it. So a contact
+# whose OBIS type was "creator" can end up [author, custodian] — the roles
+# table alone does not predict the output.
+contacts:
+  field_map:
+    givenname: givenNames
+    surname: lastName
+    organization: orgName
+    url: orgURL
+  # Emitted only when the OBIS contact actually carries them.
+  optional_field_map:
+    email: indEmail
+    position: indPosition
+  # indName is composed from givenname + surname.
+  constants:
+    indOrcid: ""
+    inCitation: true      # default to true for creators/authors
+    orgAddress: ""
+    orgCity: ""
+    orgCountry: ""
+    orgRor: ""
+  promote_custodian: true
+
+# ── 4. EOV vocabularies ───────────────────────────────────────────────────
+# Every value here must exist in resources/eov.json (`value` field); a test
+# enforces it.
+eov:
+
+  # OBIS /v3/facet?facets=class values → CIOOS EOV. Exact-case keys, exact-key
+  # lookup, so order is irrelevant in this section.
+  from_taxon_class:
+
+    # ── Fish ──
+    Actinopterygii: fishAbundanceAndDistribution
+    Teleostei: fishAbundanceAndDistribution
+    Elasmobranchii: fishAbundanceAndDistribution
+    Chondrichthyes: fishAbundanceAndDistribution
+    Myxini: fishAbundanceAndDistribution
+    Petromyzonti: fishAbundanceAndDistribution
+    Holocephali: fishAbundanceAndDistribution
+    Chondrostei: fishAbundanceAndDistribution
+    Ichthyostraca: fishAbundanceAndDistribution
+    Holostei: fishAbundanceAndDistribution
+    Coelacanthi: fishAbundanceAndDistribution
+    Dipneusti: fishAbundanceAndDistribution
+
+    # ── Marine turtles, birds, mammals ──
+    Mammalia: marineTurtlesBirdsMammalsAbundanceAndDistribution
+    Aves: marineTurtlesBirdsMammalsAbundanceAndDistribution
+    Reptilia: marineTurtlesBirdsMammalsAbundanceAndDistribution
+
+    # ── Phytoplankton — photosynthetic algae & cyanobacteria ──
+    Bacillariophyceae: phytoplanktonBiomassAndDiversity
+    Dinophyceae: phytoplanktonBiomassAndDiversity
+    Coscinodiscophyceae: phytoplanktonBiomassAndDiversity
+    Mediophyceae: phytoplanktonBiomassAndDiversity
+    Fragilariophyceae: phytoplanktonBiomassAndDiversity
+    Cyanophyceae: phytoplanktonBiomassAndDiversity
+    Prymnesiophyceae: phytoplanktonBiomassAndDiversity
+    Coccolithophyceae: phytoplanktonBiomassAndDiversity
+    Chrysophyceae: phytoplanktonBiomassAndDiversity
+    Cryptophyceae: phytoplanktonBiomassAndDiversity
+    Prasinophyceae: phytoplanktonBiomassAndDiversity
+    Raphidophyceae: phytoplanktonBiomassAndDiversity
+    Dictyochophyceae: phytoplanktonBiomassAndDiversity
+    Euglenoidea: phytoplanktonBiomassAndDiversity
+    Euglenophyceae: phytoplanktonBiomassAndDiversity
+    Xanthophyceae: phytoplanktonBiomassAndDiversity
+    Chlorophyceae: phytoplanktonBiomassAndDiversity
+    Chlorodendrophyceae: phytoplanktonBiomassAndDiversity
+    Trebouxiophyceae: phytoplanktonBiomassAndDiversity
+    Zygnematophyceae: phytoplanktonBiomassAndDiversity
+
+    # New phytoplankton additions (from OBIS facet data)
+    Pyramimonadophyceae: phytoplanktonBiomassAndDiversity
+    Mamiellophyceae: phytoplanktonBiomassAndDiversity
+    'Cryptophyta incertae sedis': phytoplanktonBiomassAndDiversity
+    Pelagophyceae: phytoplanktonBiomassAndDiversity
+    Eustigmatophyceae: phytoplanktonBiomassAndDiversity
+    Bolidophyceae: phytoplanktonBiomassAndDiversity
+    Pavlovophyceae: phytoplanktonBiomassAndDiversity
+    Prasinodermatophyceae: phytoplanktonBiomassAndDiversity
+    Nephroselmidophyceae: phytoplanktonBiomassAndDiversity
+    Pinguiophyceae: phytoplanktonBiomassAndDiversity
+    Synurophyceae: phytoplanktonBiomassAndDiversity
+    'Haptophyta incertae sedis': phytoplanktonBiomassAndDiversity
+    'Dinoflagellata incertae sedis': phytoplanktonBiomassAndDiversity
+    Chlorarachnea: phytoplanktonBiomassAndDiversity
+    Chlorarachniophyceae: phytoplanktonBiomassAndDiversity
+    Glaucophyceae: phytoplanktonBiomassAndDiversity
+    Charophyceae: phytoplanktonBiomassAndDiversity
+
+    # ── Zooplankton — planktonic heterotrophs, ciliates, rotifers, jellyfish ──
+    Hexanauplia: zooplanktonBiomassAndDiversity
+    Copepoda: zooplanktonBiomassAndDiversity
+    Branchiopoda: zooplanktonBiomassAndDiversity
+    Ostracoda: zooplanktonBiomassAndDiversity
+    Scyphozoa: zooplanktonBiomassAndDiversity
+    Hydrozoa: zooplanktonBiomassAndDiversity
+    Appendicularia: zooplanktonBiomassAndDiversity
+    Thaliacea: zooplanktonBiomassAndDiversity
+    Sagittoidea: zooplanktonBiomassAndDiversity
+    Choanoflagellatea: zooplanktonBiomassAndDiversity
+    Oligotrichea: zooplanktonBiomassAndDiversity
+    Heterotrichea: zooplanktonBiomassAndDiversity
+    Prostomatea: zooplanktonBiomassAndDiversity
+    Oligohymenophorea: zooplanktonBiomassAndDiversity
+    Globothalamea: zooplanktonBiomassAndDiversity
+    Tubothalamea: zooplanktonBiomassAndDiversity
+    Nodosariata: zooplanktonBiomassAndDiversity
+    Monothalamea: zooplanktonBiomassAndDiversity
+    Tubulinea: zooplanktonBiomassAndDiversity
+    'Foraminifera incertae sedis': zooplanktonBiomassAndDiversity
+
+    # New zooplankton additions (from OBIS facet data)
+    Polycystina: zooplanktonBiomassAndDiversity   # Radiolaria
+    Litostomatea: zooplanktonBiomassAndDiversity   # Ciliates
+    Spirotrichea: zooplanktonBiomassAndDiversity   # Ciliates (tintinnids etc.)
+    Acantharia: zooplanktonBiomassAndDiversity   # Planktonic protists
+    Eurotatoria: zooplanktonBiomassAndDiversity   # Rotifers
+    Phyllopharyngea: zooplanktonBiomassAndDiversity   # Ciliates
+    Nassophorea: zooplanktonBiomassAndDiversity   # Ciliates
+    Telonemea: zooplanktonBiomassAndDiversity   # Heterotrophic flagellates
+    Maxillopoda: zooplanktonBiomassAndDiversity   # Crustaceans (planktonic)
+    Colpodea: zooplanktonBiomassAndDiversity   # Ciliates
+    Karyorelictea: zooplanktonBiomassAndDiversity   # Ciliates
+    Nuda: zooplanktonBiomassAndDiversity   # Ctenophores (comb jellies)
+    Cubozoa: zooplanktonBiomassAndDiversity   # Box jellyfish
+    Staurozoa: zooplanktonBiomassAndDiversity   # Stalked jellyfish
+    Thecofilosea: zooplanktonBiomassAndDiversity   # Amoeboid protists (protozooplankton)
+    Discosea: zooplanktonBiomassAndDiversity   # Amoebae (protozooplankton)
+    Sarcomonadea: zooplanktonBiomassAndDiversity   # Heterotrophic flagellates
+    Plagiopylea: zooplanktonBiomassAndDiversity   # Ciliates
+    Imbricatea: zooplanktonBiomassAndDiversity   # Cercozoan protists
+
+    # ── Microbes — bacteria, archaea, fungi, parasitic & heterotrophic protists ──
+    Alphaproteobacteria: microbeBiomassAndDiversity
+    Betaproteobacteria: microbeBiomassAndDiversity
+    Gammaproteobacteria: microbeBiomassAndDiversity
+    Deltaproteobacteria: microbeBiomassAndDiversity
+    Epsilonproteobacteria: microbeBiomassAndDiversity
+    Flavobacteria: microbeBiomassAndDiversity
+    Actinobacteria: microbeBiomassAndDiversity
+    Bacilli: microbeBiomassAndDiversity
+    Bacili: microbeBiomassAndDiversity
+    Cytophagia: microbeBiomassAndDiversity
+    Sphingobacteria: microbeBiomassAndDiversity
+    'Gemmatimonadetes(class)': microbeBiomassAndDiversity
+    Aquificae: microbeBiomassAndDiversity
+    Methanomicrobia: microbeBiomassAndDiversity
+
+    # New bacteria additions
+    Verrucomicrobiae: microbeBiomassAndDiversity
+    Opitutae: microbeBiomassAndDiversity
+    Planctomycetacia: microbeBiomassAndDiversity
+    Phycisphaerae: microbeBiomassAndDiversity
+    Clostridia: microbeBiomassAndDiversity
+    Bacteroidia: microbeBiomassAndDiversity
+    Anaerolineae: microbeBiomassAndDiversity
+    Planctomycetia: microbeBiomassAndDiversity
+    Holophagae: microbeBiomassAndDiversity
+    Deinococci: microbeBiomassAndDiversity
+    Caldilineae: microbeBiomassAndDiversity
+    Negativicutes: microbeBiomassAndDiversity
+    Erysipelotrichi: microbeBiomassAndDiversity
+    Nitrospira: microbeBiomassAndDiversity
+    Zetaproteobacteria: microbeBiomassAndDiversity
+    Synergistia: microbeBiomassAndDiversity
+    Chloroflexi: microbeBiomassAndDiversity
+    Mollicutes: microbeBiomassAndDiversity
+    Chlamydiia: microbeBiomassAndDiversity
+    Fusobacteria: microbeBiomassAndDiversity
+    Acidobacteria: microbeBiomassAndDiversity
+    'Fibrobacteres(class)': microbeBiomassAndDiversity
+    'Spirochaetes(Class)': microbeBiomassAndDiversity
+    Thermomicrobia: microbeBiomassAndDiversity
+    'Bacteroidetes incertae sedis': microbeBiomassAndDiversity
+
+    # New archaea additions
+    Thermoplasmata: microbeBiomassAndDiversity
+    'Thaumarchaeota incertae sedis': microbeBiomassAndDiversity
+    Halobacteria: microbeBiomassAndDiversity
+    Thermococci: microbeBiomassAndDiversity
+    Thermoprotei: microbeBiomassAndDiversity
+    Methanobacteria: microbeBiomassAndDiversity
+    Nanoarchaeia: microbeBiomassAndDiversity
+    Archaeoglobi: microbeBiomassAndDiversity
+    Methanococci: microbeBiomassAndDiversity
+
+    # Deliberately *not* mapped to microbeBiomassAndDiversity:
+    #   - Fungal classes (Dothideomycetes, Agaricomycetes, Sordariomycetes,
+    #     Eurotiomycetes, Saccharomycetes, Lecanoromycetes, etc.). OBIS is a
+    #     biodiversity catalogue; these classes include many terrestrial
+    #     fungi (mushrooms, lichens, yeasts) that surface as incidental
+    #     shoreline records and do not indicate a microbe-focused dataset.
+    #   - Host-bound parasites (Conoidasida apicomplexans, Perkinsea mollusc
+    #     pathogens) and ambiguous heterotrophic protists (Labyrinthulea,
+    #     Kinetoplastea, Diplonemea, Peronosporea). GOOS microbe scope is
+    #     free-living marine microbes; these classes appear in occurrence
+    #     data without matching that scope and curators don't tag them.
+    #
+    # ── Macroalgae ──
+    Phaeophyceae: macroalgalCanopyCoverAndComposition
+    Florideophyceae: macroalgalCanopyCoverAndComposition
+    Ulvophyceae: macroalgalCanopyCoverAndComposition
+    Bangiophyceae: macroalgalCanopyCoverAndComposition
+    Compsopogonophyceae: macroalgalCanopyCoverAndComposition
+
+    # ── Cnidarian classes → invertebrateAbundanceAndDistribution ──
+    # GOOS hardCoralCoverAndComposition scopes reef-building Scleractinia
+    # (an *order* within Hexacorallia), not classes. Octocorallia (sea pens,
+    # gorgonians, soft corals), Hexacorallia (which also contains anemones
+    # and black corals), and the phylum-level Anthozoa all carry too much
+    # non-hard-coral content to map directly to the cover EOV. CIOOS
+    # curators reflect this — across the audit corpus, 0 datasets were
+    # hand-tagged with hardCoralCoverAndComposition.
+    Anthozoa: invertebrateAbundanceAndDistribution
+    Hexacorallia: invertebrateAbundanceAndDistribution
+    Octocorallia: invertebrateAbundanceAndDistribution
+
+    # ── Invertebrates — benthic & other marine invertebrates ──
+    Gastropoda: invertebrateAbundanceAndDistribution
+    Bivalvia: invertebrateAbundanceAndDistribution
+    Cephalopoda: invertebrateAbundanceAndDistribution
+    Polychaeta: invertebrateAbundanceAndDistribution
+    Clitellata: invertebrateAbundanceAndDistribution
+    Echinoidea: invertebrateAbundanceAndDistribution
+    Asteroidea: invertebrateAbundanceAndDistribution
+    Ophiuroidea: invertebrateAbundanceAndDistribution
+    Holothuroidea: invertebrateAbundanceAndDistribution
+    Crinoidea: invertebrateAbundanceAndDistribution
+    Malacostraca: invertebrateAbundanceAndDistribution
+    Thecostraca: invertebrateAbundanceAndDistribution
+    Demospongiae: invertebrateAbundanceAndDistribution
+    Calcarea: invertebrateAbundanceAndDistribution
+    Hexactinellida: invertebrateAbundanceAndDistribution
+    Ascidiacea: invertebrateAbundanceAndDistribution
+    Tentaculata: invertebrateAbundanceAndDistribution
+    Gymnolaemata: invertebrateAbundanceAndDistribution
+    Stenolaemata: invertebrateAbundanceAndDistribution
+    Polyplacophora: invertebrateAbundanceAndDistribution
+    Scaphopoda: invertebrateAbundanceAndDistribution
+    Sipunculidea: invertebrateAbundanceAndDistribution
+    Pycnogonida: invertebrateAbundanceAndDistribution
+    Hexapoda: invertebrateAbundanceAndDistribution
+    Arachnida: invertebrateAbundanceAndDistribution
+    Turbellaria: invertebrateAbundanceAndDistribution
+    Chromadorea: invertebrateAbundanceAndDistribution
+    Monogenea: invertebrateAbundanceAndDistribution
+    Hoplonemertea: invertebrateAbundanceAndDistribution
+
+    # New invertebrate additions
+    Enoplea: invertebrateAbundanceAndDistribution   # Nematodes
+    Caudofoveata: invertebrateAbundanceAndDistribution   # Shell-less molluscs
+    Pilidiophora: invertebrateAbundanceAndDistribution   # Nemerteans (ribbon worms)
+    Palaeonemertea: invertebrateAbundanceAndDistribution   # Nemerteans
+    Leptocardii: invertebrateAbundanceAndDistribution   # Lancelets
+    Enteropneusta: invertebrateAbundanceAndDistribution   # Acorn worms
+    Merostomata: invertebrateAbundanceAndDistribution   # Horseshoe crabs
+    Solenogastres: invertebrateAbundanceAndDistribution   # Shell-less molluscs
+    Homoscleromorpha: invertebrateAbundanceAndDistribution   # Sponges
+    Trematoda: invertebrateAbundanceAndDistribution   # Flukes
+
+    # ── Seagrass ──
+    Magnoliopsida: seagrassCoverAndComposition
+    Liliopsida: seagrassCoverAndComposition
+
+    # ── Other — organisms not fitting any current GOOS EOV ──
+    Amphibia: other
+    Crocodylia: other   # Not covered by any GOOS EOV (sea turtles EOV is turtles only)
+
+  # BODC NERC P01 parameter codes → CIOOS EOV. measurementTypeID in OBIS eMoF
+  # is typically a URI like
+  # http://vocab.nerc.ac.uk/collection/P01/current/TEMPPR01/ — the 8-char tail
+  # is what we match on. Keys are 8-char UPPERCASE; a test enforces it.
+  # Reference: https://vocab.nerc.ac.uk/collection/P01/current/
+  from_p01_code:
+
+    # Temperature
+    TEMPPR01: subSurfaceTemperature   # Sea water temperature (CTD)
+    TEMPST01: seaSurfaceTemperature   # Sea surface temperature
+    TEMPET01: subSurfaceTemperature   # Temperature of water by electronic thermometer
+
+    # Salinity
+    PSALST01: seaSurfaceSalinity   # Practical salinity at surface
+    PSALPR01: subSurfaceSalinity   # Practical salinity (CTD)
+    PSLTZZ01: subSurfaceSalinity   # Practical salinity of water body
+
+    # Oxygen
+    DOXYZZXX: oxygen
+    DOXMZZXX: oxygen
+    OXYSZZ01: oxygen
+
+    # Nutrients
+    NTRAZZXX: nutrients   # Nitrate
+    NTRIZZXX: nutrients   # Nitrite
+    NTRZAAZX: nutrients   # Nitrate+nitrite
+    AMONAAZX: nutrients   # Ammonium
+    PHOSZZXX: nutrients   # Phosphate
+    SLCAAAZX: nutrients   # Silicate
+
+    # Inorganic carbon chemistry
+    PHXXZZXX: inorganicCarbon   # pH
+    PCO2XXXX: inorganicCarbon   # pCO2
+    ALKYAAZX: inorganicCarbon   # Total alkalinity
+    TCO2AAZX: inorganicCarbon   # Dissolved inorganic carbon
+
+    # Organic carbon
+    CORGZZZX: dissolvedOrganicCarbon
+    CORGPM01: particulateMatter   # Particulate organic carbon
+
+    # Chlorophyll → ocean colour proxy (no separate chlorophyll EOV)
+    CPHLZZXX: oceanColour
+    CPHLPR01: oceanColour
+    CPHLMOD2: oceanColour   # Chlorophyll fluorescence (modelled)
+
+    # Turbidity / suspended matter
+    TURBXXXX: particulateMatter
+    TSEDZZ01: particulateMatter
+
+    # Wind P01 codes (EWSBZZ01 wind speed, EWDAZZ01 wind direction) are
+    # deliberately *not* mapped to oceanSurfaceStress. Wind is an input to
+    # the stress product (τ = ρ·Cd·|U|·U), not the EOV itself, and zero
+    # curators tagged oceanSurfaceStress across the audit corpus even on
+    # datasets where the codes could apply. If a platform publishes a
+    # derived stress parameter directly, add that P01 code here.
+    #
+    # Sea state — Beaufort wind force is the classic sea-state proxy
+    WMOCWFBF: seaState   # Beaufort wind force
+    WMOCSSXX: seaState   # Beaufort wind force / sea state
+
+    # Sea surface height — tide-gauge / bottom-pressure surface-elevation codes.
+    ASLVZZ01: seaSurfaceHeight   # Surface elevation, unspecified datum
+    ASLVTD01: seaSurfaceHeight   # Surface elevation by fixed in-situ pressure sensor
+
+  # Fallback matching on free-text measurementType, used when measurementTypeID
+  # is blank (common in older OBIS records).
+  #
+  # ORDER IS SEMANTIC. obis.py scans this list top-to-bottom and returns on the
+  # first word-boundary match, so specific phrases must precede broader ones.
+  # Regrouping by target EOV breaks it: particulateMatter occupies two
+  # non-contiguous runs separated by chlorophyll, so grouping would flip
+  # "Chlorophyll a in suspended particulate matter" to particulateMatter.
+  #
+  # `term` is PLAIN LOWER-CASE TEXT, not a regex: the loader re.escape()s it and
+  # wraps it in \b…\b. A backslash or metacharacter here is a load-time error.
+  order_sensitive: true
+  from_measurement_text:
+
+    # Temperature / salinity — surface vs subsurface disambiguation is applied
+    # by the surface_upgrades table below.
+    # French variants included: many DFO Quebec / St. Lawrence OBIS datasets
+    # ship eMoF with French-only or bilingual "label | label" measurementType
+    # strings and no P01 ID. The atmospheric guard in _map_measurement_pair
+    # keeps "Température atmosphérique" from matching.
+    # ASCII snake_case variants (`temp_eau`, `salinite_psu`) appear in some
+    # Comité ZIP Rive Nord de l'Estuaire datasets; underscore is a word
+    # character, so regex word boundaries don't let "temperature"/"salinity"
+    # bleed into these — they need explicit terms.
+    - {term: 'temperature', eov: subSurfaceTemperature}
+    - {term: 'température', eov: subSurfaceTemperature}
+    - {term: 'temp_eau', eov: subSurfaceTemperature}
+    - {term: 'salinity', eov: subSurfaceSalinity}
+    - {term: 'salinité', eov: subSurfaceSalinity}
+    - {term: 'salinite_psu', eov: subSurfaceSalinity}
+
+    # Oxygen
+    - {term: 'dissolved oxygen', eov: oxygen}
+    - {term: 'oxygène dissous', eov: oxygen}
+    - {term: 'oxygen', eov: oxygen}
+    - {term: 'oxygène', eov: oxygen}
+
+    # Nutrients
+    - {term: 'nitrate', eov: nutrients}
+    - {term: 'nitrite', eov: nutrients}
+    - {term: 'ammonium', eov: nutrients}
+    - {term: 'phosphate', eov: nutrients}
+    - {term: 'silicate', eov: nutrients}
+    - {term: 'total nitrogen', eov: nutrients}
+    - {term: 'total phosphorus', eov: nutrients}
+
+    # Inorganic carbon chemistry. A lone pH doesn't emit inorganicCarbon at
+    # the dataset level — see the carbonate-system aggregation in
+    # fetch_eovs_from_measurements. pH still maps here so it contributes
+    # when paired with a "strong" carbonate parameter.
+    - {term: 'ph', eov: inorganicCarbon}
+    - {term: 'pco2', eov: inorganicCarbon}
+    - {term: 'alkalinity', eov: inorganicCarbon}
+    - {term: 'alcalinité', eov: inorganicCarbon}
+    - {term: 'dic', eov: inorganicCarbon}
+
+    # Organic carbon
+    - {term: 'dissolved organic carbon', eov: dissolvedOrganicCarbon}
+    - {term: 'doc', eov: dissolvedOrganicCarbon}
+    - {term: 'particulate organic carbon', eov: particulateMatter}
+    - {term: 'poc', eov: particulateMatter}
+
+    # Chlorophyll / ocean colour
+    - {term: 'chlorophyll', eov: oceanColour}
+
+    # Particulates / turbidity
+    - {term: 'turbidity', eov: particulateMatter}
+    - {term: 'suspended', eov: particulateMatter}
+
+    # Currents — default subsurface; the surface_upgrades table below
+    # promotes a hit to surfaceCurrents when the text says "surface".
+    - {term: 'current velocity', eov: subSurfaceCurrents}
+    - {term: 'current speed', eov: subSurfaceCurrents}
+    - {term: 'current direction', eov: subSurfaceCurrents}
+    - {term: 'current strength', eov: subSurfaceCurrents}
+    - {term: 'tidal current', eov: surfaceCurrents}
+
+    # Sea state — GOOS scope is wave height, period, direction, steepness.
+    # Bare "Beaufort" / "wind" free-text is deliberately *not* mapped: OBIS
+    # eMoF "Beaufort Scale" / "Vent (Beaufort)" / "Wind speed" labels are
+    # usually ancillary wind observations recorded at biological sampling
+    # stations, not wave/stress measurements, and curator tagging is
+    # inconsistent when these are the only signal. The WMOCWFBF / WMOCSSXX
+    # codes remain mapped under from_p01_code as authoritative seaState
+    # signals. (EWSBZZ01 / EWDAZZ01 are NOT mapped — see the wind note
+    # there. The previous wording here claimed they were; it was wrong.)
+    - {term: 'sea state', eov: seaState}
+    - {term: 'wave height', eov: seaState}
+    - {term: 'wave observation', eov: seaState}
+    - {term: 'wave exposure', eov: seaState}
+
+    # Sea surface height — tide-gauge-style numeric height above datum. Phase
+    # labels ("tide level", "tide stage", "stade de la marée") are categorical
+    # ebb/flood markers, not heights, and are deliberately not mapped.
+    - {term: 'tide height', eov: seaSurfaceHeight}
+    - {term: 'hauteur de la marée', eov: seaSurfaceHeight}   # French, DFO-Quebec
+    - {term: 'water level', eov: seaSurfaceHeight}
+    - {term: 'niveau d''eau', eov: seaSurfaceHeight}
+    - {term: 'sea level', eov: seaSurfaceHeight}
+
+    # Sea ice
+    - {term: 'sea ice', eov: seaIce}
+    - {term: 'ice cover', eov: seaIce}
+    - {term: 'ice observation', eov: seaIce}
+
+    # Ocean sound — acoustic detection / hydrophone data
+    - {term: 'hydrophone', eov: oceanSound}
+    - {term: 'acoustic detection', eov: oceanSound}
+    - {term: 'vocalization', eov: oceanSound}
+    - {term: 'call detected', eov: oceanSound}
+
+    # Marine debris
+    - {term: 'marine debris', eov: marineDebris}
+    - {term: 'microplastic', eov: marineDebris}
+    - {term: 'plastic debris', eov: marineDebris}
+
+    # Stable carbon isotopes
+    - {term: 'delta 13c', eov: stableCarbonIsotopes}
+    - {term: 'delta13c', eov: stableCarbonIsotopes}
+    - {term: 'd13c', eov: stableCarbonIsotopes}
+    - {term: 'δ13c', eov: stableCarbonIsotopes}
+
+    # Nitrous oxide
+    - {term: 'nitrous oxide', eov: nitrousOxide}
+    - {term: 'n2o', eov: nitrousOxide}
+
+    # Transient tracers
+    - {term: 'cfc-11', eov: transientTracers}
+    - {term: 'cfc-12', eov: transientTracers}
+    - {term: 'sf6', eov: transientTracers}
+    - {term: 'tritium', eov: transientTracers}
+
+  # Suppression guards and the surface-variant upgrade. Patterns are
+  # SINGLE-QUOTED; `flags` is explicit and defaults to none, so an omission
+  # fails closed rather than silently widening a match.
+  guards:
+    # Air/atmospheric temperature has no CIOOS EOV. Without this guard
+    # "Température atmosphérique" matches "température" and emits
+    # subSurfaceTemperature. Note obis.py skips the hit and KEEPS SCANNING, so
+    # "Air temperature and salinity" still yields subSurfaceSalinity.
+    atmospheric:
+      pattern: '\b(air|atmospheric|atmosph[eé]rique)\b'
+      flags: [IGNORECASE]
+      suppresses: [seaSurfaceTemperature, subSurfaceTemperature]
+
+    # "Per cell" labels are flow-cytometry phytoplankton carbon metrics, not
+    # bulk water-column particulates. These should inform phytoplankton biomass
+    # (captured via taxonomy classes) rather than emit particulateMatter.
+    per_cell:
+      pattern: '\bper\s+cell\b'
+      flags: [IGNORECASE]   # matched against RAW un-lowered text
+      p01_codes: [MAOCCB11]   # organic carbon content per cell
+
+    # inorganicCarbon needs more than a lone pH at the dataset level. GOOS
+    # defines the EOV as the ocean carbonate system (pH, total alkalinity, DIC,
+    # pCO2); CIOOS curators in practice only tag it when a non-pH carbonate
+    # parameter is present, treating pH alone as incidental water quality.
+    strong_inorganic_carbon:
+      pattern: '\b(alkalinity|alcalinit[eé]|dic|pco2|pco₂)\b'
+      flags: [IGNORECASE]   # matched against RAW un-lowered text
+      p01_codes: [ALKYAAZX, PCO2XXXX, TCO2AAZX]
+
+    # Applied when the free text says "surface": promotes the default
+    # subsurface mapping. Replaces three mutually-exclusive ifs in obis.py.
+    surface_upgrades:
+      subSurfaceTemperature: seaSurfaceTemperature
+      subSurfaceSalinity: seaSurfaceSalinity
+      subSurfaceCurrents: surfaceCurrents
+
+    # _P01_CODE_RE stays in obis.py: it is a URI parser rather than a mapping,
+    # and it is deliberately upper-case-only with NO flags.
+
+  # False-positive gates, all derived from the 57-dataset audit corpus
+  # (see HANDOFF_eov_comparison.md). Applied in fetch_eovs_from_taxonomy IN
+  # THIS ORDER: cover fraction per class, then the zooplankton core gate, then
+  # the benthic-indicator gate — which can RETRACT invertebrate.
+  gates:
+    # "Cover" EOVs describe a habitat-type survey (hard coral reef, seagrass
+    # bed, kelp forest), not incidental bycatch. A few Anthozoa records in a
+    # 500k-row bottom-trawl dataset shouldn't flag a cover EOV, so the
+    # contributing class must account for at least this fraction of records.
+    cover:
+      min_fraction: 0.05
+      # hardCoralCoverAndComposition is currently unreachable — no taxon class
+      # maps to it (see the cnidarian note above). Kept deliberately so the
+      # threshold still applies if a class is ever added; do not prune.
+      eovs:
+        - hardCoralCoverAndComposition
+        - macroalgalCanopyCoverAndComposition
+        - seagrassCoverAndComposition
+
+    # "Core" zooplankton classes — planktonic crustaceans, chaetognaths and
+    # pelagic tunicates. These practically never appear as trawl bycatch at
+    # meaningful fractions, so their combined presence is a reliable signal
+    # that a dataset really is a zooplankton survey.
+    #
+    # Excluded deliberately: Scyphozoa, Hydrozoa, Tentaculata, Nuda (jellyfish
+    # and ctenophores). These routinely show up at 10–20% in bottom-trawl
+    # datasets as gelatinous bycatch without the dataset being a zooplankton
+    # study. They still map to zooplanktonBiomassAndDiversity via
+    # from_taxon_class, but only count toward the EOV when paired with a core
+    # class that clears min_core_fraction.
+    zooplankton:
+      min_core_fraction: 0.05   # compared with strict `<`
+      core_classes:
+        - Appendicularia
+        - Branchiopoda
+        - Copepoda
+        - Hexanauplia
+        - Maxillopoda
+        - Ostracoda
+        - Sagittoidea
+        - Thaliacea
+
+    # "Benthic indicator" classes — unambiguous markers of a benthic
+    # invertebrate community (echinoderms, sponges, ascidians, barnacles,
+    # bryozoans, sessile cnidarians, chitons, scaphopods). When a dataset is
+    # already emitting zooplanktonBiomassAndDiversity, one of these is what
+    # distinguishes "zooplankton net that also sampled benthic epifauna" from
+    # "zooplankton net with larval inverts in it". Without any benthic
+    # indicator, Malacostraca / Gastropoda / Polychaeta / Bivalvia /
+    # Cephalopoda are more likely planktonic (krill, mysids, pteropods, larval
+    # polychaetes, pelagic squid) than benthic bycatch.
+    benthic_indicator_classes:
+      - Anthozoa
+      - Ascidiacea
+      - Asteroidea
+      - Calcarea
+      - Crinoidea
+      - Demospongiae
+      - Echinoidea
+      - Gymnolaemata
+      - Hexacorallia
+      - Hexactinellida
+      - Holothuroidea
+      - Octocorallia
+      - Ophiuroidea
+      - Polyplacophora
+      - Scaphopoda
+      - Stenolaemata
+      - Thecostraca
+
+# ── 5. Platform inference ─────────────────────────────────────────────────
+# OBIS exposes no structured platform field; DwC samplingProtocol (free text on
+# occurrence records) is the only reliable signal. We read the distinct protocol
+# strings, match them against the table below, and emit values from the CIOOS
+# form vocabulary. Conservative on purpose: no match means no platform and
+# noPlatform=True. Mixing free-text NLP with controlled-vocab signals is the
+# same trap the EOV mapping avoids.
+platforms:
+  # Labels are validated against resources/platforms.json `label_en`, which
+  # mirrors cioos-siooc/metadata-entry-form/src/platforms.json.
+  vocabulary_file: platforms.json
+  # ORDER IS SEMANTIC: matches are collected in table order and numbered
+  # obis-platform-1, -2, … so reordering renames the emitted platform ids.
+  # (The old comment in obis.py claimed order didn't matter. It does.)
+  # Overlap between a generic and a specific pattern is resolved by
+  # `specificity` below, which is why the generic ones can stay.
+  order_sensitive: true
+  keywords:
+
+    # Moorings / floats / buoys
+    - {pattern: '\b(?:subsurface|sub-surface|bottom)\s+mooring\b', label: 'subsurface mooring'}
+    - {pattern: '\b(?:moored\s+(?:surface\s+)?buoy|surface\s+buoy|wave\s+buoy)\b', label: 'moored surface buoy'}
+    - {pattern: '\b(?:mooring|moored)\b', label: 'mooring'}
+    - {pattern: '\b(?:argo\s+float|profiling\s+float)\b', label: 'drifting subsurface profiling float'}
+    - {pattern: '\b(?:drifting\s+buoy|drifter|argos\s+drifter)\b', label: 'drifting surface float'}
+
+    # Gliders
+    - {pattern: '\bsurface\s+glider', label: 'surface gliders'}   # no trailing \b — must also match 'gliders'
+    - {pattern: '\bglider\b', label: 'sub-surface gliders'}
+
+    # Submersibles
+    - {pattern: '\b(?:auv|autonomous\s+underwater\s+vehicle)\b', label: 'autonomous underwater vehicle'}
+    - {pattern: '\b(?:rov|remotely\s+operated\s+vehicle)\b', label: 'propelled unmanned submersible'}
+
+    # Vessels — specific first, generic last; the specificity table strips
+    # the generic "ship" hit when a more-specific vessel label is present.
+    - {pattern: '\b(?:research\s+vessel|r/v|research\s+cruise|ccgs|expedition)\b', label: 'research vessel'}
+    - {pattern: '\b(?:fishing\s+vessel|trawler|seiner)\b', label: 'fishing vessel'}
+    - {pattern: '\b(?:vessel|ship|boat)\b', label: 'ship'}
+
+    # Divers / humans in water
+    - {pattern: '\b(?:diver|scuba|snorkel|free\s+dive)\b', label: 'diver'}
+
+    # Aircraft / aerial
+    - {pattern: '\b(?:drone|uav|unmanned\s+aerial)\b', label: 'unmanned aerial vehicle'}
+    - {pattern: '\bhelicopter\b', label: 'helicopter'}
+    - {pattern: '\b(?:aircraft|airplane|aeroplane|aerial)\b', label: 'aeroplane'}
+
+    # Remote sensing
+    - {pattern: '\bsatellite\b', label: 'satellite'}
+
+    # Land / coastal / seafloor
+    - {pattern: '\b(?:shore|beach|intertidal|marsh|tidepool|tide\s+pool|shoreline)\b', label: 'beach/intertidal zone structure'}
+    - {pattern: '\b(?:onshore|terrestrial)\b', label: 'land/onshore structure'}
+    - {pattern: '\b(?:seafloor|seabed|benthic\s+lander|lander)\b', label: 'fixed benthic node'}
+    - {pattern: '\b(?:offshore\s+platform|oil\s+platform|wind\s+farm|drilling\s+rig)\b', label: 'offshore structure'}
+    - {pattern: '\b(?:coastal\s+station|pier|wharf|jetty)\b', label: 'coastal structure'}
+    - {pattern: '\b(?:river\s+station|stream\s+gauge)\b', label: 'river station'}
+
+  # When the key label matches, drop these labels from the result set. Lets
+  # generic patterns stay in the table without producing duplicate hits when a
+  # more specific phrase also matched.
+  specificity:
+    'research vessel': ['ship']
+    'fishing vessel': ['ship']
+    'moored surface buoy': ['mooring']
+    'subsurface mooring': ['mooring']
+    'drifting subsurface profiling float': ['drifting surface float']
+    'surface gliders': ['sub-surface gliders']
+    'unmanned aerial vehicle': ['aeroplane']
+    'helicopter': ['aeroplane']
+
+# ── 6. Contact roles ──────────────────────────────────────────────────────
+# OBIS uses EML element names (creator, contact, metadataProvider, …) as the
+# contact `type`. These don't exist in the ISO role codelist CIOOS uses, so we
+# map them to the closest CIOOS equivalent.
+# See https://manual.obis.org/eml.html and
+#     https://github.com/cioos-siooc/metadata-xml
+roles:
+  # Resolution order in map_obis_to_cioos: already-valid code, then this table,
+  # then a case-insensitive retry, then the fallback.
+  fallback: contributor
+  obis_to_cioos:
+    creator: author
+    contact: pointOfContact
+    metadataProvider: custodian
+    metadataprovider: custodian
+    associatedParty: contributor
+    associatedparty: contributor
+    personnel: contributor
+
+  # Valid CIOOS / ISO 19115 role codes, from cioos-siooc_schema.json in
+  # cioos-siooc/metadata-entry-form. An OBIS type already in this list is used
+  # as-is. Case-uniqueness matters: obis.py iterates this for the
+  # case-insensitive fallback.
+  valid_cioos_codes:
+    - author
+    - coAuthor
+    - collaborator
+    - contributor
+    - custodian
+    - distributor
+    - editor
+    - funder
+    - mediator
+    - originator
+    - owner
+    - pointOfContact
+    - principalInvestigator
+    - processor
+    - publisher
+    - resourceProvider
+    - rightsHolder
+    - sponsor
+    - stakeholder
+    - user
