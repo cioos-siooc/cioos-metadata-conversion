@@ -18,7 +18,7 @@ def cioos_firebase_to_cioos_schema(record) -> dict:
     Returns:
         str: The converted record in CIOOS Schema format.
     """
-    return record_json_to_yaml.record_json_to_yaml(record)
+    return record_json_to_yaml(record)
 
 
 @logger.catch(default=[], reraise=True)

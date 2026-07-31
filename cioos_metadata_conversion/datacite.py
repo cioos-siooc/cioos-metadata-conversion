@@ -329,16 +329,72 @@ def generate_datacite_record(record) -> dict:
         "doi",
         record["identification"].get("identifier", "").replace("https://doi.org/", ""),
     )
-
-    return {
-        "titles": [
+    _add_optional(
+        "titles",
+        [
             {
                 "title": title,
                 "lang": lang,
             }
-            for lang, title in record["identification"]["title"].items()
+            for lang, title in record["identification"].get("title", {}).items()
             if lang != "translations"
         ],
+    )
+    _add_optional(
+        "descriptions",
+        [
+            {
+                "description": abstract,
+                "lang": lang,
+                "descriptionType": "Abstract",
+            }
+            for lang, abstract in record["identification"]
+            .get("abstract", {})
+            .items()
+            if lang != "translations"
+        ]
+        + [
+            {
+                "description": "limitations: " + description,
+                "lang": lang,
+                "descriptionType": "Other",
+            }
+            for lang, description in record["metadata"]
+            .get("use_constraints", {})
+            .get("limitations", {})
+            .items()
+            if lang != "translations"
+        ],
+    )
+
+    geo_locations = [
+        item
+        for item in [
+            _get_geo_polygon(record),
+            _get_geo_bounding_box(record),
+        ]
+        if item
+    ]
+    vertical = record.get("spatial", {}).get("vertical")
+    if vertical and len(vertical) == 2:
+        vertical_description = f"Vertical extent: {vertical[0]} to {vertical[1]}"
+        vertical_positive = record.get("spatial", {}).get("vertical_positive", "")
+        if vertical_positive:
+            vertical_description += f" ({vertical_positive})"
+        _add_optional(
+            "descriptions",
+            optional_fields.get("descriptions", [])
+            + [
+                {
+                    "description": vertical_description,
+                    "descriptionType": "Other",
+                    "lang": "en",
+                }
+            ],
+        )
+    _add_optional("geoLocations", geo_locations)
+
+    return {
         **optional_fields,
         "creators": _get_creators(record),
         "publisher": _get_publisher(record),
@@ -378,35 +434,6 @@ def generate_datacite_record(record) -> dict:
         # "formats": [],
         "version": record["identification"].get("edition", ""),
         "rightsList": [_get_right_lists(record)],
-        "descriptions": [
-            {
-                "description": abstract,
-                "lang": lang,
-                "descriptionType": "Abstract",
-            }
-            for lang, abstract in record["identification"]["abstract"].items()
-            if lang != "translations"
-        ]
-        + [
-            {
-                "description": "limitations: " + description,
-                "lang": lang,
-                "descriptionType": "Other",
-            }
-            for lang, description in record["metadata"]
-            .get("use_constraints", {})
-            .get("limitations", {})
-            .items()
-            if lang != "translations"
-        ],
-        "geoLocations": [
-            item
-            for item in [
-                _get_geo_polygon(record),
-                _get_geo_bounding_box(record),
-            ]
-            if item
-        ],
         **_get_funding_references(record),
         **_get_related_items(record),
         "schemaVersion": "http://datacite.org/schema/kernel-4",

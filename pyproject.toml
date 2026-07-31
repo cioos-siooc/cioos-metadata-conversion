@@ -28,6 +28,7 @@ cioos_metadata_conversion = "cioos_metadata_conversion.__main__:cli"
 [tool.pytest.ini_options]
 markers = [
     "live: test reaches out to a live external API (OBIS, DataCite); not stubbed",
+    "integration: tests that call external APIs (DataCite test API)",
 ]
 
 [tool.uv]

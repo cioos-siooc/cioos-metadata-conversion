@@ -97,7 +97,7 @@ def generate_history(record, language="en"):
         logger.warning("Invalid history format.")
 
 
-def generate_comment(record, language="en"):
+def generate_comment(record, language="en") -> str:
     """Generate a comment string from a metadata record."""
     comments = []
     if (
@@ -272,6 +272,7 @@ def acdd(
 def acdd_json(record, **kwargs) -> str:
     """Generate an ACDD global attributes JSON string from a metadata record."""
     return acdd(record, output="json", **kwargs)
+
 
 def acdd_yaml(record, **kwargs) -> str:
     """Generate an ACDD global attributes YAML string from a metadata record."""

@@ -160,6 +160,31 @@ def fix_lat_long_polygon(polygon):
     return " ".join(fixed)
 
 
+# Maps legacy (pre-ISO) resourceType values to valid ISO 19115
+# MD_TopicCategoryCode values.
+LEGACY_TOPIC_CATEGORY = {
+    "oceanographic": "oceans",
+    "biological": "biota",
+}
+
+
+def normalize_topic_categories(record):
+    """Map the firebase resourceType field to ISO 19115 topic categories.
+
+    Reads the `resourceType` array, falling back to the deprecated `category`
+    string field when it is absent, and normalizes legacy values to their ISO
+    equivalents. Returns an empty list when nothing is set, in which case
+    metadata-xml applies its default ("oceans").
+    """
+    values = record.get("resourceType")
+    if not values:
+        category = record.get("category")
+        values = [category] if category else []
+    if isinstance(values, str):
+        values = [values]
+    return [LEGACY_TOPIC_CATEGORY.get(value, value) for value in values if value]
+
+
 def format_taxa(taxa):
     taxaKeywords = []
     if isinstance(taxa, str):
@@ -181,6 +206,47 @@ def format_taxa(taxa):
         ).split(",")
 
     return taxaKeywords
+
+
+def _build_spatial(record, polygon):
+    """Build the spatial section, tolerating missing map or vertical extent data."""
+    spatial = {}
+    map_data = record.get("map", {})
+    if map_data:
+        if not polygon and all(
+            map_data.get(k) is not None for k in ("west", "south", "east", "north")
+        ):
+            spatial["bbox"] = [
+                float(map_data["west"]),
+                float(map_data["south"]),
+                float(map_data["east"]),
+                float(map_data["north"]),
+            ]
+        if polygon:
+            spatial["polygon"] = fix_lat_long_polygon(polygon)
+        if map_data.get("description"):
+            spatial["description"] = map_data["description"]
+        if map_data.get("descriptionIdentifier"):
+            spatial["descriptionIdentifier"] = map_data["descriptionIdentifier"]
+
+    if record.get("noVerticalExtent"):
+        spatial["vertical"] = [0, 0]
+        spatial["vertical_positive"] = "heightPositive"
+        spatial["vertical_epsg"] = epsg.get("5829")
+    elif (
+        record.get("verticalExtentMin") is not None
+        and record.get("verticalExtentMax") is not None
+    ):
+        spatial["vertical"] = [
+            float(record["verticalExtentMin"]),
+            float(record["verticalExtentMax"]),
+        ]
+        if record.get("verticalExtentDirection"):
+            spatial["vertical_positive"] = record["verticalExtentDirection"]
+        if record.get("verticalExtentEPSG"):
+            spatial["vertical_epsg"] = epsg.get(record["verticalExtentEPSG"])
+
+    return spatial
 
 
 def record_json_to_yaml(record):
@@ -218,33 +284,7 @@ def record_json_to_yaml(record):
             },
             "scope": record.get("metadataScopeIso"),
         },
-        "spatial": {
-            "bbox": [
-                float(record.get("map", {}).get("west", 0)),
-                float(record.get("map", {}).get("south", 0)),
-                float(record.get("map", {}).get("east", 0)),
-                float(record.get("map", {}).get("north", 0)),
-            ]
-            if not polygon
-            else "",
-            "polygon": fix_lat_long_polygon(polygon),
-            "vertical": [
-                0
-                if record.get("noVerticalExtent") or not record.get("verticalExtentMin")
-                else float(record.get("verticalExtentMin")),
-                0
-                if record.get("noVerticalExtent") or not record.get("verticalExtentMax")
-                else float(record.get("verticalExtentMax")),
-            ],
-            "vertical_positive": "heightPositive"
-            if record.get("noVerticalExtent")
-            else record.get("verticalExtentDirection"),
-            "vertical_epsg": epsg.get("5829")
-            if record.get("noVerticalExtent")
-            else epsg.get(record.get("verticalExtentEPSG")),
-            "description": record.get("map", {}).get("description"),
-            "descriptionIdentifier": record.get("map", {}).get("descriptionIdentifier"),
-        },
+        "spatial": _build_spatial(record, polygon),
         "identification": {
             "title": record.get("title"),
             "identifier": record.get("datasetIdentifier"),
@@ -266,6 +306,7 @@ def record_json_to_yaml(record):
                     "fr": format_taxa(record.get("taxa", [])),
                 },
             },
+            "topic_category": normalize_topic_categories(record),
             "temporal_begin": record.get("dateStart"),
             "temporal_end": record.get("dateEnd"),
             "status": record.get("status"),

@@ -1,12 +1,12 @@
 contact:
 - inCitation: true
   organization:
-    address: 1713 Hyacinthe Bay Road
-    city: Heriot Bay
+    address: 123 Marine Drive
+    city: Sampleville
     country: Canada
-    email: data@hakai.org
-    name: Hakai Institute
-    url: hakai.org
+    email: data@example.org
+    name: Ocean Science Institute
+    url: example.org
   roles:
   - distributor
   - owner
@@ -14,48 +14,48 @@ contact:
   - publisher
 - inCitation: false
   individual:
-    email: something@google.com
-    name: lastname, firstname
+    email: contact@example.com
+    name: Doe, Jane
     orcid: https://orcid.org/0000-0000-0000-0000
     position: Test position
   organization:
-    address: 1713 Hyacinthe Bay Road
-    city: Campbell River
+    address: 123 Marine Drive
+    city: Sampleville
     country: Canada
-    email: data@hakai.org
-    name: Hakai Institute
-    ror: https://ror.org/02pry0c91
-    url: https://www.hakai.org/
+    email: data@example.org
+    name: Ocean Science Institute
+    ror: https://ror.org/00example1
+    url: https://www.example.org/
   roles:
   - custodian
   - pointOfContact
   - processor
 - inCitation: false
   individual:
-    name: asd, as
+    name: Smith, John
   organization:
-    city: Campbell River
+    city: Sampleville
     country: Canada
-    name: Hakai Institute
-    ror: https://ror.org/02pry0c91
-    url: https://www.hakai.org/
+    name: Ocean Science Institute
+    ror: https://ror.org/00example1
+    url: https://www.example.org/
   roles:
   - processor
 - inCitation: true
   organization:
     city: Vancouver
     country: Canada
-    name: Tula Foundation
-    ror: https://ror.org/0029jxk29
-    url: https://tula.org
+    name: Test Foundation
+    ror: https://ror.org/00example2
+    url: https://testfoundation.org
   roles:
   - funder
 distribution:
 - description:
-    en: Complete Hakai provisional vertical water properties profile dataset  measured
+    en: Complete provisional vertical water properties profile dataset  measured
       by oceanographic profilers
     fr: Ensemble de données complet de profil des propriétés verticales provisoires
-      de l'eau de Hakai mesuré par les profileurs océanographiques
+      de l'eau mesuré par les profileurs océanographiques
     translations:
       fr:
         message: text translated using the Amazon translate service / texte traduit
@@ -63,41 +63,41 @@ distribution:
         verified: false
   name:
     en: ERDDAP Dataset
-  url: https://catalogue.hakai.org/erddap/tabledap/TestDataset1.html
+  url: https://catalogue.cioos.org/erddap/tabledap/TestDataset1.html
 - name:
-    en: Hakai Water Properties Profile Processing and QA/QC Procedure Manual
-  url: https://github.com/HakaiInstitute/hakai-datasets/raw/development/datasets_documents/HakaiWaterPropertiesProfiles/Hakai_Water_Properties_Processing_and_QAQC_Procedure_20210331.pdf
+    en: Water Properties Profile Processing and QA/QC Procedure Manual
+  url: https://example.org/documents/Water_Properties_Processing_and_QAQC_Procedure.pdf
 identification:
   abstract:
     en: "Temperature, conductivity, dissolved oxygen, fluorescence, photosynthetic\
       \ active radiation, and turbidity data collected from 2012 to present by the\
-      \ Hakai Institute in waters surrounding Calvert Island, Johnstone Strait, and\
+      \ Ocean Science Institute in waters surrounding Calvert Island, Johnstone Strait, and\
       \ Quadra Island areas. This dataset presents data collected by oceanographic\
       \ profiler instruments (RBR XR-620, RBR Concerto, RBR Maestro, and Seabird SBE\
       \ 19plus v2) which have been automatically processed by following respective\
-      \ manufacturer's guidelines (see Hakai Water Properties Profile Processing and\
+      \ manufacturer's guidelines (see Water Properties Profile Processing and\
       \ QA/QC Procedure Manual). \n\nThe provisional processed data are then quality\
       \ controlled by applying a series of tests that are following the QARTOD standards\
-      \ and more tests specific to the Hakai Institute data (see Hakai Water Properties\
+      \ and more tests specific to the institute's data (see Water Properties\
       \ Profile Processing and QA/QC Procedure Manual).  \n\nThe research dataset\
       \ provides a subset of the provisional dataset which has been manually reviewed\
-      \ and judged good for science quality level.\n\nData were collected by the Hakai\
+      \ and judged good for science quality level.\n\nData were collected by the Ocean Science\
       \ Institute Oceanography Program, the Nearshore Program, and the Juvenile Salmon\
       \ Program."
     fr: "Données sur la température, la conductivité, l'oxygène dissous, la fluorescence,\
       \ le rayonnement actif photosynthétique et la turbidité recueillies de 2012\
-      \ à aujourd'hui par l'Institut Hakai dans les eaux entourant les régions de\
+      \ à aujourd'hui par l'Institut de science océanique dans les eaux entourant les régions de\
       \ l'île Calvert, du détroit de Johnstone et de l'île Quadra. Ce jeu de données\
       \ présente les données collectées par les instruments de profilage océanographique\
       \ (RBR XR-620, RBR Concerto, RBR Maestro et Seabird SBE 19plus v2) qui ont été\
       \ traitées automatiquement en suivant les directives du fabricant respectif\
       \ (voir... documentation). \n\nLes données traitées provisoires sont ensuite\
       \ contrôlées par l'application d'une série de tests conformes aux normes QARTOD\
-      \ et d'autres tests spécifiques aux données de l'Institut Hakai (voir... documentation).\
+      \ et d'autres tests spécifiques aux données de l'institut (voir... documentation).\
       \ \n\nL'ensemble de données de recherche fournit un sous-ensemble de données\
       \ provisoires qui a été révisé manuellement et jugé bon pour le niveau de qualité\
       \ scientifique.\n\nLes données ont été recueillies par le Programme océanographique\
-      \ de l'Institut Hakai, le Programme des zones côtières et le Programme du saumon\
+      \ de l'Institut de science océanique, le Programme des zones côtières et le Programme du saumon\
       \ juvénile."
     translations:
       fr:
@@ -157,9 +157,9 @@ identification:
   status: published
   temporal_begin: '2012-06-01T17:07:00.000Z'
   title:
-    en: Hakai Water Properties Vertical Profile Data Measured by Oceanographic Profilers,
+    en: Water Properties Vertical Profile Data Measured by Oceanographic Profilers,
       Research
-    fr: Données de profil vertical des propriétés de l'eau de Hakai mesurées par des
+    fr: Données de profil vertical des propriétés de l'eau mesurées par des
       profileurs océanographiques, recherche
     translations:
       fr:
@@ -171,15 +171,15 @@ metadata:
     publication: '2024-03-19'
     revision: '2024-03-18T19:28:21.285Z'
   history:
-    en: These data have been solely funded by the Tula Foundation. Data collection
+    en: These data have been solely funded by the Test Foundation. Data collection
       started near Calvert Island in 2012, near Quadra Island in 2014, and in Johnstone
       Strait from 2015 to 2019.
-    fr: Ces données ont été financées uniquement par la Fondation Tula. La collecte
+    fr: Ces données ont été financées uniquement par la Fondation Test. La collecte
       de données a commencé près de l'île Calvert en 2012, près de l'île Quadra en
       2014 et dans le détroit de Johnstone de 2015 à 2019.
   identifier: ba41d935-f293-447f-be3d-7098e569b431
   language: en
-  maintenance_note: Generated from https://hakaiinstitute.github.io/hakai-metadata-entry-form#/en/hakai/tV5qE0aUgaOjSVmgPgiZ6MyHuSy1/-MX35qgX-BrwJDdeJKe1
+  maintenance_note: Generated from https://example.org/metadata-entry-form#/en/test/abc123
   naming_authority: ca.cioos
   use_constraints:
     licence:
