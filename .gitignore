@@ -10,3 +10,4 @@ tests/records/*_iso.xml
 
 # Conversion output artifacts
 *.datacite_xml
+tests/records/firebase/test-dataset-record.xml

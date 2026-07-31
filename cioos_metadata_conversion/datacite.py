@@ -1,42 +1,46 @@
-# Generate a DataCite record from a Cioos record
+# Generate a DataCite record from a CIOOS record
 #
-# This follow the DataCite schema v4.6 as described in:
-# https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/overview/
+# This follows the DataCite schema v4.7 as described in:
+# https://schema.datacite.org/meta/kernel-4.7/metadata.xsd
+#
+# Required fields (per XSD):
+#   - identifier (DOI)
+#   - creators
+#   - titles
+#   - publisher
+#   - publicationYear
+#   - resourceType
+#
+# All other fields (subjects, contributors, dates, descriptions,
+# geoLocations, fundingReferences, rightsList, etc.) are optional.
 import json
 from datetime import datetime
 
 from datacite import schema45
 from loguru import logger
 
-# TODO map cioos roles to datacite contributor roles
+from cioos_metadata_conversion.utils import camel_to_title
+
 CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
     "pointOfContact": "ContactPerson",
-    "DataCollector": "DataCollector",
-    "custodian": "DataCurator",
-    "DataManager": "DataManager",
     "distributor": "Distributor",
-    "Editor": "Editor",
-    "HostingInstitution": "HostingInstitution",
-    "Producer": "Producer",
-    "ProjectLeader": "ProjectLeader",
-    "ProjectManager": "ProjectManager",
-    "ProjectMember": "ProjectMember",
-    "RegistrationAgency": "RegistrationAgency",
-    "RegistrationAuthority": "RegistrationAuthority",
-    "RelatedPerson": "RelatedPerson",
-    "Researcher": "Researcher",
-    "ResearchGroup": "ResearchGroup",
-    "RightsHolder": "RightsHolder",
-    "Sponsor": "Sponsor",
-    "Supervisor": "Supervisor",
-    "Translator": "Translator",
-    "WorkPackageLeader": "WorkPackageLeader",
-    "Other": "Other",
-    "processor": "Other",
-    "collaborator": "RelatedPerson",
-    "contributor": "Other",
-    "originator": "Other",
+    "editor": "Editor",
+    "rightsHolder": "RightsHolder",
+    "sponsor": "Sponsor",
+    "processor": "DataCurator",
+    "metadataCustodian": "DataCurator",
+    "owner": "RightsHolder",
+    "funder": "Sponsor",
     "principalInvestigator": "ProjectLeader",
+    "collaborator": "ProjectMember",
+    "originator": "ProjectMember",
+    "contributor": "ProjectMember",
+    "author": "Researcher",
+    "coAuthor": "Researcher",
+    "mediator": "Other",
+    "ressourceProvider": "Other",
+    "stakeholder": "Other",
+    "custodian": "DataCurator"
 }
 
 
@@ -94,8 +98,8 @@ def _get_creators(record) -> list:
     """
     return [
         _get_contact_info(contact)
-        for contact in record["contact"]
-        if "owner" in contact["roles"]
+        for contact in record.get("contact", [])
+        if contact.get("inCitation")
     ]
 
 
@@ -119,14 +123,14 @@ def _get_contributors(record) -> list:
             "contributorType": _get_contributor_type(role),
             "lang": "en",
         }
-        for contact in record["contact"]
-        for role in contact["roles"]
-        if role not in {"owner", "publisher", "funder"}
+        for contact in record.get("contact", [])
+        for role in contact.get("roles", [])
+        if role != "publisher"
     ]
 
 
 def _get_publisher(record) -> dict:
-    for contact in record["contact"]:
+    for contact in record.get("contact", []):
         if "publisher" in contact["roles"]:
             publisher = {
                 "name": contact["organization"]["name"],
@@ -137,10 +141,8 @@ def _get_publisher(record) -> dict:
                 publisher["publisherIdentifierScheme"] = "ROR"
                 publisher["schemeUri"] = "https://ror.org/"
             return publisher
-    logger.warning(
-        "No publisher found in the record. We will use 'CIOOS' as publisher."
-    )
-    return {"name": "CIOOS", "lang": "en"}
+    logger.warning("No publisher found in the record.")
+    return {}
 
 
 def _get_funding_references(record) -> dict:
@@ -162,8 +164,8 @@ def _get_funding_references(record) -> dict:
                 "funderName": contact.get("organization", {}).get("name"),
                 **_get_funder_ror(contact),
             }
-            for contact in record["contact"]
-            if "funder" in contact["roles"]
+            for contact in record.get("contact", [])
+            if "funder" in contact.get("roles", [])
         ]
     }
 
@@ -189,50 +191,28 @@ def _get_subject_scheme(group) -> dict:
         return {}
 
 
-DATES_MAPPING = {
-    "creation": "Created",
-    "publication": "Issued",
-    "revision": "Updated",
-}
-
-
 def _get_dates(record) -> list:
     """
-    Get the dates from the Cioos record.
+    Get the dates from the Cioos record. Only includes entries where the date exists.
     """
+    dates = []
+    created = record.get("identification", {}).get("dates", {}).get("creation")
+    if created:
+        dates.append({"date": created, "dateType": "Created"})
 
-    def _get_date(name, date):
-        """
-        Get the date from the Cioos record.
-        """
-        if name not in DATES_MAPPING:
-            logger.error(f"Unknown date type: {name}")
-            return {
-                "date": date,
-                "dateInformation": name,
-                "type": "Other",
-            }
-        return {
-            "date": date,
-            "dateType": DATES_MAPPING[name],
-        }
+    revision = record.get("metadata", {}).get("dates", {}).get("revision")
+    if revision:
+        dates.append({"date": revision, "dateType": "Updated"})
 
-    return (
-        [
-            _get_date(name, date)
-            for name, date in record["identification"].get("dates", {}).items()
-        ]
-        + [
-            _get_date(name, date)
-            for name, date in record["metadata"].get("dates", {}).items()
-        ]
-        + [
-            {
-                "date": f"{record['identification'].get('temporal_begin','*')}/{record['identification'].get('temporal_end', '*')}",
-                "dateType": "Collected",
-            }
-        ]
-    )
+    temporal_begin = record.get("identification", {}).get("temporal_begin")
+    temporal_end = record.get("identification", {}).get("temporal_end")
+    if temporal_begin or temporal_end:
+        dates.append({
+            "date": f"{temporal_begin or '*'}/{temporal_end or '*'}",
+            "dateType": "Collected",
+        })
+
+    return dates
 
 
 def _get_alternate_identifiers(record) -> dict:
@@ -246,7 +226,14 @@ def _get_related_identifiers(record) -> dict:
     """
     Get the related identifiers from the Cioos record.
     """
-    return {"relatedIdentifiers": []}
+    return {"relatedIdentifiers": [
+        {
+            "relatedIdentifier": item['code'],
+            "relatedIdentifierType": item["authority"],
+            "relationType": item['association_type'],
+        }
+        for item in record['identification'].get('associated_resources', [])
+    ]}
 
 
 def _get_related_items(record) -> dict:
@@ -260,24 +247,26 @@ def _get_right_lists(record) -> dict:
     """
     Get the right lists from the Cioos record.
     """
-    if "use_constraints" not in record["metadata"]:
-        logger.warning("No use_constraints found in the record.")
+    licence = record.get("metadata", {}).get("use_constraints", {}).get("licence")
+    if not licence:
+        logger.warning("No use_constraints/licence found in the record.")
         return {}
     return {
-        "rights": record["metadata"]["use_constraints"]["licence"]["title"]["en"],
-        "rightsUri": record["metadata"]["use_constraints"]["licence"]["url"],
+        "rights": licence.get("title", {}).get("en", ""),
+        "rightsUri": licence.get("url", ""),
         "schemeUri": "https://spdx.org/licenses/",  # TODO confirm
-        "rightsIdentifier": record["metadata"]["use_constraints"]["licence"]["code"],
+        "rightsIdentifier": licence.get("code", ""),
         "rightsIdentifierScheme": "SPDX",  # TODO confirm
         "lang": "en",
     }
 
 
-def _get_geo_polygon(record) -> list:
+def _get_geo_polygon(record) -> dict:
     """
     Get the polygon from the Cioos record.
     """
-    if "polygon" not in record["spatial"] or not record["spatial"]["polygon"]:
+    polygon = record.get("spatial", {}).get("polygon")
+    if not polygon:
         return {}
     return {
         "geoLocationPolygon": [
@@ -287,22 +276,53 @@ def _get_geo_polygon(record) -> list:
                     "pointLongitude": float(loc.split(",")[0]),
                 }
             }
-            for loc in record["spatial"]["polygon"].split(" ")
+            for loc in polygon.split(" ")
         ]
     }
 
 
 def _get_geo_bounding_box(record) -> dict:
-    if "bounding_box" not in record["spatial"]:
+    bounding_box = record.get("spatial", {}).get("bounding_box")
+    if not bounding_box:
+        return {}
+    east = bounding_box.get("east")
+    west = bounding_box.get("west")
+    north = bounding_box.get("north")
+    south = bounding_box.get("south")
+    if not all(v is not None for v in [east, west, north, south]):
         return {}
     return {
         "geoLocationBoundingBox": {
-            "westBoundLongitude": float(record["spatial"]["bounding_box"]["west"]),
-            "eastBoundLongitude": float(record["spatial"]["bounding_box"]["east"]),
-            "southBoundLatitude": float(record["spatial"]["bounding_box"]["south"]),
-            "northBoundLatitude": float(record["spatial"]["bounding_box"]["north"]),
+            "westBoundLongitude": float(west),
+            "eastBoundLongitude": float(east),
+            "southBoundLatitude": float(south),
+            "northBoundLatitude": float(north),
         }
     }
+
+
+def _get_geo_location_place(record) -> dict:
+    spatial = record.get("spatial", {})
+    default_lang = record.get("metadata", {}).get("language", "en")
+
+    # Location description in the record's default language
+    description = spatial.get("description")
+    place_parts = []
+    if description:
+        text = description.get(default_lang, "") if isinstance(description, dict) else ""
+        if text:
+            place_parts.append(text)
+
+    # Vertical extent
+    vertical = spatial.get("vertical")
+    if vertical and len(vertical) == 2:
+        direction = spatial.get("vertical_positive", "")
+        direction_label = "depth" if direction == "depthPositive" else "height"
+        place_parts.append(f"Vertical extent ({direction_label}): {vertical[0]} to {vertical[1]} m")
+
+    if not place_parts:
+        return {}
+    return {"geoLocationPlace": "; ".join(place_parts)}
 
 
 def _get_unique_dicts(dict_list: list) -> list:
@@ -310,7 +330,51 @@ def _get_unique_dicts(dict_list: list) -> list:
     return [dict(items) for items in unique_dicts]
 
 
-def generate_datacite_record(record) -> dict:
+def _get_eov_subjects(record) -> list:
+    """
+    Get the EOV subjects from the CIOOS record and return a non camelcase list of unique dicts.
+    Keywords are stored at record["identification"]["keywords"]["eov"] with "en" and "fr" sublists.
+    """
+    eov_keywords = record.get("identification", {}).get("keywords", {}).get("eov", {})
+    subjects = []
+    for lang, eovs in eov_keywords.items():
+        if lang == "translations" or not eovs:
+            continue
+        subjects += [
+            {
+                "subject": camel_to_title(eov) if lang == "en" else eov,
+                "lang": lang,
+                **_get_subject_scheme("eov"),
+            }
+            for eov in eovs
+            if eov
+        ]
+    return _get_unique_dicts(subjects)
+
+
+def _get_keyword_subjects(record) -> list:
+    """
+    Get the keyword subjects from the CIOOS record.
+    Keywords are stored at record["identification"]["keywords"]["default"] with "en" and "fr" sublists.
+    """
+    default_keywords = record.get("identification", {}).get("keywords", {}).get("default", {})
+    subjects = []
+    for lang, keywords in default_keywords.items():
+        if lang == "translations" or not keywords:
+            continue
+        subjects += [
+            {
+                "subject": keyword,
+                "lang": lang,
+                **_get_subject_scheme("default"),
+            }
+            for keyword in keywords
+            if keyword
+        ]
+    return _get_unique_dicts(subjects)
+
+
+def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/dataset/cioos-ca_", doi_prefix=None) -> dict:
     """
     Generate a DataCite record from a Cioos record.
     """
@@ -325,116 +389,140 @@ def generate_datacite_record(record) -> dict:
         optional_fields[field] = value
 
     optional_fields = {}
-    _add_optional(
-        "doi",
-        record["identification"].get("identifier", "").replace("https://doi.org/", ""),
-    )
-    _add_optional(
-        "titles",
-        [
-            {
-                "title": title,
-                "lang": lang,
-            }
-            for lang, title in record["identification"].get("title", {}).items()
-            if lang != "translations"
-        ],
-    )
-    _add_optional(
-        "descriptions",
-        [
-            {
+
+    # Set the catalogue URL
+    identifier = record["identification"].get("identifier", "")
+    existing_doi = identifier.replace("https://doi.org/", "") if identifier else ""
+
+    # If there's an existing DOI, use it; otherwise use the prefix for auto-generation
+    if existing_doi:
+        _add_optional("doi", existing_doi)
+    elif doi_prefix:
+        optional_fields["prefix"] = doi_prefix
+
+    # Set the URL
+    optional_fields["url"] = catalogue_url + record["metadata"].get("identifier", "")
+
+    # titles — required by DataCite schema
+    # The default language title is the primary title (no titleType),
+    # other languages get titleType "TranslatedTitle".
+    default_lang = record.get("metadata", {}).get("language", "en")
+    titles = []
+    for lang, title in (record["identification"].get("title") or {}).items():
+        if lang == "translations" or not title:
+            continue
+        entry = {"title": title, "lang": lang}
+        if lang != default_lang:
+            entry["titleType"] = "TranslatedTitle"
+        titles.append(entry)
+    optional_fields["titles"] = titles or [{"title": "Untitled", "lang": "en"}]
+
+    # descriptions — optional
+    # Only include the default language abstract.
+    descriptions = []
+    for lang, abstract in (record["identification"].get("abstract") or {}).items():
+        if lang == "translations" or not abstract:
+            continue
+        if lang == default_lang:
+            descriptions.append({
                 "description": abstract,
                 "lang": lang,
                 "descriptionType": "Abstract",
-            }
-            for lang, abstract in record["identification"]
-            .get("abstract", {})
-            .items()
-            if lang != "translations"
-        ]
-        + [
+            })
+    limitations = record.get("metadata", {}).get("use_constraints", {}).get("limitations")
+    if isinstance(limitations, dict):
+        descriptions += [
             {
                 "description": "limitations: " + description,
                 "lang": lang,
                 "descriptionType": "Other",
             }
-            for lang, description in record["metadata"]
-            .get("use_constraints", {})
-            .get("limitations", {})
-            .items()
-            if lang != "translations"
-        ],
-    )
-
-    geo_locations = [
-        item
-        for item in [
-            _get_geo_polygon(record),
-            _get_geo_bounding_box(record),
+            for lang, description in limitations.items()
+            if lang != "translations" and description
         ]
-        if item
-    ]
+
     vertical = record.get("spatial", {}).get("vertical")
     if vertical and len(vertical) == 2:
         vertical_description = f"Vertical extent: {vertical[0]} to {vertical[1]}"
         vertical_positive = record.get("spatial", {}).get("vertical_positive", "")
         if vertical_positive:
             vertical_description += f" ({vertical_positive})"
-        _add_optional(
-            "descriptions",
-            optional_fields.get("descriptions", [])
-            + [
-                {
-                    "description": vertical_description,
-                    "descriptionType": "Other",
-                    "lang": "en",
-                }
-            ],
+        descriptions.append(
+            {
+                "description": vertical_description,
+                "descriptionType": "Other",
+                "lang": "en",
+            }
         )
-    _add_optional("geoLocations", geo_locations)
+
+    _add_optional("descriptions", descriptions)
+
+    # creators — required by DataCite schema
+    creators = _get_creators(record)
+    optional_fields["creators"] = creators or [{"name": ":unav", "nameType": "Organizational"}]
+
+    # publisher — required by DataCite schema
+    publisher = _get_publisher(record)
+    optional_fields["publisher"] = publisher or {"name": ":unav", "lang": "en"}
+
+    # contributors
+    _add_optional("contributors", _get_contributors(record))
+
+    # publicationYear — use publication date if available, fall back to current year
+    # (required by DataCite schema)
+    publication_date = record.get("metadata", {}).get("dates", {}).get("publication")
+    if publication_date:
+        optional_fields["publicationYear"] = str(
+            datetime.strptime(publication_date, "%Y-%m-%d").year
+        )
+    else:
+        optional_fields["publicationYear"] = str(datetime.now().year)
+
+    # subjects — only added if keywords exist
+    subjects = _get_eov_subjects(record) + _get_keyword_subjects(record)
+    if subjects:
+        _add_optional(
+            "subjects",
+            _get_unique_dicts(
+                [
+                    {
+                        "subject": "FOS: Earth and related environmental sciences",
+                        "lang": "en",
+                        "subjectScheme": "Fields of Science and Technology (FOS)",
+                        "schemeUri": "https://www.oecd.org/science/inno/38235147.pdf",
+                    }
+                ]
+                + subjects
+            ),
+        )
+
+    # dates — only added if dateStart/dateEnd/dateRevised exist
+    dates = _get_dates(record)
+    _add_optional("dates", dates)
+
+    # geoLocations — only added if all bounds exist
+    geo_location = {
+        **_get_geo_polygon(record),
+        **_get_geo_bounding_box(record),
+        **_get_geo_location_place(record),
+    }
+    _add_optional("geoLocations", [geo_location] if geo_location else [])
+
+    # fundingReferences — only added if funders exist
+    funding = _get_funding_references(record)
+    _add_optional("fundingReferences", funding.get("fundingReferences"))
 
     return {
         **optional_fields,
-        "creators": _get_creators(record),
-        "publisher": _get_publisher(record),
-        "contributors": _get_contributors(record),
-        # parse iso date and return year from record['identification']["dates"]["created"]
-        "publicationYear": str(
-            datetime.strptime(
-                record["metadata"]["dates"].get("publication"), "%Y-%m-%d"
-            ).year
-            if record["metadata"]["dates"].get("publication")
-            else datetime.now().year
-        ),
-        "subjects": _get_unique_dicts(
-            [
-                {
-                    "subject": keyword,
-                    "lang": lang,
-                    **_get_subject_scheme(group),
-                }
-                for group, group_keywords in record["identification"][
-                    "keywords"
-                ].items()
-                for lang, keywords in group_keywords.items()
-                for keyword in keywords
-                if keyword
-            ]
-        ),
-        "dates": _get_dates(record),
-        "language": record["metadata"]["language"],
+        "language": record.get("metadata", {}).get("language", ""),
         "types": {
-            "resourceTypeGeneral": "Dataset",  # TODO revise with latest version of cioos
-            "resourceType": "CIOOS Dataset Record",  # TODO revise with latest version of cioos
+            "resourceTypeGeneral": record.get("metadata", {}).get("metadataScope") or record.get("metadata", {}).get("scope", "Dataset"),
+            "resourceType": next(iter(record.get("metadata", {}).get("resourceType", [])), ""),
         },
         **_get_alternate_identifiers(record),
         **_get_related_identifiers(record),
-        # "sizes": [],
-        # "formats": [],
         "version": record["identification"].get("edition", ""),
         "rightsList": [_get_right_lists(record)],
-        **_get_funding_references(record),
         **_get_related_items(record),
         "schemaVersion": "http://datacite.org/schema/kernel-4",
     }
