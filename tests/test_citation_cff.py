@@ -6,6 +6,10 @@ import pytest
 from cioos_metadata_conversion import citation_cff
 from cioos_metadata_conversion.__main__ import load
 
+# cffconvert pins jsonschema<4, so it runs in its own uvx environment rather
+# than the project's.
+CFFCONVERT = ["uvx", "--from", "cffconvert==2.0.0", "cffconvert"]
+
 
 def test_citation_cff(record):
     result = citation_cff.citation_cff(record, output_format=None, language="en")
@@ -36,7 +40,7 @@ def test_citation_cff_validation(record, tmp_path):
     (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
     # run cffconvert validate cli
     result = subprocess.run(
-        ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
+        [*CFFCONVERT, "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
     assert result.returncode == 0, result.stderr
@@ -54,7 +58,7 @@ def test_cioos_metadata_entry_form_files_cff(file, tmp_path):
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result, encoding="utf-8")
     validation_result = subprocess.run(
-        ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
+        [*CFFCONVERT, "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
     assert validation_result.returncode == 0, validation_result.stderr.decode("utf-8")
@@ -72,7 +76,7 @@ def test_cioos_metadata_entry_form_files_cff_fr(file, tmp_path):
     # validate cff
     (tmp_path / "CITATION.cff").write_text(result_fr, encoding="utf-8")
     validation_result = subprocess.run(
-        ["cffconvert", "--validate", "-i", str(tmp_path / "CITATION.cff")],
+        [*CFFCONVERT, "--validate", "-i", str(tmp_path / "CITATION.cff")],
         capture_output=True,
     )
     assert validation_result.returncode == 0, validation_result.stderr.decode("utf-8")

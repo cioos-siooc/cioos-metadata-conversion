@@ -45,13 +45,15 @@ CONTRIBUTOR_TYPE_MAPPING_FROM_CIOOS = {
 
 
 def _get_personal_info(contact) -> dict:
-    nameIdentifier = {}
+    nameIdentifiers = []
     if "orcid" in contact["individual"]:
-        nameIdentifier = {
-            "nameIdentifier": contact["individual"]["orcid"],
-            "nameIdentifierScheme": "ORCID",
-            "schemeUri": "https://orcid.org",
-        }
+        nameIdentifiers = [
+            {
+                "nameIdentifier": contact["individual"]["orcid"],
+                "nameIdentifierScheme": "ORCID",
+                "schemeUri": "https://orcid.org",
+            }
+        ]
 
     return {
         "name": contact["individual"].get("name")
@@ -59,7 +61,7 @@ def _get_personal_info(contact) -> dict:
         "nameType": "Personal",
         "givenName": contact["individual"].get("givenNames", ""),
         "familyName": contact["individual"].get("lastName", ""),
-        "nameIdentifier": nameIdentifier,
+        "nameIdentifiers": nameIdentifiers,
     }
 
 

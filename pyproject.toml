@@ -8,7 +8,6 @@ readme = "README.md"
 dependencies = [
     "loguru>=0.7.2,<0.8",
     "requests>=2.32.3,<3",
-    "cffconvert>=2.0.0,<3",
     "pycountry>=24.6.1,<25",
     "pyyaml>=6.0.1,<7",
     "lxml>=5.2.2,<6",

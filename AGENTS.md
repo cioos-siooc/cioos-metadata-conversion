@@ -125,7 +125,7 @@ uv run ruff check cioos_metadata_conversion tests
 
 ### Dependencies and Logging
 - Use loguru for all logging (`from loguru import logger`)
-- Available libraries: requests, yaml, json, lxml, click, datacite, pyyaml, pycountry, cffconvert
+- Available libraries: requests, yaml, json, lxml, click, datacite, pyyaml, pycountry
 - Use Click decorators for CLI commands and options
 - Validate input early and provide helpful error messages
 
