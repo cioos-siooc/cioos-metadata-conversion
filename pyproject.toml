@@ -10,7 +10,7 @@ dependencies = [
     "requests>=2.32.3,<3",
     "pycountry>=24.6.1,<25",
     "pyyaml>=6.0.1,<7",
-    "lxml>=5.2.2,<6",
+    "lxml>=6.1.0,<7",
     "metadata-xml @ git+https://github.com/cioos-siooc/metadata-xml.git",
     "click>=7,<9",
     "datacite>=1.2.0",
