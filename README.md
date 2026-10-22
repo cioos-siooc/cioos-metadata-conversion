@@ -13,6 +13,7 @@ widely recognized standards.
 - ERDDAP<sup>TM</sup>: XML metadata attributes following the CF1.6 and ACDD 1.3 standards.
 - `ISO19115-3` schema: CIOOS standard ISO19115-3 schema.
 - `Datacite-xml` and `Datacite-json` schema: Datacite compatible Schema.
+- `cioos_ckan_json`: CIOOS-SIOOC CKAN schema compatible JSON format.
 
 ## Features
 
