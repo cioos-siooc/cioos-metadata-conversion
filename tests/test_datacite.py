@@ -85,6 +85,15 @@ def test_json_output(record, tmp_path):
     assert test_file.exists()  # Ensure the path exists
 
 
+def test_json_upload_has_schema_version_key(record):
+    """Fabrica upload needs "schema-version"; the API payload must not get it."""
+    upload = json.loads(datacite.to_json(record, for_upload=True))
+    api = json.loads(datacite.to_json(record))
+
+    assert upload["schema-version"] == upload["schemaVersion"]
+    assert "schema-version" not in api
+
+
 def test_xml_output(record, tmp_path):
     """
     Test the XML output generation.

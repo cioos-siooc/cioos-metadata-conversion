@@ -28,6 +28,7 @@ OUTPUT_FORMATS = {
     "iso19115_xml": xml.xml,
     "iso19115-3_xml": xml.xml,
     "datacite_json": datacite.to_json,
+    "datacite_json_upload": lambda x: datacite.to_json(x, for_upload=True),
     "datacite_xml": datacite.to_xml,
     "acdd_json": acdd.acdd_json,
     "acdd_yaml": acdd.acdd_yaml,
