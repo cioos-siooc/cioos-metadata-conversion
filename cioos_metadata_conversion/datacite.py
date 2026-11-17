@@ -530,11 +530,18 @@ def generate_datacite_record(record, catalogue_url= "http://CATALOGUE_URL.com/da
     }
 
 
-def to_json(record, output=None) -> str:
+def to_json(record, output=None, for_upload=False) -> str:
     """
     Convert the DataCite record to JSON.
+
+    for_upload: add a "schema-version" key so DataCite Fabrica's file upload
+    recognises the file. Fabrica detects the format from the text, and
+    bolognese's find_from_format_by_string only matches DataCite JSON on that
+    key. Leave it off for REST API payloads, which use "schemaVersion".
     """
     datacite_record = generate_datacite_record(record)
+    if for_upload:
+        datacite_record["schema-version"] = datacite_record["schemaVersion"]
     datacite_json_record = json.dumps(datacite_record, indent=4)
     if output:
         logger.debug(f"Output file: {output}")
