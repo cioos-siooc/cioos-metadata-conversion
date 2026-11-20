@@ -26,6 +26,10 @@ import yaml
 from loguru import logger
 from lxml import etree as ET
 
+from cioos_metadata_conversion.load_from.pdc_citation import (
+    align_contacts_with_citation,
+)
+
 PDC_ISO_XML_URL = "https://polardata.ca/pdcsearch/xml/iso/{ccin}_iso.xml"
 
 # Define the namespaces
@@ -249,45 +253,22 @@ class PDC_ISO:
                 )
         return places
 
-    def _get_suggested_citation_contacts(self) -> tuple[list[dict], str]:
-        """Extract the contacts from the citation."""
-        contacts = []
-        citation = self.tree.findall(
-            ".//gmd:citation/gmd:CI_Citation/gmd:otherCitationDetails/gco:CharacterString",
-            namespaces=namespaces,
-        )
-        citation = citation[0].text if citation else None
-        if not citation or citation.lower() in ("unpublished data", "unpublished"):
-            return contacts, citation
-        coauthors = re.split(r"\(|\d{4}\.", citation)
-        if not len(coauthors) > 1:
-            if "et al." in citation:
-                logger.info("No coauthors listed in citation: {}", citation)
-            else:
-                logger.warning("No coauthors found in citation: {}", citation)
-            return contacts, citation
+    def get_citation(self) -> Optional[str]:
+        """Return the PDC suggested citation (``otherCitationDetails``).
 
-        coauthors = re.sub(r"\s+\&\s+|\s+and\s+", "", coauthors[0])
-
-        potential_coauthors = []
-        coauthors_items = coauthors.split(",")
-        for index, item in enumerate(coauthors_items):
-            item = item.strip()
-            if not item:
-                continue
-            if re.match(r"\w\.", item) and potential_coauthors and index > 0:
-                # If the item is a name with initials, add it to the last contact
-                potential_coauthors[-1]["givenNames"] = item
-            else:
-                # Add as coauthor
-                potential_coauthors.append(
-                    {
-                        "lastName": item,
-                        "role": ["coauthor"],
-                        "inCitation": True,
-                    }
-                )
-        return potential_coauthors, citation
+        URL-only fragments (e.g. the keyword-library link) are dropped and
+        multiple citation blocks are joined so any name can match.
+        """
+        values = [
+            el.text.strip()
+            for el in self.tree.findall(
+                ".//gmd:otherCitationDetails/gco:CharacterString",
+                namespaces=namespaces,
+            )
+            if el.text and el.text.strip()
+        ]
+        values = [v for v in values if not re.match(r"https?://\S+$", v)]
+        return " | ".join(values) or None
 
     def _combine_contacts(self, contacts) -> list[dict]:
         """Combine matching contacts and join roles"""
@@ -385,8 +366,6 @@ class PDC_ISO:
         if identifier is None:
             identifier = uuid.uuid4()
 
-        # Verify if contacts match the suggested citation
-        citation_contacts, citation = self._get_suggested_citation_contacts()
         responsible_parties = [
             self._create_contact(contact, in_citation=True)
             for contact in self.tree.findall(
@@ -394,17 +373,29 @@ class PDC_ISO:
                 namespaces=namespaces,
             )
         ]
-        if (
-            len(citation_contacts) > len(responsible_parties)
-            and "et al." not in citation
-        ):
-            logger.warning(
-                "file={} Citation contacts ({} contacts) do not match the responsible parties ({} contacts): citation={}",
-                self.file,
-                len(citation_contacts),
-                len(responsible_parties),
-                citation,
-            )
+        contacts = self._combine_contacts(
+            [
+                self._create_contact(
+                    self.tree.find(".//gmd:pointOfContact", namespaces=namespaces),
+                    False,
+                    ["pointOfContact"],
+                ),
+                self._create_contact(
+                    self.tree.find(".//gmd:metadataMaintenance", namespaces=namespaces),
+                    False,
+                    ["custodian"],
+                ),
+                self._create_contact(
+                    self.tree.find(".//gmd:distributor", namespaces=namespaces),
+                    False,
+                    ["distributor"],
+                ),
+                *responsible_parties,
+            ]
+        )
+        # PDC cites every citedResponsibleParty; match PDC's suggested
+        # citation (authors and their order) instead.
+        contacts = align_contacts_with_citation(contacts, self.get_citation())
 
         return {
             "userID": userID,
@@ -414,28 +405,7 @@ class PDC_ISO:
             "abstract": {"en": self.get(".//gmd:abstract/gco:CharacterString")},
             "category": "dataset",
             "limitations": "",
-            "contacts": self._combine_contacts(
-                [
-                    self._create_contact(
-                        self.tree.find(".//gmd:pointOfContact", namespaces=namespaces),
-                        False,
-                        ["pointOfContact"],
-                    ),
-                    self._create_contact(
-                        self.tree.find(
-                            ".//gmd:metadataMaintenance", namespaces=namespaces
-                        ),
-                        False,
-                        ["custodian"],
-                    ),
-                    self._create_contact(
-                        self.tree.find(".//gmd:distributor", namespaces=namespaces),
-                        False,
-                        ["distributor"],
-                    ),
-                    *responsible_parties,
-                ]
-            ),
+            "contacts": contacts,
             "created": _parse_date(self.get(".//gmd:dateStamp/gco:Date")),
             "datasetIdentifier": self._get_doi(
                 self.get(".//gmd:dataSetURI/gco:CharacterString").split("=")[-1],
