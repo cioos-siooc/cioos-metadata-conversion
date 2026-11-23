@@ -406,7 +406,41 @@ def _trim(contacts, citation):
     return ("trimmed" if removed else "nochange"), removed
 
 
-def align_contacts_with_citation(contacts, citation):
+def _fix_swapped_names(contacts, citation, trusted_names=()):
+    """Swap given and last names when the citation shows they are reversed.
+
+    PDC writes ``individualName`` in either order ("Gratton Yves", "Gary
+    Stern", "Alexandre, Forest"), so the split into given/last names is a
+    guess. The citation's author list gives the surname: when every word of a
+    contact's given name is cited as a surname and its last name is nowhere in
+    the citation,
+    the two are swapped. Contacts the citation does not settle, and those whose
+    ``indName`` is in ``trusted_names`` (for citations that reverse a name,
+    e.g. "Cyril, A." for Cyril Aubry), are left as-is. Contact dicts are
+    updated in place.
+    """
+    surnames = {
+        tok
+        for _, last, _ in parse_author_units(author_segment(clean_citation(citation)))
+        for tok in tokenize(last)
+    }
+    citation_tokens = set(tokenize(citation))
+    for contact in contacts:
+        if not is_person(contact) or contact.get("indName") in trusted_names:
+            continue
+        given, last = contact.get("givenNames") or "", contact["lastName"]
+        given_tokens = tokenize(given)
+        if given_tokens and all(
+            token_matches_citation(t, surnames) for t in given_tokens
+        ) and not any(
+            token_matches_citation(t, citation_tokens) for t in tokenize(last)
+        ):
+            contact["givenNames"], contact["lastName"] = last, given
+            contact["indName"] = f"{last} {given}"
+            logger.debug("Swapped given/last names of {!r}", f"{given} {last}")
+
+
+def align_contacts_with_citation(contacts, citation, trusted_names=()):
     """Return contacts aligned with the PDC suggested citation.
 
     Cited contacts not named in ``citation`` are uncited, the cited ones are
@@ -416,6 +450,7 @@ def align_contacts_with_citation(contacts, citation):
     """
     if not citation:
         return contacts
+    _fix_swapped_names(contacts, citation, trusted_names)
     organisations = _organisation_authors(contacts, citation)
     if organisations:
         contacts, removed, added = _cite_organisations(contacts, organisations)

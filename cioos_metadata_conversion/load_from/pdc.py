@@ -50,8 +50,13 @@ MAP_ISO_STATUS = {
     "planned": "planned",
 }
 
+# Contact names as [given..., last]. Mapped names are taken as correct and are
+# never swapped to match the citation, so also list people whose PDC citation
+# reverses their name ("Cyril, A.", "Louis, F.").
 NAMES_MAPPING = {
     "Polar Data Catalogue": ["Polar Data Catalogue", ""],
+    "Cyril Aubry": ["Cyril", "Aubry"],
+    "Louis Fortier": ["Louis", "Fortier"],
 }
 
 ROLES_MAPPING = {
@@ -395,7 +400,11 @@ class PDC_ISO:
         )
         # PDC cites every citedResponsibleParty; match PDC's suggested
         # citation (authors and their order) instead.
-        contacts = align_contacts_with_citation(contacts, self.get_citation())
+        contacts = align_contacts_with_citation(
+            contacts,
+            self.get_citation(),
+            trusted_names={" ".join(n) for n in self.name_mapping.values()},
+        )
 
         return {
             "userID": userID,

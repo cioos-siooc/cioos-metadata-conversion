@@ -70,6 +70,58 @@ def test_et_al_keeps_every_cited_contact():
     assert cited(result) == ["Papakyriakou", "Else"]
 
 
+def test_swaps_given_and_last_names_reversed_in_pdc():
+    # PDC wrote "Gratton Yves" / "Rail Marie-Emmanuelle" surname-first.
+    contacts = [
+        person("Gratton", "Yves"),
+        person("Rail", "Marie-Emmanuelle"),
+        person("Véronique", "Lago"),  # not cited, so left as-is
+    ]
+    result = align_contacts_with_citation(
+        contacts,
+        "Simard, A; Rail, M-E and Gratton, Y (2010): Distribution of "
+        "temperature and salinity. https://doi.org/10.5884/80",
+    )
+    assert cited(result) == ["Simard", "Rail", "Gratton"]
+    rail = next(c for c in result if c["lastName"] == "Rail")
+    assert (rail["givenNames"], rail["indName"]) == (
+        "Marie-Emmanuelle",
+        "Marie-Emmanuelle Rail",
+    )
+    assert next(c for c in result if c["lastName"] == "Lago")["givenNames"] == "Véronique"
+
+
+def test_keeps_names_already_in_the_right_order():
+    contacts = [
+        person("Louis", "Fortier"),
+        person("Alexandre", "Forest"),
+        # "Vonda Wareham Hayes" split on the last word: only part of the
+        # given name is a cited surname, so it is not a swap.
+        person("Vonda Wareham", "Hayes"),
+    ]
+    result = align_contacts_with_citation(
+        contacts,
+        "Fortier, L., Forest, A. and Wareham, V. (2019). Vertical flux data.",
+    )
+    assert [(c["givenNames"], c["lastName"]) for c in result] == [
+        ("Louis", "Fortier"),
+        ("Alexandre", "Forest"),
+        ("Vonda Wareham", "Hayes"),
+    ]
+
+
+def test_trusted_names_are_not_swapped_by_a_reversed_citation():
+    # PDC's citation for ccin-10510 reverses Cyril Aubry as "Cyril, A.".
+    contacts = [person("Louis", "Létourneau"), person("Cyril", "Aubry")]
+    result = align_contacts_with_citation(
+        contacts,
+        "Létourneau, L., & Cyril, A. (2018). Mesozooplankton abundance.",
+        trusted_names={"Cyril Aubry"},
+    )
+    aubry = next(c for c in result if c["indName"] == "Cyril Aubry")
+    assert (aubry["givenNames"], aubry["lastName"]) == ("Cyril", "Aubry")
+
+
 def test_boilerplate_citation_leaves_contacts_untouched():
     contacts = [person("David", "Barber"), person("Ryan", "Galley")]
     result = align_contacts_with_citation(contacts, "Unpublished data")
