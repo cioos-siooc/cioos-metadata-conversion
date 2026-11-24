@@ -406,25 +406,82 @@ def _trim(contacts, citation):
     return ("trimmed" if removed else "nochange"), removed
 
 
+# A line that starts another reference: "Riedel et al. (2006) ...",
+# "Additional information: ...", "Supplementary Data. ...".
+_NEXT_REFERENCE_RE = re.compile(
+    rf"^(?:{_NAME}(?:\s+et\s+al\.?)?,?\s*\((?:(?:19|20)\d{{2}}|ms|in\s+press)\)"
+    r"|additional\s+(?:information|publications?)\b|supplementary\s+data\b)",
+    re.IGNORECASE,
+)
+
+
+def split_references(citation):
+    """Split PDC's citation text into the separate references it holds.
+
+    PDC's citation field sometimes lists related publications after (or
+    instead of) the dataset citation. References are separated by a blank line,
+    or by a line break before a line that starts a new reference. Other line
+    breaks only wrap a reference and are kept.
+    """
+    references = []
+    for block in re.split(r"(?:\r?\n[ \t]*){2,}", citation):
+        lines = [line for line in re.split(r"\r?\n", block) if line.strip()]
+        for line in lines:
+            if references and not references[-1][1] and not _NEXT_REFERENCE_RE.match(line.strip()):
+                references[-1][0].append(line)
+            else:
+                references.append(([line], False))
+        if references:
+            references[-1] = (references[-1][0], True)  # a blank line closes it
+    return ["\n".join(lines).strip() for lines, _ in references]
+
+
+def _surname_first_list_surnames(segments, surnames):
+    """Surnames of author lists written as full names, surname first.
+
+    Some PDC citations list authors as "Gratton Yves, Marec Claudie, &
+    Prieur Louis", which give no surname on their own. An author list uses one
+    order throughout, so when one of its names starts with a known surname
+    (and does not end with one), every name in the list is read surname first.
+    """
+    found = set()
+    for segment in segments:
+        items = [i.strip(" .") for i in ORG_SPLIT_RE.split(segment) for i in i.split(",")]
+        pairs = [
+            (tokenize(first), tokenize(second))
+            for first, second in (
+                i.split() for i in items if re.fullmatch(rf"{_NAME}\s+{_NAME}", i)
+            )
+        ]
+        if len(pairs) >= 2 and any(
+            first and all(t in surnames for t in first)
+            and not any(t in surnames for t in second)
+            for first, second in pairs
+        ):
+            found.update(t for first, _ in pairs for t in first)
+    return found
+
+
 def _fix_swapped_names(contacts, citation, trusted_names=()):
     """Swap given and last names when the citation shows they are reversed.
 
     PDC writes ``individualName`` in either order ("Gratton Yves", "Gary
     Stern", "Alexandre, Forest"), so the split into given/last names is a
-    guess. The citation's author list gives the surname: when every word of a
-    contact's given name is cited as a surname and its last name is nowhere in
-    the citation,
-    the two are swapped. Contacts the citation does not settle, and those whose
-    ``indName`` is in ``trusted_names`` (for citations that reverse a name,
-    e.g. "Cyril, A." for Cyril Aubry), are left as-is. Contact dicts are
-    updated in place.
+    guess. The author lists of every reference in the citation give surnames
+    ("Gratton, Y"): when every word of a contact's given name is cited as a
+    surname and its last name is not, the two are swapped. Contacts the
+    citation does not settle, and those whose ``indName`` is in
+    ``trusted_names`` (for citations that reverse a name, e.g. "Cyril, A." for
+    Cyril Aubry), are left as-is. Contact dicts are updated in place.
     """
+    segments = [author_segment(clean_citation(r)) for r in split_references(citation)]
     surnames = {
         tok
-        for _, last, _ in parse_author_units(author_segment(clean_citation(citation)))
+        for segment in segments
+        for _, last, _ in parse_author_units(segment)
         for tok in tokenize(last)
     }
-    citation_tokens = set(tokenize(citation))
+    surnames |= _surname_first_list_surnames(segments, surnames)
     for contact in contacts:
         if not is_person(contact) or contact.get("indName") in trusted_names:
             continue
@@ -432,9 +489,7 @@ def _fix_swapped_names(contacts, citation, trusted_names=()):
         given_tokens = tokenize(given)
         if given_tokens and all(
             token_matches_citation(t, surnames) for t in given_tokens
-        ) and not any(
-            token_matches_citation(t, citation_tokens) for t in tokenize(last)
-        ):
+        ) and not any(token_matches_citation(t, surnames) for t in tokenize(last)):
             contact["givenNames"], contact["lastName"] = last, given
             contact["indName"] = f"{last} {given}"
             logger.debug("Swapped given/last names of {!r}", f"{given} {last}")
@@ -443,14 +498,20 @@ def _fix_swapped_names(contacts, citation, trusted_names=()):
 def align_contacts_with_citation(contacts, citation, trusted_names=()):
     """Return contacts aligned with the PDC suggested citation.
 
-    Cited contacts not named in ``citation`` are uncited, the cited ones are
-    reordered to the citation order and authors only present in the citation
-    are appended as ``author`` contacts. Boilerplate citations leave the
+    Only the first reference in ``citation`` (the dataset citation) decides
+    who is cited: cited contacts not named in it are uncited, the cited ones
+    are reordered to its order and authors only present in it are appended as
+    ``author`` contacts. Related publications PDC lists after it only help fix
+    given/last names stored in the wrong order. Boilerplate citations leave the
     contacts unchanged. Contact dicts are updated in place.
     """
     if not citation:
         return contacts
     _fix_swapped_names(contacts, citation, trusted_names)
+    references = split_references(citation)
+    if not references:
+        return contacts
+    citation = references[0]
     organisations = _organisation_authors(contacts, citation)
     if organisations:
         contacts, removed, added = _cite_organisations(contacts, organisations)

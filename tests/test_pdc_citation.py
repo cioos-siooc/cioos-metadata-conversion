@@ -2,6 +2,7 @@
 
 from cioos_metadata_conversion.load_from.pdc_citation import (
     align_contacts_with_citation,
+    split_references,
 )
 
 
@@ -120,6 +121,60 @@ def test_trusted_names_are_not_swapped_by_a_reversed_citation():
     )
     aubry = next(c for c in result if c["indName"] == "Cyril Aubry")
     assert (aubry["givenNames"], aubry["lastName"]) == ("Cyril", "Aubry")
+
+
+def test_splits_related_publications_but_not_wrapped_lines():
+    assert split_references(
+        "Riedel (2006) Thèse de doctorat, UQAR \r\n"
+        "Riedel et al. (ms) Grazing of large-sized bacteria. AME\r\n"
+        "Riedel et al. (2006) Seasonal study of sea-ice EPS. AME 45:195-206"
+    ) == [
+        "Riedel (2006) Thèse de doctorat, UQAR",
+        "Riedel et al. (ms) Grazing of large-sized bacteria. AME",
+        "Riedel et al. (2006) Seasonal study of sea-ice EPS. AME 45:195-206",
+    ]
+    assert split_references("Gratton, Y. (2009). CTD data.\n\nRail, M-E (2011): Report") == [
+        "Gratton, Y. (2009). CTD data.",
+        "Rail, M-E (2011): Report",
+    ]
+    wrapped = "Neves, B.M., Edinger, E., 2015. Video, sample, and field \r\nmeasurement data."
+    assert split_references(wrapped) == [wrapped.replace("\r\n", "\n").strip()]
+
+
+def test_only_the_dataset_citation_decides_who_is_cited():
+    # ccin-232: PDC lists three publications; only the first is the citation.
+    contacts = [
+        person("Michel", "Gosselin"),
+        person("Andrea", "Riedel"),
+        person("Christine", "Michel"),
+    ]
+    result = align_contacts_with_citation(
+        contacts,
+        "Riedel (2006) Thèse de doctorat, UQAR \r\n"
+        "Riedel et al. (2006) Seasonal study of sea-ice EPS. AME 45:195-206",
+    )
+    assert cited(result) == ["Riedel"]
+
+
+def test_surname_first_author_list_uses_related_publication_surnames():
+    # ccin-10987: "Gratton Yves, ..." is surname first; the related paper's
+    # "Gratton, Y" shows it, and the whole list follows the same order.
+    contacts = [
+        person("Gratton", "Yves"),
+        person("Marec", "Claudie"),
+        person("Picheral", "Louis"),
+        person("Prieur", "Louis"),
+    ]
+    result = align_contacts_with_citation(
+        contacts,
+        "Gratton Yves, Marec Claudie, Picheral Louis, & Prieur Louis. (2009). "
+        "Beaufort Sea CTD Data.\n\n"
+        "Rail, M-E; Gratton, Y and Prieur, L (2011): Distribution of temperature",
+    )
+    assert cited(result) == ["Gratton", "Marec", "Picheral", "Prieur"]
+    assert [c["givenNames"] for c in result if c["inCitation"]] == [
+        "Yves", "Claudie", "Louis", "Louis",
+    ]
 
 
 def test_boilerplate_citation_leaves_contacts_untouched():

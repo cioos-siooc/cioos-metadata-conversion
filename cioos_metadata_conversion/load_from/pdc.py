@@ -58,6 +58,8 @@ NAMES_MAPPING = {
     "Polar Data Catalogue": ["Polar Data Catalogue", ""],
     "Cyril Aubry": ["Cyril", "Aubry"],
     "Louis Fortier": ["Louis", "Fortier"],
+    # PDC writes her "Rail Marie-Emmanuelle"; ccin-797 even cites "Marie-Emmanuelle, R.".
+    "Rail Marie-Emmanuelle": ["Marie-Emmanuelle", "Rail"],
 }
 
 ROLES_MAPPING = {
