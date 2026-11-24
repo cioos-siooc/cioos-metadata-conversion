@@ -13,11 +13,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from cioos_metadata_conversion.load_from.pdc import (
+    EOV_TO_KEYWORDS,
     PDC_ISO,
     PDCRetrievalError,
     _apply_role_mapping,
     _contact_name,
     _parse_date,
+    citation_limitations,
     fetch_pdc_metadata,
     retrieve_pdc_as_firebase_record,
 )
@@ -53,6 +55,85 @@ def _mock_doi_not_found():
 
 
 # Tests for helper functions
+
+
+# CIOOS EOV codes (cioos-commons eovs/eov.json, aligned with GOOS).
+CIOOS_EOVS = {
+    "oxygen", "nutrients", "inorganicCarbon", "dissolvedOrganicCarbon",
+    "seaSurfaceHeight", "seaIce", "seaState", "seaSurfaceSalinity",
+    "seaSurfaceTemperature", "subSurfaceSalinity", "subSurfaceTemperature",
+    "surfaceCurrents", "subSurfaceCurrents", "other", "transientTracers",
+    "particulateMatter", "nitrousOxide", "stableCarbonIsotopes",
+    "phytoplanktonBiomassAndDiversity", "zooplanktonBiomassAndDiversity",
+    "fishAbundanceAndDistribution",
+    "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+    "seaTurtlesAbundanceAndDistribution", "seabirdsAbundanceAndDistribution",
+    "marineMammalsAbundanceAndDistribution", "hardCoralCoverAndComposition",
+    "seagrassCoverAndComposition", "macroalgalCanopyCoverAndComposition",
+    "mangroveCoverAndComposition", "invertebrateAbundanceAndDistribution",
+    "microbeBiomassAndDiversity", "oceanColour", "oceanSound", "marineDebris",
+    "oceanSurfaceHeatFlux", "oceanSurfaceStress", "oceanBottomPressure",
+    "turbulentDiapycnalFluxes",
+}
+
+
+def test_eov_mapping_only_uses_cioos_eovs():
+    assert set(EOV_TO_KEYWORDS) <= CIOOS_EOVS
+
+
+def _record_with_keywords(*keywords):
+    items = "".join(
+        f"<gmd:keyword><gco:CharacterString>{k}</gco:CharacterString></gmd:keyword>"
+        for k in keywords
+    )
+    return PDC_ISO(
+        f"""<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd"
+            xmlns:gco="http://www.isotc211.org/2005/gco">
+          <gmd:descriptiveKeywords><gmd:MD_Keywords>{items}
+            <gmd:type><gmd:MD_KeywordTypeCode>theme</gmd:MD_KeywordTypeCode></gmd:type>
+          </gmd:MD_Keywords></gmd:descriptiveKeywords>
+        </gmd:MD_Metadata>"""
+    )
+
+
+def test_benthic_keywords_map_to_invertebrates():
+    for keyword in ("Benthos", "Megazoobenthos", "Sponges", "zoobenthos"):
+        assert _record_with_keywords(keyword)._get_eov_from_keywords() == [
+            "invertebrateAbundanceAndDistribution"
+        ], keyword
+    assert sorted(_record_with_keywords("Nitrates", "Bacteria")._get_eov_from_keywords()) == [
+        "microbeBiomassAndDiversity",
+        "nutrients",
+    ]
+    assert _record_with_keywords("Bathymetry")._get_eov_from_keywords() == ["other"]
+
+
+def test_citation_limitations_keep_the_whole_pdc_citation():
+    citation = (
+        "Riedel (2006) Thèse de doctorat, UQAR\n"
+        "Riedel et al. (2006) Seasonal study of sea-ice EPS. AME 45:195-206"
+    )
+    assert citation_limitations(citation) == {
+        "en": f"Citation suggested by the Polar Data Catalogue (PDC): {citation}",
+        "fr": f"Citation suggérée par le Catalogue de données polaires (PDC) : {citation}",
+    }
+    assert citation_limitations(None) == ""
+    assert citation_limitations("") == ""
+
+
+def test_decodes_double_escaped_characters():
+    """PDC escapes some characters twice; the parsed text must be readable."""
+    xml = """<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd"
+        xmlns:gco="http://www.isotc211.org/2005/gco">
+      <gmd:individualName><gco:CharacterString>R\u00f3&amp;#380;a&amp;#324;ska Magdalena</gco:CharacterString></gmd:individualName>
+      <gmd:abstract><gco:CharacterString>&amp;#948;13C in 200 &amp;#956;m nets, S&amp;P</gco:CharacterString></gmd:abstract>
+    </gmd:MD_Metadata>"""
+    record = PDC_ISO(xml)
+    assert record.get(".//gmd:individualName/gco:CharacterString") == (
+        "R\u00f3\u017ca\u0144ska Magdalena"
+    )
+    assert record.get(".//gmd:abstract/gco:CharacterString") == "\u03b413C in 200 \u03bcm nets, S&P"
+
 
 
 class TestParseDate:

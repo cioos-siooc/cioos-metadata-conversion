@@ -15,6 +15,7 @@ translations are handled elsewhere.
 Polar Data Catalogue: https://www.polardata.ca/
 """
 
+import html
 import re
 import uuid
 from datetime import datetime, timezone
@@ -25,6 +26,10 @@ import requests
 import yaml
 from loguru import logger
 from lxml import etree as ET
+
+from cioos_metadata_conversion.load_from.pdc_citation import (
+    align_contacts_with_citation,
+)
 
 PDC_ISO_XML_URL = "https://polardata.ca/pdcsearch/xml/iso/{ccin}_iso.xml"
 
@@ -46,8 +51,15 @@ MAP_ISO_STATUS = {
     "planned": "planned",
 }
 
+# Contact names as [given..., last]. Mapped names are taken as correct and are
+# never swapped to match the citation, so also list people whose PDC citation
+# reverses their name ("Cyril, A.", "Louis, F.").
 NAMES_MAPPING = {
     "Polar Data Catalogue": ["Polar Data Catalogue", ""],
+    "Cyril Aubry": ["Cyril", "Aubry"],
+    "Louis Fortier": ["Louis", "Fortier"],
+    # PDC writes her "Rail Marie-Emmanuelle"; ccin-797 even cites "Marie-Emmanuelle, R.".
+    "Rail Marie-Emmanuelle": ["Marie-Emmanuelle", "Rail"],
 }
 
 ROLES_MAPPING = {
@@ -97,6 +109,44 @@ def fetch_pdc_metadata(ccin: Union[str, int]) -> str:
             f"Failed to retrieve PDC record {ccin} from {url}: {e}"
         ) from e
     return response.text
+
+
+# A complete HTML character reference: "&#380;", "&#x17C;" or "&amp;".
+_ENTITY_RE = re.compile(r"&(?:#\d+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+
+
+def unescape_entities(text: str) -> str:
+    """Decode HTML character references left in PDC text.
+
+    Some PDC records escape special characters twice (``Ró&amp;#380;a&amp;#324;ska``),
+    so after XML parsing the text still reads ``Ró&#380;a&#324;ska`` instead of
+    "Różańska". Only complete references ending in ";" are decoded, so text
+    such as "S&P" is left alone.
+    """
+    return _ENTITY_RE.sub(lambda m: html.unescape(m.group(0)), text)
+
+
+def _unescape_entities(tree) -> None:
+    """Apply :func:`unescape_entities` to every element's text, in place."""
+    for el in tree.iter():
+        if isinstance(el.tag, str) and el.text and "&" in el.text:
+            el.text = unescape_entities(el.text)
+
+
+def citation_limitations(citation: Optional[str]) -> Union[dict, str]:
+    """Record ``limitations`` that keep PDC's suggested citation verbatim.
+
+    Only the first reference in PDC's citation decides who is cited, so the
+    original text, with any related publications PDC lists after it, is kept
+    here. CKAN shows it under "Limitations". The citation itself is not
+    translated; only the label is. Returns "" when PDC gives no citation.
+    """
+    if not citation:
+        return ""
+    return {
+        "en": f"Citation suggested by the Polar Data Catalogue (PDC): {citation}",
+        "fr": f"Citation suggérée par le Catalogue de données polaires (PDC) : {citation}",
+    }
 
 
 def _parse_date(date: str) -> Optional[str]:
@@ -181,6 +231,7 @@ class PDC_ISO:
             self.tree = ET.fromstring(source.encode("utf-8")).getroottree()
         else:
             self.tree = ET.parse(source)
+        _unescape_entities(self.tree)
         self.name_mapping = name_mapping
 
     def _create_contact(
@@ -249,45 +300,22 @@ class PDC_ISO:
                 )
         return places
 
-    def _get_suggested_citation_contacts(self) -> tuple[list[dict], str]:
-        """Extract the contacts from the citation."""
-        contacts = []
-        citation = self.tree.findall(
-            ".//gmd:citation/gmd:CI_Citation/gmd:otherCitationDetails/gco:CharacterString",
-            namespaces=namespaces,
-        )
-        citation = citation[0].text if citation else None
-        if not citation or citation.lower() in ("unpublished data", "unpublished"):
-            return contacts, citation
-        coauthors = re.split(r"\(|\d{4}\.", citation)
-        if not len(coauthors) > 1:
-            if "et al." in citation:
-                logger.info("No coauthors listed in citation: {}", citation)
-            else:
-                logger.warning("No coauthors found in citation: {}", citation)
-            return contacts, citation
+    def get_citation(self) -> Optional[str]:
+        """Return the PDC suggested citation (``otherCitationDetails``).
 
-        coauthors = re.sub(r"\s+\&\s+|\s+and\s+", "", coauthors[0])
-
-        potential_coauthors = []
-        coauthors_items = coauthors.split(",")
-        for index, item in enumerate(coauthors_items):
-            item = item.strip()
-            if not item:
-                continue
-            if re.match(r"\w\.", item) and potential_coauthors and index > 0:
-                # If the item is a name with initials, add it to the last contact
-                potential_coauthors[-1]["givenNames"] = item
-            else:
-                # Add as coauthor
-                potential_coauthors.append(
-                    {
-                        "lastName": item,
-                        "role": ["coauthor"],
-                        "inCitation": True,
-                    }
-                )
-        return potential_coauthors, citation
+        URL-only fragments (e.g. the keyword-library link) are dropped and
+        multiple citation blocks are joined so any name can match.
+        """
+        values = [
+            el.text.strip()
+            for el in self.tree.findall(
+                ".//gmd:otherCitationDetails/gco:CharacterString",
+                namespaces=namespaces,
+            )
+            if el.text and el.text.strip()
+        ]
+        values = [v for v in values if not re.match(r"https?://\S+$", v)]
+        return " | ".join(values) or None
 
     def _combine_contacts(self, contacts) -> list[dict]:
         """Combine matching contacts and join roles"""
@@ -332,11 +360,12 @@ class PDC_ISO:
         """Extract EOV from keywords."""
 
         def _has_keyword(keyword):
-            """Return the eovs that have the keyword."""
+            """Return the eovs that have the keyword (case-insensitive)."""
+            keyword = keyword.strip().casefold()
             return [
                 eov
                 for eov, keywords in EOV_TO_KEYWORDS.items()
-                if keywords and keyword in keywords
+                if keywords and keyword in {k.casefold() for k in keywords}
             ]
 
         keywords = self._get_keywords()
@@ -385,8 +414,6 @@ class PDC_ISO:
         if identifier is None:
             identifier = uuid.uuid4()
 
-        # Verify if contacts match the suggested citation
-        citation_contacts, citation = self._get_suggested_citation_contacts()
         responsible_parties = [
             self._create_contact(contact, in_citation=True)
             for contact in self.tree.findall(
@@ -394,17 +421,33 @@ class PDC_ISO:
                 namespaces=namespaces,
             )
         ]
-        if (
-            len(citation_contacts) > len(responsible_parties)
-            and "et al." not in citation
-        ):
-            logger.warning(
-                "file={} Citation contacts ({} contacts) do not match the responsible parties ({} contacts): citation={}",
-                self.file,
-                len(citation_contacts),
-                len(responsible_parties),
-                citation,
-            )
+        contacts = self._combine_contacts(
+            [
+                self._create_contact(
+                    self.tree.find(".//gmd:pointOfContact", namespaces=namespaces),
+                    False,
+                    ["pointOfContact"],
+                ),
+                self._create_contact(
+                    self.tree.find(".//gmd:metadataMaintenance", namespaces=namespaces),
+                    False,
+                    ["custodian"],
+                ),
+                self._create_contact(
+                    self.tree.find(".//gmd:distributor", namespaces=namespaces),
+                    False,
+                    ["distributor"],
+                ),
+                *responsible_parties,
+            ]
+        )
+        # PDC cites every citedResponsibleParty; match PDC's suggested
+        # citation (authors and their order) instead.
+        contacts = align_contacts_with_citation(
+            contacts,
+            self.get_citation(),
+            trusted_names={" ".join(n) for n in self.name_mapping.values()},
+        )
 
         return {
             "userID": userID,
@@ -413,29 +456,8 @@ class PDC_ISO:
             },
             "abstract": {"en": self.get(".//gmd:abstract/gco:CharacterString")},
             "category": "dataset",
-            "limitations": "",
-            "contacts": self._combine_contacts(
-                [
-                    self._create_contact(
-                        self.tree.find(".//gmd:pointOfContact", namespaces=namespaces),
-                        False,
-                        ["pointOfContact"],
-                    ),
-                    self._create_contact(
-                        self.tree.find(
-                            ".//gmd:metadataMaintenance", namespaces=namespaces
-                        ),
-                        False,
-                        ["custodian"],
-                    ),
-                    self._create_contact(
-                        self.tree.find(".//gmd:distributor", namespaces=namespaces),
-                        False,
-                        ["distributor"],
-                    ),
-                    *responsible_parties,
-                ]
-            ),
+            "limitations": citation_limitations(self.get_citation()),
+            "contacts": contacts,
             "created": _parse_date(self.get(".//gmd:dateStamp/gco:Date")),
             "datasetIdentifier": self._get_doi(
                 self.get(".//gmd:dataSetURI/gco:CharacterString").split("=")[-1],
