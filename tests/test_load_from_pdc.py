@@ -55,6 +55,21 @@ def _mock_doi_not_found():
 # Tests for helper functions
 
 
+def test_decodes_double_escaped_characters():
+    """PDC escapes some characters twice; the parsed text must be readable."""
+    xml = """<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd"
+        xmlns:gco="http://www.isotc211.org/2005/gco">
+      <gmd:individualName><gco:CharacterString>R\u00f3&amp;#380;a&amp;#324;ska Magdalena</gco:CharacterString></gmd:individualName>
+      <gmd:abstract><gco:CharacterString>&amp;#948;13C in 200 &amp;#956;m nets, S&amp;P</gco:CharacterString></gmd:abstract>
+    </gmd:MD_Metadata>"""
+    record = PDC_ISO(xml)
+    assert record.get(".//gmd:individualName/gco:CharacterString") == (
+        "R\u00f3\u017ca\u0144ska Magdalena"
+    )
+    assert record.get(".//gmd:abstract/gco:CharacterString") == "\u03b413C in 200 \u03bcm nets, S&P"
+
+
+
 class TestParseDate:
     def test_parse_valid_date(self):
         assert _parse_date("2024-07-18") == "2024-07-18T00:00:00Z"

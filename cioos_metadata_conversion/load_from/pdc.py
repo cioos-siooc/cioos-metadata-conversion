@@ -15,6 +15,7 @@ translations are handled elsewhere.
 Polar Data Catalogue: https://www.polardata.ca/
 """
 
+import html
 import re
 import uuid
 from datetime import datetime, timezone
@@ -108,6 +109,28 @@ def fetch_pdc_metadata(ccin: Union[str, int]) -> str:
     return response.text
 
 
+# A complete HTML character reference: "&#380;", "&#x17C;" or "&amp;".
+_ENTITY_RE = re.compile(r"&(?:#\d+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+
+
+def unescape_entities(text: str) -> str:
+    """Decode HTML character references left in PDC text.
+
+    Some PDC records escape special characters twice (``Ró&amp;#380;a&amp;#324;ska``),
+    so after XML parsing the text still reads ``Ró&#380;a&#324;ska`` instead of
+    "Różańska". Only complete references ending in ";" are decoded, so text
+    such as "S&P" is left alone.
+    """
+    return _ENTITY_RE.sub(lambda m: html.unescape(m.group(0)), text)
+
+
+def _unescape_entities(tree) -> None:
+    """Apply :func:`unescape_entities` to every element's text, in place."""
+    for el in tree.iter():
+        if isinstance(el.tag, str) and el.text and "&" in el.text:
+            el.text = unescape_entities(el.text)
+
+
 def _parse_date(date: str) -> Optional[str]:
     """Parse a date."""
     if not date or date == "Undefined":
@@ -190,6 +213,7 @@ class PDC_ISO:
             self.tree = ET.fromstring(source.encode("utf-8")).getroottree()
         else:
             self.tree = ET.parse(source)
+        _unescape_entities(self.tree)
         self.name_mapping = name_mapping
 
     def _create_contact(
