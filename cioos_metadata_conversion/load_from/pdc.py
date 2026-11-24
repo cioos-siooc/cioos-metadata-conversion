@@ -133,6 +133,22 @@ def _unescape_entities(tree) -> None:
             el.text = unescape_entities(el.text)
 
 
+def citation_limitations(citation: Optional[str]) -> Union[dict, str]:
+    """Record ``limitations`` that keep PDC's suggested citation verbatim.
+
+    Only the first reference in PDC's citation decides who is cited, so the
+    original text, with any related publications PDC lists after it, is kept
+    here. CKAN shows it under "Limitations". The citation itself is not
+    translated; only the label is. Returns "" when PDC gives no citation.
+    """
+    if not citation:
+        return ""
+    return {
+        "en": f"Citation suggested by the Polar Data Catalogue (PDC): {citation}",
+        "fr": f"Citation suggérée par le Catalogue de données polaires (PDC) : {citation}",
+    }
+
+
 def _parse_date(date: str) -> Optional[str]:
     """Parse a date."""
     if not date or date == "Undefined":
@@ -439,7 +455,7 @@ class PDC_ISO:
             },
             "abstract": {"en": self.get(".//gmd:abstract/gco:CharacterString")},
             "category": "dataset",
-            "limitations": "",
+            "limitations": citation_limitations(self.get_citation()),
             "contacts": contacts,
             "created": _parse_date(self.get(".//gmd:dateStamp/gco:Date")),
             "datasetIdentifier": self._get_doi(

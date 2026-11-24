@@ -18,6 +18,7 @@ from cioos_metadata_conversion.load_from.pdc import (
     _apply_role_mapping,
     _contact_name,
     _parse_date,
+    citation_limitations,
     fetch_pdc_metadata,
     retrieve_pdc_as_firebase_record,
 )
@@ -53,6 +54,19 @@ def _mock_doi_not_found():
 
 
 # Tests for helper functions
+
+
+def test_citation_limitations_keep_the_whole_pdc_citation():
+    citation = (
+        "Riedel (2006) Thèse de doctorat, UQAR\n"
+        "Riedel et al. (2006) Seasonal study of sea-ice EPS. AME 45:195-206"
+    )
+    assert citation_limitations(citation) == {
+        "en": f"Citation suggested by the Polar Data Catalogue (PDC): {citation}",
+        "fr": f"Citation suggérée par le Catalogue de données polaires (PDC) : {citation}",
+    }
+    assert citation_limitations(None) == ""
+    assert citation_limitations("") == ""
 
 
 def test_decodes_double_escaped_characters():
