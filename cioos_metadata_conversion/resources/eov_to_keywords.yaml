@@ -1,6 +1,6 @@
-# PDC theme keywords mapped to the CIOOS form's EOVs (metadata-entry-form
-# src/data/eovs.json); keys must be EOV values the form knows. Keywords match
-# case-insensitively.
+# PDC theme keywords mapped to CIOOS EOVs. Keys must be EOV codes from
+# cioos-commons eovs/eov.json (the CIOOS EOV list, aligned with GOOS).
+# Keywords match case-insensitively.
 oceanSurfaceStress:
   - "Air-water exchange"
   - "Water-air gas exchange"
@@ -34,6 +34,7 @@ oceanSurfaceHeatFlux:
   - "Photosynthetically available radiation (PAR)"
   - "Radiation"
 oceanBottomPressure:
+turbulentDiapycnalFluxes:
 oxygen:
   - "Oxygen"
 nutrients:
@@ -90,12 +91,13 @@ hardCoralCoverAndComposition:
   - "Corals"
 seagrassCoverAndComposition:
 macroalgalCanopyCoverAndComposition:
+mangroveCoverAndComposition:
 microbeBiomassAndDiversity:
   - "Bacteria"
   - "Bacterial production"
   - "Protists"
   - "Microbial food webs"
-# Benthic invertebrates: GOOS "Benthic invertebrate abundance and distribution".
+# Labelled "Benthic invertebrate abundance and distribution" in cioos-commons.
 invertebrateAbundanceAndDistribution:
   - "Invertebrates"
   - "Benthos"

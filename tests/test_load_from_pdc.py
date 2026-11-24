@@ -57,8 +57,8 @@ def _mock_doi_not_found():
 # Tests for helper functions
 
 
-# EOV values the CIOOS metadata form knows (metadata-entry-form src/data/eovs.json).
-FORM_EOVS = {
+# CIOOS EOV codes (cioos-commons eovs/eov.json, aligned with GOOS).
+CIOOS_EOVS = {
     "oxygen", "nutrients", "inorganicCarbon", "dissolvedOrganicCarbon",
     "seaSurfaceHeight", "seaIce", "seaState", "seaSurfaceSalinity",
     "seaSurfaceTemperature", "subSurfaceSalinity", "subSurfaceTemperature",
@@ -70,14 +70,15 @@ FORM_EOVS = {
     "seaTurtlesAbundanceAndDistribution", "seabirdsAbundanceAndDistribution",
     "marineMammalsAbundanceAndDistribution", "hardCoralCoverAndComposition",
     "seagrassCoverAndComposition", "macroalgalCanopyCoverAndComposition",
-    "invertebrateAbundanceAndDistribution", "microbeBiomassAndDiversity",
-    "oceanColour", "oceanSound", "marineDebris", "oceanSurfaceHeatFlux",
-    "oceanSurfaceStress", "oceanBottomPressure",
+    "mangroveCoverAndComposition", "invertebrateAbundanceAndDistribution",
+    "microbeBiomassAndDiversity", "oceanColour", "oceanSound", "marineDebris",
+    "oceanSurfaceHeatFlux", "oceanSurfaceStress", "oceanBottomPressure",
+    "turbulentDiapycnalFluxes",
 }
 
 
-def test_eov_mapping_only_uses_form_eovs():
-    assert set(EOV_TO_KEYWORDS) <= FORM_EOVS
+def test_eov_mapping_only_uses_cioos_eovs():
+    assert set(EOV_TO_KEYWORDS) <= CIOOS_EOVS
 
 
 def _record_with_keywords(*keywords):
