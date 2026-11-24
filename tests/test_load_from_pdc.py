@@ -13,6 +13,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from cioos_metadata_conversion.load_from.pdc import (
+    EOV_TO_KEYWORDS,
     PDC_ISO,
     PDCRetrievalError,
     _apply_role_mapping,
@@ -54,6 +55,56 @@ def _mock_doi_not_found():
 
 
 # Tests for helper functions
+
+
+# EOV values the CIOOS metadata form knows (metadata-entry-form src/data/eovs.json).
+FORM_EOVS = {
+    "oxygen", "nutrients", "inorganicCarbon", "dissolvedOrganicCarbon",
+    "seaSurfaceHeight", "seaIce", "seaState", "seaSurfaceSalinity",
+    "seaSurfaceTemperature", "subSurfaceSalinity", "subSurfaceTemperature",
+    "surfaceCurrents", "subSurfaceCurrents", "other", "transientTracers",
+    "particulateMatter", "nitrousOxide", "stableCarbonIsotopes",
+    "phytoplanktonBiomassAndDiversity", "zooplanktonBiomassAndDiversity",
+    "fishAbundanceAndDistribution",
+    "marineTurtlesBirdsMammalsAbundanceAndDistribution",
+    "seaTurtlesAbundanceAndDistribution", "seabirdsAbundanceAndDistribution",
+    "marineMammalsAbundanceAndDistribution", "hardCoralCoverAndComposition",
+    "seagrassCoverAndComposition", "macroalgalCanopyCoverAndComposition",
+    "invertebrateAbundanceAndDistribution", "microbeBiomassAndDiversity",
+    "oceanColour", "oceanSound", "marineDebris", "oceanSurfaceHeatFlux",
+    "oceanSurfaceStress", "oceanBottomPressure",
+}
+
+
+def test_eov_mapping_only_uses_form_eovs():
+    assert set(EOV_TO_KEYWORDS) <= FORM_EOVS
+
+
+def _record_with_keywords(*keywords):
+    items = "".join(
+        f"<gmd:keyword><gco:CharacterString>{k}</gco:CharacterString></gmd:keyword>"
+        for k in keywords
+    )
+    return PDC_ISO(
+        f"""<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd"
+            xmlns:gco="http://www.isotc211.org/2005/gco">
+          <gmd:descriptiveKeywords><gmd:MD_Keywords>{items}
+            <gmd:type><gmd:MD_KeywordTypeCode>theme</gmd:MD_KeywordTypeCode></gmd:type>
+          </gmd:MD_Keywords></gmd:descriptiveKeywords>
+        </gmd:MD_Metadata>"""
+    )
+
+
+def test_benthic_keywords_map_to_invertebrates():
+    for keyword in ("Benthos", "Megazoobenthos", "Sponges", "zoobenthos"):
+        assert _record_with_keywords(keyword)._get_eov_from_keywords() == [
+            "invertebrateAbundanceAndDistribution"
+        ], keyword
+    assert sorted(_record_with_keywords("Nitrates", "Bacteria")._get_eov_from_keywords()) == [
+        "microbeBiomassAndDiversity",
+        "nutrients",
+    ]
+    assert _record_with_keywords("Bathymetry")._get_eov_from_keywords() == ["other"]
 
 
 def test_citation_limitations_keep_the_whole_pdc_citation():

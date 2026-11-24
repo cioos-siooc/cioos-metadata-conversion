@@ -360,11 +360,12 @@ class PDC_ISO:
         """Extract EOV from keywords."""
 
         def _has_keyword(keyword):
-            """Return the eovs that have the keyword."""
+            """Return the eovs that have the keyword (case-insensitive)."""
+            keyword = keyword.strip().casefold()
             return [
                 eov
                 for eov, keywords in EOV_TO_KEYWORDS.items()
-                if keywords and keyword in keywords
+                if keywords and keyword in {k.casefold() for k in keywords}
             ]
 
         keywords = self._get_keywords()

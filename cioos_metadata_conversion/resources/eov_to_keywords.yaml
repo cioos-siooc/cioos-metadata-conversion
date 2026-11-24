@@ -1,9 +1,10 @@
+# PDC theme keywords mapped to the CIOOS form's EOVs (metadata-entry-form
+# src/data/eovs.json); keys must be EOV values the form knows. Keywords match
+# case-insensitively.
 oceanSurfaceStress:
   - "Air-water exchange"
   - "Water-air gas exchange"
-airWaterExchange:
-  - "Air-water exchange"
-  - "Water-air gas exchange"
+  - "Air gas exchange"
 seaIce:
   - "Ice"
   - "Iceberg"
@@ -18,6 +19,7 @@ seaSurfaceTemperature:
 subSurfaceTemperature:
   - "Temperature"
   - "CTD profiles"
+  - "CTD (Conductivity, Temperature, Depth)"
 surfaceCurrents:
 subSurfaceCurrents:
   - "Ocean currents"
@@ -25,22 +27,25 @@ seaSurfaceSalinity:
 subSurfaceSalinity:
   - "Salinity"
   - "CTD profiles"
+  - "CTD (Conductivity, Temperature, Depth)"
   - "Conductivity"
 oceanSurfaceHeatFlux:
   - "Solar radiation"
   - "Photosynthetically available radiation (PAR)"
   - "Radiation"
 oceanBottomPressure:
-turbulentDiapycnalFluxes:
 oxygen:
   - "Oxygen"
 nutrients:
   - "Nitrogen"
   - "Nutrients"
+  - "Nitrates"
+  - "Silica"
+  - "Nutrient cycling"
 inorganicCarbon:
-  - "Particulate organic carbon"
   - "Carbon fluxes"
   - "Carbon dioxide"
+  - "Dissolved inorganic carbon (DIC)"
 transientTracers:
   - "Contaminants"
   - "Bromine oxide"
@@ -51,7 +56,9 @@ transientTracers:
   - "PCBs"
   - "Bioaccumulation"
   - "Perfluoro contaminants"
+  - "Perfluoro contaminant"
 particulateMatter:
+  - "Particulate organic carbon"
   - "Transmittance"
   - "Sediment fluxes"
   - "Sediments"
@@ -65,29 +72,41 @@ phytoplanktonBiomassAndDiversity:
   - "Chlorophyll"
   - "Phytoplankton"
   - "Ice algae"
+  - "Diatoms"
+  - "Algae"
+  - "Algal bloom"
 zooplanktonBiomassAndDiversity:
   - "Zooplankton"
-  - "Megazoobenthos"
 fishAbundanceAndDistribution:
   - "Fishes"
-  - "Arctic Cod"
   - "Arctic cod"
   - "Fish larvae"
 marineTurtlesBirdsMammalsAbundanceAndDistribution:
   - "Seals"
+  - "Ringed seal"
   - "Marine mammals"
+  - "Marine birds"
 hardCoralCoverAndComposition:
   - "Corals"
 seagrassCoverAndComposition:
 macroalgalCanopyCoverAndComposition:
-mangroveCoverAndComposition:
 microbeBiomassAndDiversity:
-  - "Bateria"
+  - "Bacteria"
+  - "Bacterial production"
+  - "Protists"
+  - "Microbial food webs"
+# Benthic invertebrates: GOOS "Benthic invertebrate abundance and distribution".
 invertebrateAbundanceAndDistribution:
   - "Invertebrates"
+  - "Benthos"
+  - "Zoobenthos"
+  - "Megazoobenthos"
+  - "Sponges"
+  - "Bivalves"
 oceanColour:
   - "Fluorescence"
   - "Chlorophyll"
 oceanSound:
 marineDebris:
   - "Plastics"
+  - "Microplastics"
